@@ -83,7 +83,7 @@ export function CartItemRow({ item, onQuantityChange, onRemove, busy }: CartItem
           size="sm"
         />
         <div className="flex items-center gap-3">
-          <EthPrice value={item.lineTotalEth} className="text-sm font-semibold text-primary" />
+          <EthPrice value={item.lineTotalEth} className="text-sm font-semibold text-text-accent" />
           <Button
             variant="ghost"
             size="icon-sm"

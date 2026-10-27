@@ -114,7 +114,10 @@ export function NftDetail({ nft, favoriteSlot, renderActions, updateNotice }: Nf
             </div>
             <div className="text-right">
               <p className="text-xs text-muted-foreground">Total</p>
-              <EthPrice value={lineTotal ?? '0'} className="text-2xl font-semibold text-primary" />
+              <EthPrice
+                value={lineTotal ?? '0'}
+                className="text-2xl font-semibold text-text-accent"
+              />
             </div>
           </div>
 

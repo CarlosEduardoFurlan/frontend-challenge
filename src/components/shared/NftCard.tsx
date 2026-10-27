@@ -78,7 +78,7 @@ export function NftCard({
         </h3>
         <p className="truncate text-xs text-muted-foreground">{collection}</p>
         <div className="mt-1 flex items-center justify-between gap-2 text-sm">
-          <EthPrice value={priceEth} className="font-semibold text-primary" />
+          <EthPrice value={priceEth} className="font-semibold text-text-accent" />
           <span className="text-xs text-muted-foreground" data-testid="nft-card-available">
             {soldOut ? 'Indisponível' : `${available} disp.`}
           </span>

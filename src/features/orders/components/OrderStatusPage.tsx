@@ -237,7 +237,7 @@ export function OrderReceipt({ order }: { order: Order }) {
           <div className="flex items-baseline justify-between border-t border-border pt-2">
             <dt className="font-semibold">Total</dt>
             <dd data-testid="order-total">
-              <EthPrice value={order.totalEth} className="text-xl font-semibold text-primary" />
+              <EthPrice value={order.totalEth} className="text-xl font-semibold text-text-accent" />
             </dd>
           </div>
         </dl>

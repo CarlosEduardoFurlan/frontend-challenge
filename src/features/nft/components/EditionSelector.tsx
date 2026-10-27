@@ -42,7 +42,10 @@ export function EditionSelector({ editions, value, onChange }: EditionSelectorPr
                     : `${edition.available} de ${edition.total} disponíveis · até ${edition.maxPerOrder} por pedido`}
                 </span>
               </span>
-              <EthPrice value={edition.priceEth} className="text-sm font-semibold text-primary" />
+              <EthPrice
+                value={edition.priceEth}
+                className="text-sm font-semibold text-text-accent"
+              />
             </Label>
           )
         })}

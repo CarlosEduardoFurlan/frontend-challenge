@@ -64,7 +64,7 @@ export function QuoteSummary({ quote, loading, refreshing }: QuoteSummaryProps) 
       <div className="flex items-baseline justify-between border-t border-border pt-3">
         <dt className="font-semibold">Total</dt>
         <dd data-testid="quote-total">
-          <EthPrice value={quote.totalEth} className="text-xl font-semibold text-primary" />
+          <EthPrice value={quote.totalEth} className="text-xl font-semibold text-text-accent" />
         </dd>
       </div>
     </dl>
