@@ -30,7 +30,7 @@ Alert.displayName = 'Alert'
 
 const AlertTitle = forwardRef<HTMLParagraphElement, HTMLAttributes<HTMLHeadingElement>>(
   ({ className, ...props }, ref) => (
-    <p ref={ref} className={cn('col-start-2 font-semibold', className)} {...props} />
+    <p ref={ref} className={cn('col-start-2 font-bold', className)} {...props} />
   ),
 )
 AlertTitle.displayName = 'AlertTitle'

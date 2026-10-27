@@ -2,14 +2,12 @@ import { forwardRef, type HTMLAttributes } from 'react'
 
 import { cn } from '@/lib/utils'
 
+/** Figma surface: color/surface-card, 8px radius, no border or shadow. */
 const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn(
-        'rounded-xl border border-border bg-card text-card-foreground shadow-card',
-        className,
-      )}
+      className={cn('rounded-lg bg-card text-card-foreground', className)}
       {...props}
     />
   ),
@@ -25,7 +23,7 @@ CardHeader.displayName = 'CardHeader'
 
 const CardTitle = forwardRef<HTMLHeadingElement, HTMLAttributes<HTMLHeadingElement>>(
   ({ className, ...props }, ref) => (
-    <h3 ref={ref} className={cn('text-base leading-tight font-semibold', className)} {...props} />
+    <h3 ref={ref} className={cn('text-lg leading-tight font-bold', className)} {...props} />
   ),
 )
 CardTitle.displayName = 'CardTitle'
