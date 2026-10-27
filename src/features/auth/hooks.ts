@@ -5,6 +5,7 @@ import { useCallback } from 'react'
 import { toast } from '@/hooks/use-toast'
 import { queryKeys } from '@/lib/query-keys'
 import { authApi } from '@/services/api/auth'
+import { toApiError } from '@/services/api/errors'
 import type { LoginRequest, RegisterRequest, Session } from '@/types/api'
 
 import { rotateGuestCartId } from '../cart/guest-cart-id'
@@ -50,6 +51,8 @@ export function useLogin() {
   const applySession = useApplySession()
   return useMutation({
     mutationFn: (body: LoginRequest) => authApi.login(body),
+    // Login is safe to repeat: one retry absorbs transient connection failures.
+    retry: (failureCount, error) => failureCount < 1 && toApiError(error).isNetworkError,
     onSuccess: applySession,
   })
 }

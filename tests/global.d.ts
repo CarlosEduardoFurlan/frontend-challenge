@@ -21,6 +21,7 @@ interface MockControlApiForTests {
   ): { eventId: string; version: number } | null
   dropSockets(): number
   socketCount(): number
+  socketUsers(): Array<string | null>
 }
 
 interface Window {

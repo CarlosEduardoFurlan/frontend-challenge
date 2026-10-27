@@ -116,6 +116,11 @@ export function getConnectedSocketCount(): number {
   return connections.size
 }
 
+/** User ids bound to the open connections (null for guests). Used by tests and the panel. */
+export function getConnectedUsers(): Array<string | null> {
+  return [...connections.values()].map((c) => c.userId)
+}
+
 /** Simulates a network interruption: every client is closed and must reconnect. */
 export function dropAllSockets(): number {
   const count = connections.size

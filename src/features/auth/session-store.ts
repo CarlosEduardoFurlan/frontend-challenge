@@ -42,7 +42,19 @@ function notify() {
 }
 
 const RECENT_EXPIRY_MS = 5 * 60_000
-let expiredAt: number | null = null
+const EXPIRY_KEY = 'nftm.session.expiredAt'
+
+function readExpiredAt(): number | null {
+  try {
+    const raw = sessionStorage.getItem(EXPIRY_KEY)
+    return raw ? Number(raw) : null
+  } catch {
+    return null
+  }
+}
+
+// Kept in sessionStorage so a full reload right after the expiry still explains it on login.
+let expiredAt: number | null = readExpiredAt()
 
 export const sessionStore = {
   get(): StoredSession | null {
@@ -51,6 +63,11 @@ export const sessionStore = {
   /** Records that the server rejected the session, so the login page can explain why. */
   markExpired(): void {
     expiredAt = Date.now()
+    try {
+      sessionStorage.setItem(EXPIRY_KEY, String(expiredAt))
+    } catch {
+      // ignore
+    }
   },
   wasRecentlyExpired(): boolean {
     return expiredAt !== null && Date.now() - expiredAt < RECENT_EXPIRY_MS
