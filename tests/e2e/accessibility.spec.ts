@@ -65,7 +65,9 @@ test.describe('accessibility: keyboard, focus and forms', () => {
     await page.keyboard.press('Enter')
     await expect(page.locator('#main-content')).toBeFocused()
 
-    await page.getByTestId('catalog-search').focus()
+    await page.getByTestId('header-search-toggle').focus()
+    await page.keyboard.press('Enter')
+    await expect(page.getByTestId('catalog-search')).toBeFocused()
     await page.keyboard.type('Aurora')
     await page.keyboard.press('Enter')
     await expect(page).toHaveURL(/q=Aurora/)

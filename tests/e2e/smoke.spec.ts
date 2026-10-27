@@ -4,7 +4,8 @@ test.describe('application bootstrap', () => {
   test('renders the home page with data served by MSW', async ({ app, page }) => {
     await app.goto('/')
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-    await expect(page.getByTestId('featured-grid').getByTestId('nft-card').first()).toBeVisible()
+    await expect(page.getByTestId('catalog-grid').getByTestId('nft-card').first()).toBeVisible()
+    await expect(page.getByTestId('featured-banner').getByTestId('featured-link')).toBeVisible()
   })
 
   test('shows the not-found page for unknown routes', async ({ app, page }) => {

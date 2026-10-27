@@ -4,10 +4,12 @@ test.describe('NFT detail: direct access, gallery, editions and limits', () => {
   test('direct access renders the NFT and the gallery switches images', async ({ app, page }) => {
     await app.goto('/nft/nft-005')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(/Jardim Latente/i)
-    const main = page.getByTestId('nft-gallery').locator('img').first()
-    await expect(main).toHaveAttribute('src', /nft-005-1\.webp/)
+    // The Figma gallery shows the same artwork in every slot, so the switch is asserted
+    // through the accessible name of the main image and the selected thumbnail.
+    const main = page.getByTestId('nft-gallery').locator('img[alt*="imagem 1 de 3"]')
+    await expect(main).toHaveAttribute('src', /ape-golden\.webp/)
     await page.getByRole('tab', { name: 'Imagem 2' }).click()
-    await expect(main).toHaveAttribute('src', /nft-005-2\.webp/)
+    await expect(page.getByTestId('nft-gallery').locator('img[alt*="imagem 2 de 3"]')).toBeVisible()
     await expect(page.getByRole('tab', { name: 'Imagem 2' })).toHaveAttribute(
       'aria-selected',
       'true',
