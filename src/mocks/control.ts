@@ -4,6 +4,7 @@ import { replayNftEvent, updateEditionAvailability, updateEditionPrice } from '.
 import { getCurrentScenarioId, setScenario } from './lib/scenario-state'
 import { replayOrderEvent, settlePendingOrders } from './lib/order-store'
 import { getDb, persist, resetDb } from './persistence/db'
+import { dropAllSockets, getConnectedSocketCount } from './realtime/server'
 import { listScenarios } from './scenarios'
 
 /**
@@ -25,8 +26,15 @@ export interface MockControlApi {
   updateAvailability(nftId: string, editionId: string, available: number): NftUpdatedEvent | null
   replayNftEvent(
     nftId: string,
-    overrides?: { eventId?: string; version?: number },
+    overrides?: {
+      eventId?: string
+      version?: number
+      payload?: Partial<NftUpdatedEvent['payload']>
+    },
   ): NftUpdatedEvent | null
+  /** Closes every Socket.IO connection (simulated network interruption). */
+  dropSockets(): number
+  socketCount(): number
 }
 
 declare global {
@@ -57,5 +65,7 @@ export function installMockControl(): void {
     updatePrice: updateEditionPrice,
     updateAvailability: updateEditionAvailability,
     replayNftEvent,
+    dropSockets: dropAllSockets,
+    socketCount: getConnectedSocketCount,
   }
 }

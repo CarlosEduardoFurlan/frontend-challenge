@@ -75,6 +75,15 @@ export function MockPanel() {
       }),
   })
 
+  const dropSockets = useMutation({
+    mutationFn: () => mockControlApi.dropSockets(),
+    onSuccess: (data) =>
+      toast({
+        title: 'Conexões encerradas',
+        description: `${data.dropped} socket(s) fechados; o cliente reconecta sozinho.`,
+      }),
+  })
+
   const soldOutEvent = useMutation({
     mutationFn: () => mockControlApi.updateAvailability('nft-002', 'nft-002-std', 0),
     onSuccess: () =>
@@ -156,6 +165,14 @@ export function MockPanel() {
             loading={settleOrders.isPending}
           >
             order.updated: liquidar pedidos pendentes agora
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => dropSockets.mutate()}
+            loading={dropSockets.isPending}
+          >
+            Interromper conexão Socket.IO
           </Button>
           <p className="text-xs text-muted-foreground">
             Sockets conectados: {status.data?.connectedSockets ?? '–'}

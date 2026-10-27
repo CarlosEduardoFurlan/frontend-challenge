@@ -10,7 +10,7 @@ import { getDb, resetDb } from '../persistence/db'
 import { expireSessions } from '../control'
 import { settlePendingOrders } from '../lib/order-store'
 import { listScenarios } from '../scenarios'
-import { getConnectedSocketCount } from '../realtime/server'
+import { dropAllSockets, getConnectedSocketCount } from '../realtime/server'
 
 /**
  * Mock control endpoints. They are not part of the product API: they exist so the demo build,
@@ -59,6 +59,11 @@ export const controlHandlers = [
   http.post(
     `${env.apiUrl}/__mock/session/expire`,
     withScenario(() => json({ expired: expireSessions() }), { bypass: true }),
+  ),
+
+  http.post(
+    `${env.apiUrl}/__mock/sockets/drop`,
+    withScenario(() => json({ dropped: dropAllSockets() }), { bypass: true }),
   ),
 
   http.post(

@@ -13,6 +13,9 @@ export const mockControlApi = {
   async reset(): Promise<MockStatus> {
     return (await apiClient.post<MockStatus>('/__mock/reset')).data
   },
+  async dropSockets(): Promise<{ dropped: number }> {
+    return (await apiClient.post<{ dropped: number }>('/__mock/sockets/drop')).data
+  },
   async settleOrders(outcome?: 'confirmed' | 'rejected'): Promise<{ settled: number }> {
     return (await apiClient.post<{ settled: number }>('/__mock/orders/settle', { outcome })).data
   },

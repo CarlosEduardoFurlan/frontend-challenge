@@ -6,6 +6,7 @@ import { nftHandlers } from './nfts'
 import { orderHandlers } from './orders'
 import { profileHandlers } from './profile'
 import { walletsHandlers } from './wallets'
+import { realtimeHandlers } from '../realtime/server'
 
 export const handlers = [
   ...controlHandlers,
@@ -16,4 +17,5 @@ export const handlers = [
   ...walletsHandlers,
   ...cartHandlers,
   ...orderHandlers,
+  ...realtimeHandlers,
 ]
