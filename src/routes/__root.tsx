@@ -6,6 +6,8 @@ import { LiveAnnouncer } from '@/components/shared/LiveAnnouncer'
 import { Toaster } from '@/components/ui/toaster'
 import { SessionWatcher } from '@/features/auth/components/SessionWatcher'
 import { useLogout, useSession } from '@/features/auth/hooks'
+import { CartSessionBridge } from '@/features/cart/components/CartSessionBridge'
+import { useCart } from '@/features/cart/hooks'
 import { MockPanel } from '@/features/mock-panel/MockPanel'
 
 export const Route = createRootRoute({
@@ -16,6 +18,7 @@ export const Route = createRootRoute({
 function RootLayout() {
   const session = useSession()
   const logout = useLogout()
+  const cart = useCart()
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -28,7 +31,7 @@ function RootLayout() {
       <AppHeader
         user={session.user}
         sessionLoading={session.isLoading}
-        cartCount={0}
+        cartCount={cart.itemCount}
         onLogout={() => logout.mutate()}
       />
       <main id="main-content" className="flex-1" tabIndex={-1}>
@@ -38,6 +41,7 @@ function RootLayout() {
       <Toaster />
       <LiveAnnouncer />
       <SessionWatcher />
+      <CartSessionBridge />
       <MockPanel />
     </div>
   )

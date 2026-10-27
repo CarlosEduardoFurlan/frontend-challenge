@@ -11,6 +11,9 @@ import { readString, STORAGE_KEYS, writeString } from '../persistence/storage'
  */
 let currentId: string = env.defaultScenario || DEFAULT_SCENARIO_ID
 const failureCounters = new Map<string, number>()
+
+/** One-shot flags consumed by scenario side effects (reset when the scenario changes). */
+export const scenarioFlags = { quoteMutationApplied: false }
 const listeners = new Set<(id: string) => void>()
 
 export function initScenarioFromLocation(): { reset: boolean } {
@@ -48,6 +51,7 @@ export function setScenario(id: string): ScenarioConfig {
   const scenario = getScenario(id)
   currentId = scenario.id
   failureCounters.clear()
+  scenarioFlags.quoteMutationApplied = false
   writeString(STORAGE_KEYS.scenario, scenario.id)
   listeners.forEach((l) => l(scenario.id))
   return scenario

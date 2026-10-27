@@ -197,6 +197,8 @@ export interface Cart {
   items: CartItem[]
   itemCount: number
   subtotalEth: DecimalString
+  /** Coupon stored on the cart; validated again by every quote. */
+  couponCode: string | null
   updatedAt: string
   version: number
 }

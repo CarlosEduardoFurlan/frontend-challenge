@@ -41,6 +41,14 @@ for (const route of targets) {
       await form.getByRole('button', { name: 'Entrar' }).click()
       await page.getByTestId('header-user-menu').waitFor()
     }
+    if (process.env.SHOT_CART) {
+      // Put two editions in the cart so cart/checkout screens have content.
+      for (const id of ['nft-001', 'nft-005']) {
+        await page.goto(`${baseUrl}/nft/${id}`)
+        await page.getByTestId('add-to-cart').click()
+        await page.getByTestId('toast').first().waitFor()
+      }
+    }
     await page.goto(`${baseUrl}${route}`, { waitUntil: 'networkidle' })
     await page.waitForTimeout(500)
     const overflow = await page.evaluate(

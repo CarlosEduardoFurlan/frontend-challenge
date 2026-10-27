@@ -14,6 +14,8 @@ export interface AppFixture {
   reset(): Promise<void>
   /** Logs in through the real UI and waits for the session to be established. */
   login(email?: string, password?: string): Promise<void>
+  /** Logs out through the header menu and waits for the session to be gone. */
+  logout(): Promise<void>
   page: Page
 }
 
@@ -51,7 +53,13 @@ export const test = base.extend<{ app: AppFixture }>({
         await form.getByLabel('E-mail').fill(email)
         await form.getByLabel('Senha', { exact: true }).fill(password)
         await form.getByRole('button', { name: 'Entrar' }).click()
+        await expect(form).toBeHidden()
         await expect(page.getByTestId('header-user-menu')).toBeVisible()
+      },
+      async logout() {
+        await page.getByTestId('header-user-menu').click()
+        await page.getByTestId('logout').click()
+        await expect(page.getByTestId('header-user-menu')).toHaveCount(0)
       },
     }
     await use(app)

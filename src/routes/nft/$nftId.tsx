@@ -4,6 +4,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { Button } from '@/components/ui/button'
+import { AddToCartActions } from '@/features/cart/components/AddToCartActions'
 import { nftDetailQuery } from '@/features/catalog/queries'
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton'
 import { NftDetail } from '@/features/nft/components/NftDetail'
@@ -59,6 +60,7 @@ function NftDetailPage() {
         favoriteSlot={
           <FavoriteButton nftId={detail.data.id} name={detail.data.name} variant="inline" />
         }
+        renderActions={(selection) => <AddToCartActions nftId={detail.data.id} {...selection} />}
       />
       <RelatedNfts nft={detail.data} />
     </>

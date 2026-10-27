@@ -61,16 +61,14 @@ console.log('toasts:', await page.getByTestId('toast').allTextContents())
 // avatar
 await page.goto('http://localhost:4173/account/profile')
 const prof = page.getByTestId('profile-form')
-await prof
-  .getByTestId('avatar-input')
-  .setInputFiles({
-    name: 'a.png',
-    mimeType: 'image/png',
-    buffer: Buffer.from(
-      'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVQIW2P8z8DwnwEIGBkYGP4DAAt1A/+sIpa8AAAAAElFTkSuQmCC',
-      'base64',
-    ),
-  })
+await prof.getByTestId('avatar-input').setInputFiles({
+  name: 'a.png',
+  mimeType: 'image/png',
+  buffer: Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVQIW2P8z8DwnwEIGBkYGP4DAAt1A/+sIpa8AAAAAElFTkSuQmCC',
+    'base64',
+  ),
+})
 await page.waitForTimeout(1000)
 console.log(
   'avatar preview count:',

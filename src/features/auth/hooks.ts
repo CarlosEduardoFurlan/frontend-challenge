@@ -63,8 +63,9 @@ export function useRegister() {
 }
 
 /**
- * Logout: best-effort server call, then wipe local session, private cache entries and the guest
- * identity, so nothing from the previous user leaks into the next session on this browser.
+ * Logout is optimistic: the local session, private cache entries and the guest identity are
+ * wiped immediately, so nothing from the previous user can leak even if the network is slow.
+ * The server call then invalidates the token best-effort.
  */
 export function useLogout() {
   const queryClient = useQueryClient()
@@ -72,22 +73,22 @@ export function useLogout() {
 
   return useMutation({
     mutationFn: async () => {
-      try {
-        await authApi.logout()
-      } catch {
-        // The local session is cleared regardless of the server answer.
-      }
-    },
-    onSettled: () => {
-      const userId = sessionStore.getUserId()
+      const session = sessionStore.get()
       sessionStore.clear()
       queryClient.setQueryData(queryKeys.session, null)
       queryClient.removeQueries({ queryKey: ['private'] })
       queryClient.removeQueries({ queryKey: ['cart'] })
       rotateGuestCartId()
-      sessionEvents.emit({ type: 'logout', userId })
+      sessionEvents.emit({ type: 'logout', userId: session?.userId ?? null })
       toast({ title: 'Você saiu da conta.', variant: 'info' })
       void navigate({ to: '/' })
+      if (session?.token) {
+        try {
+          await authApi.logout(session.token)
+        } catch {
+          // Local state is already clean; a failed revocation only affects the mock session list.
+        }
+      }
     },
   })
 }
