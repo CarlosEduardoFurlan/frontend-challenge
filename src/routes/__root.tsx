@@ -26,7 +26,7 @@ function RootLayout() {
     <div className="flex min-h-dvh flex-col">
       <a
         href="#main-content"
-        className="sr-only-focusable fixed top-2 left-2 z-50 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
+        className="sr-only-focusable fixed top-2 left-2 z-50 rounded-md bg-primary px-3 py-2 text-sm font-bold text-primary-foreground"
       >
         Pular para o conteúdo
       </a>

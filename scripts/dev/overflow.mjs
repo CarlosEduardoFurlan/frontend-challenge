@@ -43,12 +43,16 @@ for (const route of routes.length ? routes : ['/']) {
         const tag = el.tagName.toLowerCase()
         const id = el.getAttribute('data-testid') || el.id || ''
         const cls = (el.getAttribute('class') || '').slice(0, 80)
-        out.push(`${tag}${id ? `[${id}]` : ''} right=${Math.round(rect.right)} left=${Math.round(rect.left)} :: ${cls}`)
+        out.push(
+          `${tag}${id ? `[${id}]` : ''} right=${Math.round(rect.right)} left=${Math.round(rect.left)} :: ${cls}`,
+        )
       }
     }
     return { limit, scroll: document.documentElement.scrollWidth, out: out.slice(0, 25) }
   })
-  console.log(`\n${route} @${width}: clientWidth=${offenders.limit} scrollWidth=${offenders.scroll}`)
+  console.log(
+    `\n${route} @${width}: clientWidth=${offenders.limit} scrollWidth=${offenders.scroll}`,
+  )
   offenders.out.forEach((line) => console.log('  ' + line))
 }
 await browser.close()

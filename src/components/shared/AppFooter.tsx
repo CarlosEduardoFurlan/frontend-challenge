@@ -102,7 +102,9 @@ export function AppFooter() {
                   <span className="inline-flex size-[74px] items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">
                     {feature.letter}
                   </span>
-                  <h3 className="text-[17px] leading-4 font-bold lg:whitespace-nowrap">{feature.title}</h3>
+                  <h3 className="text-[17px] leading-4 font-bold lg:whitespace-nowrap">
+                    {feature.title}
+                  </h3>
                   <p className="max-w-[204px] text-sm leading-[22px] text-muted-foreground">
                     {feature.description}
                   </p>
