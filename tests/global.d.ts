@@ -7,6 +7,8 @@ interface MockControlApiForTests {
   setScenario(id: string): string
   reset(): Promise<void>
   expireSessions(): number
+  settlePendingOrders(outcome?: 'confirmed' | 'rejected'): number
+  replayOrderEvent(orderId: string, overrides?: { eventId?: string; version?: number }): unknown
   updatePrice(nftId: string, editionId: string, priceEth: string): unknown
   updateAvailability(nftId: string, editionId: string, available: number): unknown
   replayNftEvent(nftId: string, overrides?: { eventId?: string; version?: number }): unknown
