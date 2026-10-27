@@ -1,7 +1,6 @@
 import { Minus, Plus } from 'lucide-react'
 import { useId } from 'react'
 
-import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 interface QuantityStepperProps {
@@ -15,7 +14,10 @@ interface QuantityStepperProps {
   size?: 'sm' | 'default'
 }
 
-/** Integer quantity control. The input is a real number field for keyboard and screen readers. */
+/**
+ * Figma quantity control (detail and cart frames): round primary "−" / "+" buttons with the
+ * number in bold between them. The input is a real number field for keyboard and screen readers.
+ */
 export function QuantityStepper({
   value,
   min = 1,
@@ -28,19 +30,23 @@ export function QuantityStepper({
 }: QuantityStepperProps) {
   const id = useId()
   const clamp = (next: number) => Math.min(max, Math.max(min, Math.trunc(next)))
+  const buttonClass = cn(
+    'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground outline-none hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-40',
+    size === 'sm' ? 'size-5 [&_svg]:size-3' : 'size-8 [&_svg]:size-4',
+  )
 
   return (
-    <div className={cn('inline-flex items-center gap-1', className)}>
-      <Button
-        variant="outline"
-        size={size === 'sm' ? 'icon-sm' : 'icon'}
+    <div className={cn('inline-flex items-center', size === 'sm' ? 'gap-1.5' : 'gap-2', className)}>
+      <button
+        type="button"
+        className={buttonClass}
         onClick={() => onChange(clamp(value - 1))}
         disabled={disabled || value <= min}
         aria-label={`Diminuir ${label}`}
         data-testid="qty-decrement"
       >
-        <Minus aria-hidden="true" />
-      </Button>
+        <Minus aria-hidden="true" strokeWidth={3} />
+      </button>
       <label htmlFor={id} className="sr-only">
         {label}
       </label>
@@ -58,21 +64,21 @@ export function QuantityStepper({
           if (!Number.isNaN(parsed)) onChange(clamp(parsed))
         }}
         className={cn(
-          'w-12 rounded-md border border-input bg-card text-center text-sm tabular-nums outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:opacity-50',
-          size === 'sm' ? 'h-8' : 'h-10',
+          '[appearance:textfield] rounded-sm bg-transparent text-center font-bold text-foreground tabular-nums outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:opacity-50 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+          size === 'sm' ? 'h-6 w-7 text-base' : 'h-8 w-9 text-lg',
         )}
         data-testid="qty-input"
       />
-      <Button
-        variant="outline"
-        size={size === 'sm' ? 'icon-sm' : 'icon'}
+      <button
+        type="button"
+        className={buttonClass}
         onClick={() => onChange(clamp(value + 1))}
         disabled={disabled || value >= max}
         aria-label={`Aumentar ${label}`}
         data-testid="qty-increment"
       >
-        <Plus aria-hidden="true" />
-      </Button>
+        <Plus aria-hidden="true" strokeWidth={3} />
+      </button>
     </div>
   )
 }

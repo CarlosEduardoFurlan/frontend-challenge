@@ -23,7 +23,7 @@ export function EmptyState({ title, description, icon, action, className }: Empt
       <span className="text-muted-foreground [&>svg]:size-8" aria-hidden="true">
         {icon ?? <SearchX />}
       </span>
-      <h3 className="text-base font-semibold">{title}</h3>
+      <h3 className="text-base font-bold">{title}</h3>
       {description ? <p className="max-w-md text-sm text-muted-foreground">{description}</p> : null}
       {action ? <div className="mt-2">{action}</div> : null}
     </div>

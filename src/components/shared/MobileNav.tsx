@@ -1,10 +1,7 @@
 import { Link } from '@tanstack/react-router'
-import { LogOut, Search } from 'lucide-react'
-import { useState, type FormEvent } from 'react'
+import { LogOut } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Sheet,
   SheetContent,
@@ -13,22 +10,23 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 
-import type { HeaderUser } from './AppHeader'
+import type { HeaderUser, NAV_LINKS } from './AppHeader'
+import { Logo } from './Logo'
 
 interface MobileNavProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   user: HeaderUser | null
-  links: ReadonlyArray<{ to: '/' | '/favorites' | '/cart'; label: string }>
+  links: typeof NAV_LINKS
   onNavigate: () => void
-  onSearch: (query: string) => void
   onLogout: () => void
 }
 
 const accountLinks = [
-  { to: '/account/profile', label: 'Perfil' },
+  { to: '/account/profile', label: 'Dados do perfil' },
   { to: '/account/wallets', label: 'Carteiras' },
-  { to: '/account/orders', label: 'Pedidos' },
+  { to: '/account/orders', label: 'Atividade' },
+  { to: '/favorites', label: 'Lista de interesse' },
 ] as const
 
 /**
@@ -41,66 +39,51 @@ export default function MobileNav({
   user,
   links,
   onNavigate,
-  onSearch,
   onLogout,
 }: MobileNavProps) {
-  const [query, setQuery] = useState('')
-
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    onSearch(query)
-  }
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="flex flex-col">
+      <SheetContent side="right" className="flex flex-col bg-card">
         <SheetHeader>
-          <SheetTitle>Menu</SheetTitle>
+          <SheetTitle>
+            <Logo />
+          </SheetTitle>
           <SheetDescription className="sr-only">Navegação principal</SheetDescription>
         </SheetHeader>
-        <form role="search" onSubmit={submit} className="flex flex-col gap-2">
-          <Label htmlFor="mobile-search">Buscar NFTs</Label>
-          <div className="flex gap-2">
-            <Input
-              id="mobile-search"
-              type="search"
-              placeholder="Nome ou coleção"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-            />
-            <Button type="submit" size="icon" aria-label="Buscar">
-              <Search aria-hidden="true" />
-            </Button>
-          </div>
-        </form>
         <nav aria-label="Principal (mobile)">
-          <ul className="flex flex-col gap-1">
+          <ul className="flex flex-col">
             {links.map((link) => (
-              <li key={link.to}>
+              <li key={link.key}>
                 <Link
                   to={link.to}
+                  hash={link.hash}
                   onClick={onNavigate}
-                  className="block rounded-md px-3 py-2 text-base font-medium hover:bg-accent data-[status=active]:text-primary"
+                  className="block py-3 text-base leading-4 font-medium text-foreground hover:text-text-accent"
                 >
                   {link.label}
                 </Link>
               </li>
             ))}
-            {user
-              ? accountLinks.map((link) => (
-                  <li key={link.to}>
-                    <Link
-                      to={link.to}
-                      onClick={onNavigate}
-                      className="block rounded-md px-3 py-2 text-base font-medium hover:bg-accent"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))
-              : null}
           </ul>
         </nav>
+        {user ? (
+          <nav aria-label="Conta" className="hairline border-t border-t-primary/40 pt-3">
+            <p className="pb-2 text-lg font-bold">Meu perfil</p>
+            <ul className="flex flex-col">
+              {accountLinks.map((link) => (
+                <li key={link.to}>
+                  <Link
+                    to={link.to}
+                    onClick={onNavigate}
+                    className="block py-2.5 text-[15px] text-text-accent hover:text-foreground"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ) : null}
         <div className="mt-auto">
           {user ? (
             <Button variant="outline" className="w-full" onClick={onLogout}>
@@ -109,6 +92,7 @@ export default function MobileNav({
           ) : (
             <Button asChild className="w-full">
               <Link to="/login" onClick={onNavigate}>
+                <img src="/assets/icons/login.svg" alt="" width={18} height={17} />
                 Entrar
               </Link>
             </Button>
