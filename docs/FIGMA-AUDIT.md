@@ -151,9 +151,17 @@ do design foi implementado de ponta a ponta (`network` na URL, no handler MSW e 
 ## 6. Verificação
 
 - `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm run build`: ok.
-- `npm run test:e2e` (chromium-desktop + chromium-mobile): ver seção "Testes" no README.
-- `npm run test:a11y`: ok (axe, sem violações sérias/críticas nas 8 telas).
+- `npm run test:e2e` (chromium-desktop + chromium-mobile): 144/144 na execução final.
+- `npm run test:a11y`: 22/22 (axe, sem violações sérias/críticas nas 8 telas). Duas violações
+  surgiram durante a correção e foram resolvidas: `definition-list` (legenda "Taxa estimada"
+  dentro do `<dl>`) e `link-in-text-block` (links sem sublinhado em parágrafos).
+- Login intermitente: `scripts/dev/login-stress.mjs` (30 logins, 8 contextos simultâneos) sem
+  falhas, mediana 1,4 s; `auth.spec.ts` + `profile-wallets.spec.ts` repetidos 3× nos dois
+  projetos: 90/90. O único caso registrado antes desta etapa foi um erro de rede transitório sob
+  carga total, absorvido pela tentativa única de `useLogin`; não foi reproduzido hoje, portanto
+  **não é considerado resolvido**, apenas não observado em 4 execuções completas + estresse.
 - Overflow horizontal: `scripts/dev/overflow.mjs` em 390 px — nenhum elemento fora da viewport em
   `/`, `/nft/nft-001`, `/cart`, `/checkout`, `/account/wallets`, `/account/profile`.
-- Baselines visuais regeneradas **após** a comparação com as referências (seção 4).
+- `npm run test:visual:update` executado **após** a comparação com as referências (seção 4);
+  `npm run test:visual` em seguida: 10/10.
 - Lighthouse: ver `lighthouse/README.md`.
