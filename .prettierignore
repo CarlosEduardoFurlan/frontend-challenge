@@ -6,4 +6,3 @@ playwright-report
 test-results
 lighthouse/reports
 package-lock.json
-README.md
