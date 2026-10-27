@@ -1,5 +1,10 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
 
+import { AppFooter } from '@/components/shared/AppFooter'
+import { AppHeader } from '@/components/shared/AppHeader'
+import { LiveAnnouncer } from '@/components/shared/LiveAnnouncer'
+import { Toaster } from '@/components/ui/toaster'
+
 export const Route = createRootRoute({
   component: RootLayout,
   notFoundComponent: NotFound,
@@ -14,9 +19,13 @@ function RootLayout() {
       >
         Pular para o conteúdo
       </a>
-      <main id="main-content" className="flex-1">
+      <AppHeader user={null} cartCount={0} onLogout={() => undefined} />
+      <main id="main-content" className="flex-1" tabIndex={-1}>
         <Outlet />
       </main>
+      <AppFooter />
+      <Toaster />
+      <LiveAnnouncer />
     </div>
   )
 }
@@ -24,7 +33,7 @@ function RootLayout() {
 function NotFound() {
   return (
     <section className="container-page py-24 text-center">
-      <h1 className="font-display text-3xl">Página não encontrada</h1>
+      <h1 className="font-display text-2xl uppercase sm:text-3xl">Página não encontrada</h1>
       <p className="mt-4 text-muted-foreground">O endereço acessado não existe.</p>
       <Link to="/" className="mt-6 inline-block text-primary underline">
         Voltar ao início

@@ -39,4 +39,9 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // shadcn/ui primitives and small stores export helpers next to components by design.
+    files: ['src/components/**/*.tsx', 'src/routes/**/*.tsx'],
+    rules: { 'react-refresh/only-export-components': 'off' },
+  },
 )
