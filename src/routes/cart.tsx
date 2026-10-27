@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { PlaceholderPage } from '@/components/shared/PlaceholderPage'
+import { CartPage } from '@/features/cart/components/CartPage'
 
 export const Route = createFileRoute('/cart')({
-  component: () => <PlaceholderPage title="Carrinho" />,
+  component: CartPage,
 })
