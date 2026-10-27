@@ -149,7 +149,7 @@ corresponder ao commit da branch `main` após o merge do PR final.
 - **Fontes**: Roboto Mono (400/500/700), única família do arquivo, local em `public/fonts`
   (subconjunto Latin). Artes e ícones originais em `public/assets/`.
 - **Socket.IO sobre MSW**: ver limitações do binding e contornos em `ARCHITECTURE.md`.
-- **Lighthouse mobile** no modo simulado fica em 86/83 (meta 90); no modo devtools, 99/96.
+- **Lighthouse mobile** no modo simulado fica em 84/81 (meta 90); no modo devtools, 94/93.
   Causas documentadas em `lighthouse/README.md`.
 - **Regressão visual** com baselines versionadas apenas para Windows/Chromium; o CI renderiza em
   Linux e guarda as baselines como artefato.
