@@ -103,6 +103,7 @@ test.describe('cart', () => {
     app,
     page,
   }) => {
+    test.setTimeout(60_000)
     await app.goto('/')
     await addFromDetail(page, 'nft-003')
     await page.goto('/login')

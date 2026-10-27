@@ -4,7 +4,7 @@ import { replayNftEvent, updateEditionAvailability, updateEditionPrice } from '.
 import { getCurrentScenarioId, setScenario } from './lib/scenario-state'
 import { replayOrderEvent, settlePendingOrders } from './lib/order-store'
 import { getDb, persist, resetDb } from './persistence/db'
-import { dropAllSockets, getConnectedSocketCount } from './realtime/server'
+import { dropAllSockets, getConnectedSocketCount, getConnectedUsers } from './realtime/server'
 import { listScenarios } from './scenarios'
 
 /**
@@ -35,6 +35,7 @@ export interface MockControlApi {
   /** Closes every Socket.IO connection (simulated network interruption). */
   dropSockets(): number
   socketCount(): number
+  socketUsers(): Array<string | null>
 }
 
 declare global {
@@ -67,5 +68,6 @@ export function installMockControl(): void {
     replayNftEvent,
     dropSockets: dropAllSockets,
     socketCount: getConnectedSocketCount,
+    socketUsers: getConnectedUsers,
   }
 }

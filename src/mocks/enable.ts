@@ -1,5 +1,7 @@
 import { env } from '@/lib/env'
 
+import { initScenarioFromLocation } from './lib/scenario-state'
+
 /**
  * Starts the MSW worker when mocks are enabled. The service worker is registered from
  * `public/mockServiceWorker.js`, which is also shipped in the demo build.
@@ -9,22 +11,17 @@ import { env } from '@/lib/env'
  */
 export async function enableMocking(): Promise<void> {
   if (!env.mocksEnabled) return
-
-  const [
-    { worker },
-    { initScenarioFromLocation },
-    { loadDb, resetDb },
-    { installMockControl },
-    { resumePendingOrders },
-  ] = await Promise.all([
-    import('./browser'),
-    import('./lib/scenario-state'),
-    import('./persistence/db'),
-    import('./control'),
-    import('./lib/order-store'),
-  ])
-
+  // Resolve scenario/reset params synchronously (before any await) so the router never sees them.
   const { reset } = initScenarioFromLocation()
+
+  const [{ worker }, { loadDb, resetDb }, { installMockControl }, { resumePendingOrders }] =
+    await Promise.all([
+      import('./browser'),
+      import('./persistence/db'),
+      import('./control'),
+      import('./lib/order-store'),
+    ])
+
   if (reset) await resetDb()
   else await loadDb()
 

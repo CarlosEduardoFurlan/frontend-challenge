@@ -1,8 +1,10 @@
-import { z } from 'zod'
-
 /**
  * URL state of the catalog. Every filter, the sort order and the page live in the search
  * params so refresh, direct access and browser history restore the exact same view.
+ *
+ * Parsing is hand-written (no Zod) on purpose: route search validation runs in the initial
+ * bundle of every page, and Zod alone would add ~60 KB (gzip) before the first paint.
+ * Forms and the mock API keep using Zod in lazily loaded chunks.
  */
 export const NFT_CATEGORIES = [
   'arte',
@@ -36,32 +38,59 @@ export const SORT_LABELS: Record<SortOption, string> = {
 
 export const DEFAULT_PAGE_SIZE = 9
 
-const categoryList = z
-  .union([z.array(z.enum(NFT_CATEGORIES)), z.enum(NFT_CATEGORIES)])
-  .transform((value) => (Array.isArray(value) ? value : [value]))
-  .optional()
-  .catch(undefined)
+export interface CatalogSearch {
+  q?: string
+  category?: NftCategory[]
+  minPrice?: string
+  maxPrice?: string
+  available?: boolean
+  sort?: SortOption
+  page?: number
+}
 
-const priceString = z
-  .string()
-  .regex(/^\d+(\.\d+)?$/)
-  .optional()
-  .catch(undefined)
+const PRICE_PATTERN = /^\d+(\.\d+)?$/
 
-export const catalogSearchSchema = z.object({
-  q: z.string().trim().min(1).optional().catch(undefined),
-  category: categoryList,
-  minPrice: priceString,
-  maxPrice: priceString,
-  available: z
-    .preprocess((value) => value === true || value === 'true', z.boolean())
-    .optional()
-    .catch(undefined),
-  sort: z.enum(SORT_OPTIONS).optional().catch(undefined),
-  page: z.coerce.number().int().min(1).optional().catch(undefined),
-})
+function isCategory(value: unknown): value is NftCategory {
+  return typeof value === 'string' && (NFT_CATEGORIES as readonly string[]).includes(value)
+}
 
-export type CatalogSearch = z.infer<typeof catalogSearchSchema>
+function parseCategories(value: unknown): NftCategory[] | undefined {
+  const list = Array.isArray(value) ? value : value === undefined ? [] : [value]
+  const categories = list.filter(isCategory)
+  return categories.length ? [...new Set(categories)] : undefined
+}
+
+function parsePrice(value: unknown): string | undefined {
+  return typeof value === 'string' && PRICE_PATTERN.test(value) ? value : undefined
+}
+
+function parsePage(value: unknown): number | undefined {
+  const page = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN
+  return Number.isInteger(page) && page >= 1 ? page : undefined
+}
+
+/** Tolerant parser: invalid values are dropped instead of failing the navigation. */
+export function parseCatalogSearch(input: unknown): CatalogSearch {
+  const raw = (input && typeof input === 'object' ? input : {}) as Record<string, unknown>
+  const q = typeof raw.q === 'string' ? raw.q.trim() : ''
+  const sort =
+    typeof raw.sort === 'string' && (SORT_OPTIONS as readonly string[]).includes(raw.sort)
+      ? (raw.sort as SortOption)
+      : undefined
+  const result: CatalogSearch = {}
+  if (q) result.q = q
+  const category = parseCategories(raw.category)
+  if (category) result.category = category
+  const minPrice = parsePrice(raw.minPrice)
+  if (minPrice) result.minPrice = minPrice
+  const maxPrice = parsePrice(raw.maxPrice)
+  if (maxPrice) result.maxPrice = maxPrice
+  if (raw.available === true || raw.available === 'true') result.available = true
+  if (sort) result.sort = sort
+  const page = parsePage(raw.page)
+  if (page) result.page = page
+  return result
+}
 
 /** Normalised values used for the API request and for rendering controls. */
 export function resolveCatalogSearch(search: CatalogSearch) {

@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { DecimalString } from '@/lib/money'
+import type { DecimalString } from '@/lib/money-format'
 import { cn } from '@/lib/utils'
 
 import { EthPrice } from './EthPrice'
@@ -95,10 +95,11 @@ export function NftCardSkeleton({ className }: { className?: string }) {
       data-testid="nft-card-skeleton"
     >
       <Skeleton className="aspect-square w-full rounded-lg" />
-      <div className="flex flex-col gap-2">
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-3 w-1/2" />
-        <div className="mt-1 flex items-center justify-between">
+      {/* Line heights mirror the real card (text-sm / text-xs / text-sm rows) to avoid shifts. */}
+      <div className="flex flex-col gap-1">
+        <Skeleton className="h-5 w-3/4" />
+        <Skeleton className="h-4 w-1/2" />
+        <div className="mt-1 flex h-5 items-center justify-between">
           <Skeleton className="h-4 w-20" />
           <Skeleton className="h-3 w-12" />
         </div>

@@ -4,11 +4,11 @@ import { useEffect } from 'react'
 import { announce } from '@/components/shared/LiveAnnouncer'
 import { toast } from '@/hooks/use-toast'
 import { createSocket, type AppSocket } from '@/services/realtime/socket'
-import type { NftUpdatedEvent, OrderUpdatedEvent } from '@/types/api'
+import { queryKeys } from '@/lib/query-keys'
+import type { NftUpdatedEvent, Order, OrderUpdatedEvent } from '@/types/api'
 
 import { sessionEvents } from '../auth/session-events'
 import { sessionStore } from '../auth/session-store'
-import { applyNftUpdated, applyOrderUpdated } from './apply-events'
 import { RealtimeGuard } from './guard'
 import { resetRealtimeStatus, setRealtimeStatus } from './status-store'
 
@@ -30,6 +30,8 @@ export function RealtimeProvider() {
     let socket: AppSocket | null = null
     let guard = new RealtimeGuard()
     let everConnected = false
+    // Stock changes caused by the user's own confirmed order are not worth a notification.
+    let muteNftToastsUntil = 0
 
     let generation = 0
 
@@ -49,6 +51,8 @@ export function RealtimeProvider() {
       socket = next
 
       next.on('connect', () => {
+        // Warm the reconciliation module so the first event is applied without an extra delay.
+        void import('./apply-events')
         const reconnected = everConnected
         everConnected = true
         setRealtimeStatus({ state: 'connected', connections: next.io.engine ? 1 : 1 })
@@ -69,11 +73,13 @@ export function RealtimeProvider() {
         setRealtimeStatus({ state: 'connecting' })
       })
 
-      next.on('nft.updated', (event: NftUpdatedEvent) => {
+      next.on('nft.updated', async (event: NftUpdatedEvent) => {
         if (!guard.accept(event)) return
         setRealtimeStatus({ lastEventAt: event.emittedAt })
+        // Cache reconciliation (decimal.js) is loaded on first use, not in the initial bundle.
+        const { applyNftUpdated } = await import('./apply-events')
         const change = applyNftUpdated(queryClient, event)
-        if (change.inCart || change.viewingDetail) {
+        if ((change.inCart || change.viewingDetail) && Date.now() > muteNftToastsUntil) {
           const label = change.name ?? 'Um NFT'
           const message = change.soldOut
             ? `${label} ficou esgotado.`
@@ -89,14 +95,21 @@ export function RealtimeProvider() {
         }
       })
 
-      next.on('order.updated', (event: OrderUpdatedEvent) => {
+      next.on('order.updated', async (event: OrderUpdatedEvent) => {
         // Defensive: the server scopes delivery, but the handler also checks the session owner.
         if (!userId || sessionStore.getUserId() !== userId) return
         if (!guard.accept(event)) return
         setRealtimeStatus({ lastEventAt: event.emittedAt })
-        const { previousStatus, status } = applyOrderUpdated(queryClient, userId, event)
+        // Snapshot the status before the (lazy) reconciliation module loads: the polling
+        // fallback may update the cache meanwhile and the transition would be missed.
+        const previousStatus =
+          queryClient.getQueryData<Order>(queryKeys.orders.detail(userId, event.resourceId))
+            ?.status ?? null
+        const { applyOrderUpdated } = await import('./apply-events')
+        const { status } = applyOrderUpdated(queryClient, userId, event)
         if (previousStatus !== status && status !== 'pending') {
           const confirmed = status === 'confirmed'
+          if (confirmed) muteNftToastsUntil = Date.now() + 3000
           toast({
             title: confirmed ? 'Pagamento confirmado' : 'Pagamento recusado',
             description: confirmed

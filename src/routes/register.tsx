@@ -1,17 +1,13 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { z } from 'zod'
 
+import { parseAuthSearch } from '@/features/auth/auth-search'
 import { AuthLayout } from '@/features/auth/components/AuthLayout'
 import { RegisterForm } from '@/features/auth/components/RegisterForm'
 import { sanitizeRedirect } from '@/features/auth/require-auth'
 import { toast } from '@/hooks/use-toast'
 
-const registerSearchSchema = z.object({
-  redirect: z.string().optional().catch(undefined),
-})
-
 export const Route = createFileRoute('/register')({
-  validateSearch: registerSearchSchema,
+  validateSearch: parseAuthSearch,
   component: RegisterPage,
 })
 

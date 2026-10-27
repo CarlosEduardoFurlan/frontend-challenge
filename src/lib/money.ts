@@ -1,12 +1,16 @@
 import Decimal from 'decimal.js'
 
+import type { DecimalString } from './money-format'
+
+export { formatEth, isValidDecimalString, type DecimalString } from './money-format'
+
 /**
- * Monetary helpers. ETH amounts travel as decimal strings end-to-end; arithmetic goes
- * through decimal.js so 0.1 + 0.2 never becomes 0.30000000000000004.
+ * Monetary arithmetic. ETH amounts travel as decimal strings end-to-end; every operation goes
+ * through decimal.js so 0.1 + 0.2 never becomes 0.30000000000000004. Only modules that compute
+ * (mocks, cart, checkout, realtime reconciliation) import this file; display-only components
+ * import `money-format` and stay out of the decimal.js chunk.
  */
 Decimal.set({ precision: 30, rounding: Decimal.ROUND_HALF_UP })
-
-export type DecimalString = string
 
 const ETH_SCALE = 6
 
@@ -44,21 +48,4 @@ export function compareEth(a: DecimalString | number, b: DecimalString | number)
 
 export function isZeroEth(value: DecimalString | number): boolean {
   return new Decimal(value).isZero()
-}
-
-/** Formats for display, e.g. "0,125 ETH". Trailing zeros are trimmed, at most 6 decimals. */
-export function formatEth(value: DecimalString | number, options?: { withUnit?: boolean }): string {
-  const withUnit = options?.withUnit ?? true
-  const decimal = new Decimal(value)
-  const fixed = decimal.toFixed(ETH_SCALE)
-  const [intPart = '0', fracPart = ''] = fixed.split('.')
-  const trimmedFrac = fracPart.replace(/0+$/, '')
-  const intFormatted = new Intl.NumberFormat('pt-BR').format(Number(intPart))
-  const number = trimmedFrac ? `${intFormatted},${trimmedFrac}` : intFormatted
-  return withUnit ? `${number} ETH` : number
-}
-
-export function isValidDecimalString(value: unknown): value is DecimalString {
-  if (typeof value !== 'string') return false
-  return /^\d+(\.\d+)?$/.test(value)
 }
