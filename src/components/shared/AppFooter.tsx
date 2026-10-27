@@ -127,7 +127,7 @@ export function AppFooter() {
         </div>
 
         <div className="mt-10 flex flex-col gap-2 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} NFT Market. Demonstração técnica com dados simulados.</p>
+          <p>© {new Date().getFullYear()} KURIO. Demonstração técnica com dados simulados.</p>
           <nav aria-label="Links do rodapé" className="flex gap-4">
             <Link to="/" className="hover:text-foreground">
               Início
