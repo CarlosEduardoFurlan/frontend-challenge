@@ -116,7 +116,9 @@ export function AppFooter() {
                     <span aria-disabled="true" title="Página fora do escopo da demonstração">
                       {label}
                     </span>
-                    <span className="ml-1 text-[10px] uppercase opacity-70">em breve</span>
+                    <span className="ml-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+                      em breve
+                    </span>
                   </li>
                 ))}
               </ul>

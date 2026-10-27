@@ -1,5 +1,4 @@
 import { EthPrice } from '@/components/shared/EthPrice'
-import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { NETWORKS } from '@/mocks/fixtures/networks'
 import type { Quote } from '@/types/api'
@@ -15,7 +14,7 @@ interface QuoteSummaryProps {
 export function QuoteSummary({ quote, loading, refreshing }: QuoteSummaryProps) {
   if (loading || !quote) {
     return (
-      <dl
+      <div
         className="flex flex-col gap-3"
         aria-busy="true"
         aria-label="Calculando valores"
@@ -27,12 +26,11 @@ export function QuoteSummary({ quote, loading, refreshing }: QuoteSummaryProps) 
             <Skeleton className="h-4 w-16" />
           </div>
         ))}
-        <Separator />
-        <div className="flex justify-between">
+        <div className="flex justify-between border-t border-border pt-3">
           <Skeleton className="h-6 w-16" />
           <Skeleton className="h-6 w-24" />
         </div>
-      </dl>
+      </div>
     )
   }
 
@@ -63,8 +61,7 @@ export function QuoteSummary({ quote, loading, refreshing }: QuoteSummaryProps) 
           <EthPrice value={quote.networkFeeEth} />
         </dd>
       </div>
-      <Separator />
-      <div className="flex items-baseline justify-between">
+      <div className="flex items-baseline justify-between border-t border-border pt-3">
         <dt className="font-semibold">Total</dt>
         <dd data-testid="quote-total">
           <EthPrice value={quote.totalEth} className="text-xl font-semibold text-primary" />
