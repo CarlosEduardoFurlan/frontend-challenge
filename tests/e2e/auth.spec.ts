@@ -104,9 +104,7 @@ test.describe('account and session', () => {
   }) => {
     await app.goto('/login')
     await app.login()
-    await page.getByTestId('header-user-menu').click()
-    await page.getByTestId('logout').click()
-    await expect(page.getByTestId('header-user-menu')).toHaveCount(0)
+    await app.logout()
     await expect(page).toHaveURL(/\/$/)
 
     await page.goto('/favorites')
@@ -119,9 +117,7 @@ test.describe('account and session', () => {
     await page.goto('/favorites')
     await expect(page.getByTestId('favorites-grid').getByTestId('nft-card')).toHaveCount(2)
 
-    await page.getByTestId('header-user-menu').click()
-    await page.getByTestId('logout').click()
-    await expect(page.getByTestId('header-user-menu')).toHaveCount(0)
+    await app.logout()
 
     await page.goto('/login')
     await app.login(DEMO.bruno.email, DEMO.bruno.password)

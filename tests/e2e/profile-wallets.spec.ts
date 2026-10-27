@@ -101,8 +101,7 @@ test.describe('collector profile', () => {
     await form.getByRole('button', { name: 'Alterar senha' }).click()
     await expect(page.getByTestId('toast')).toContainText('Senha alterada')
 
-    await page.getByTestId('header-user-menu').click()
-    await page.getByTestId('logout').click()
+    await app.logout()
     await page.goto('/login')
     await app.login(DEMO.ana.email, 'NovaSenha1')
   })
