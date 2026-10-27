@@ -5,6 +5,7 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { Button } from '@/components/ui/button'
 import { nftDetailQuery } from '@/features/catalog/queries'
+import { FavoriteButton } from '@/features/favorites/components/FavoriteButton'
 import { NftDetail } from '@/features/nft/components/NftDetail'
 import { NftDetailSkeleton } from '@/features/nft/components/NftDetailSkeleton'
 import { RelatedNfts } from '@/features/nft/components/RelatedNfts'
@@ -53,7 +54,12 @@ function NftDetailPage() {
 
   return (
     <>
-      <NftDetail nft={detail.data} />
+      <NftDetail
+        nft={detail.data}
+        favoriteSlot={
+          <FavoriteButton nftId={detail.data.id} name={detail.data.name} variant="inline" />
+        }
+      />
       <RelatedNfts nft={detail.data} />
     </>
   )
