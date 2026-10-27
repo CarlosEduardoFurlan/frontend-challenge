@@ -174,18 +174,36 @@ export function consumeStock(nftId: string, editionId: string, quantity: number)
   return publishNftUpdated(nft, 'availability')
 }
 
-/** Re-emits the current state of an NFT (used by the mock panel / tests to replay events). */
+/**
+ * Re-emits an nft.updated event for tests/demos. `overrides` can forge an old version or a stale
+ * payload to verify that the client ignores duplicated and out-of-order events.
+ */
 export function replayNftEvent(
   nftId: string,
-  overrides?: Partial<Pick<NftUpdatedEvent, 'eventId' | 'version'>>,
+  overrides?: Partial<Pick<NftUpdatedEvent, 'eventId' | 'version'>> & {
+    payload?: Partial<NftUpdatedEvent['payload']>
+  },
 ) {
   const nft = findNft(nftId)
   if (!nft) return null
-  const event = publishNftUpdated(nft, 'both')
-  if (overrides) {
-    const replayed = { ...event, ...overrides }
-    mockEventBus.emit('nft.updated', replayed)
-    return replayed
+  const event: NftUpdatedEvent = {
+    eventId: overrides?.eventId ?? nextEventId(),
+    type: 'nft.updated',
+    resourceId: nft.id,
+    version: overrides?.version ?? nft.version,
+    emittedAt: new Date().toISOString(),
+    payload: {
+      priceEth: nft.priceEth,
+      available: nft.available,
+      editions: nft.editions.map((e) => ({
+        id: e.id,
+        priceEth: e.priceEth,
+        available: e.available,
+      })),
+      reason: 'both',
+      ...overrides?.payload,
+    },
   }
+  mockEventBus.emit('nft.updated', event)
   return event
 }

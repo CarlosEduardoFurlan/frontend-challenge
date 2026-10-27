@@ -9,6 +9,8 @@ import { useLogout, useSession } from '@/features/auth/hooks'
 import { CartSessionBridge } from '@/features/cart/components/CartSessionBridge'
 import { useCart } from '@/features/cart/hooks'
 import { MockPanel } from '@/features/mock-panel/MockPanel'
+import { RealtimeStatus } from '@/features/realtime/components/RealtimeStatus'
+import { RealtimeProvider } from '@/features/realtime/RealtimeProvider'
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -34,6 +36,7 @@ function RootLayout() {
         cartCount={cart.itemCount}
         onLogout={() => logout.mutate()}
       />
+      <RealtimeStatus className="border-b border-border bg-card py-1 text-muted-foreground data-[state=connected]:hidden" />
       <main id="main-content" className="flex-1" tabIndex={-1}>
         <Outlet />
       </main>
@@ -42,6 +45,7 @@ function RootLayout() {
       <LiveAnnouncer />
       <SessionWatcher />
       <CartSessionBridge />
+      <RealtimeProvider />
       <MockPanel />
     </div>
   )

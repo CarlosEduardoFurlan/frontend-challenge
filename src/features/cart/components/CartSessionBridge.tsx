@@ -19,10 +19,14 @@ export function CartSessionBridge() {
     return sessionEvents.on((event) => {
       if (event.type !== 'login') return
       const guestCartId = getGuestCartId()
+      const userKey = queryKeys.cart(`user:${event.userId}`)
       void cartApi
         .merge(guestCartId)
-        .then((cart) => {
-          queryClient.setQueryData(queryKeys.cart(`user:${event.userId}`), cart)
+        .then(async (cart) => {
+          // A GET /cart started right after login may still be in flight with the pre-merge
+          // (empty) cart: cancel it so it cannot overwrite the merged result.
+          await queryClient.cancelQueries({ queryKey: userKey })
+          queryClient.setQueryData(userKey, cart)
           queryClient.removeQueries({ queryKey: queryKeys.cart(`guest:${guestCartId}`) })
           if (cart.itemCount > 0) {
             toast({

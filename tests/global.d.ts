@@ -11,7 +11,16 @@ interface MockControlApiForTests {
   replayOrderEvent(orderId: string, overrides?: { eventId?: string; version?: number }): unknown
   updatePrice(nftId: string, editionId: string, priceEth: string): unknown
   updateAvailability(nftId: string, editionId: string, available: number): unknown
-  replayNftEvent(nftId: string, overrides?: { eventId?: string; version?: number }): unknown
+  replayNftEvent(
+    nftId: string,
+    overrides?: {
+      eventId?: string
+      version?: number
+      payload?: { priceEth?: string; available?: number }
+    },
+  ): { eventId: string; version: number } | null
+  dropSockets(): number
+  socketCount(): number
 }
 
 interface Window {
