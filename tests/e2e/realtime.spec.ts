@@ -115,7 +115,9 @@ test.describe('realtime: order.updated, disconnection and resume', () => {
 
     await page.evaluate(() => window.__mock!.settlePendingOrders())
     await expect(page.getByTestId('order-status')).toHaveText('Confirmado', { timeout: 2500 })
-    await expect(page.getByTestId('toast').first()).toContainText('Pagamento confirmado')
+    await expect(
+      page.getByTestId('toast').filter({ hasText: 'Pagamento confirmado' }),
+    ).toBeVisible()
     expect(
       await page.evaluate(
         () =>

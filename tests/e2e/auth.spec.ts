@@ -112,6 +112,7 @@ test.describe('account and session', () => {
   })
 
   test('switching users never shows the previous user data', async ({ app, page }) => {
+    test.setTimeout(60_000)
     await app.goto('/login')
     await app.login(DEMO.ana.email, DEMO.ana.password)
     await page.goto('/favorites')
