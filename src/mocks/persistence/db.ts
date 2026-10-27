@@ -42,6 +42,7 @@ export interface CartRecord {
   /** `user:<id>` or `guest:<id>` */
   ownerKey: string
   items: CartItemRecord[]
+  couponCode: string | null
   updatedAt: string
   version: number
 }
@@ -88,7 +89,7 @@ export interface MockDb {
   eventSeq: number
 }
 
-const SCHEMA_VERSION = 3
+const SCHEMA_VERSION = 4
 
 let db: MockDb | null = null
 
