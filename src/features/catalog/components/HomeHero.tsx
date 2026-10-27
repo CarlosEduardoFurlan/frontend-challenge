@@ -27,8 +27,7 @@ export function HomeHero() {
                 id="hero-title"
                 className="text-[28px] leading-[44px] font-bold uppercase sm:text-[36px] sm:leading-[56px] lg:text-[43px] lg:leading-[70px]"
               >
-                Seja dono do futuro
-                <br className="hidden lg:inline" />
+                Seja dono do futuro <br className="hidden lg:inline" />
                 da arte digital
               </h1>
             </div>

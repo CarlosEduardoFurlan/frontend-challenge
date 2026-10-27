@@ -37,7 +37,7 @@ export function PromoSection() {
         {PROMOS.map((promo) => (
           <li
             key={promo.id}
-            className="relative flex min-h-[250px] overflow-hidden rounded-lg bg-card"
+            className="relative flex flex-col overflow-hidden rounded-lg bg-card lg:min-h-[250px] lg:flex-row"
           >
             <img
               src={promo.artwork}
@@ -48,16 +48,16 @@ export function PromoSection() {
               height={250}
               loading="lazy"
               decoding="async"
-              className="absolute top-0 -left-[5px] h-[250px] w-[292px] rounded-[18px] object-cover"
+              className="h-[200px] w-full object-cover lg:absolute lg:top-0 lg:-left-[5px] lg:h-[250px] lg:w-[292px] lg:rounded-[18px]"
             />
             <img
               src="/assets/banners/promo-rings.svg"
               alt=""
               width={586}
               height={250}
-              className="pointer-events-none absolute inset-0 h-[250px] w-full max-w-none"
+              className="pointer-events-none absolute inset-0 hidden h-[250px] w-full max-w-none lg:block"
             />
-            <div className="relative ml-auto flex w-full max-w-[300px] flex-col items-end pt-[37px] pr-[30px] pb-6 pl-4 text-right">
+            <div className="relative flex w-full flex-col items-end px-5 pt-6 pb-6 text-right lg:ml-auto lg:max-w-[300px] lg:pt-[37px] lg:pr-[30px] lg:pl-4">
               <h3 className="text-lg leading-6 font-bold">
                 {promo.title[0]}
                 <br />
