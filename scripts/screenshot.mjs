@@ -32,6 +32,15 @@ for (const route of targets) {
       reducedMotion: 'reduce',
     })
     const page = await context.newPage()
+    if (process.env.SHOT_LOGIN) {
+      // Demo login so private screens can be captured.
+      await page.goto(`${baseUrl}/login?mock-reset=1`)
+      const form = page.getByTestId('login-form')
+      await form.getByLabel('E-mail').fill('ana@example.com')
+      await form.getByLabel('Senha', { exact: true }).fill('Senha@123')
+      await form.getByRole('button', { name: 'Entrar' }).click()
+      await page.getByTestId('header-user-menu').waitFor()
+    }
     await page.goto(`${baseUrl}${route}`, { waitUntil: 'networkidle' })
     await page.waitForTimeout(500)
     const overflow = await page.evaluate(
