@@ -167,6 +167,11 @@ function manualChunks(id: string): string | undefined {
   ) {
     return 'app-ui'
   }
+  // Overlays used only after an interaction (menus, drawers, dialogs, the price slider) stay
+  // with their lazy consumers instead of the shared chunk.
+  if (/[/]src[/]components[/]ui[/](sheet|dialog|dropdown-menu|slider)[.]tsx$/.test(path)) {
+    return undefined
+  }
   if (SHARED_UI_SEGMENTS.some((segment) => path.includes(segment))) return 'app-ui'
   return undefined
 }

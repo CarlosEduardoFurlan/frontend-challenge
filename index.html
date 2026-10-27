@@ -75,124 +75,124 @@
     </script>
   </head>
   <body>
-    <div id="root">
-      <!--
+    <!--
         Static pre-render of the above-the-fold content. It paints as soon as the HTML and the
         inline CSS arrive (before any JavaScript), so the largest contentful paint does not wait
         for the bundle. React replaces this markup when it mounts; the classes mirror the React
         components (AppHeader, HomeHero, NftGallery) so nothing shifts. The inline script below
         swaps it for a detail placeholder on /nft/:id and removes it on any other route.
       -->
-      <div id="prerender" aria-hidden="true">
-        <header class="hairline sticky top-0 z-40 bg-background/95">
-          <div class="container-page">
-            <div class="flex h-16 items-center lg:h-[69px] lg:pt-6"></div>
-          </div>
-        </header>
-        <section
-          class="container-page flex flex-col gap-8 pt-8 lg:h-[450px] lg:flex-row lg:items-center lg:justify-between lg:gap-0 lg:pt-8 lg:pl-[160px]"
-        >
-          <div class="flex w-full max-w-[600px] flex-col gap-11 lg:items-end">
-            <div class="flex w-full flex-col gap-8">
-              <div class="flex flex-col gap-1">
-                <div class="flex flex-col gap-2">
-                  <p class="text-sm leading-4 font-medium tracking-[1.4px]">Bem-vindo à Kurio</p>
-                  <h1
-                    class="text-[28px] leading-[44px] font-bold uppercase sm:text-[36px] sm:leading-[56px] lg:text-[43px] lg:leading-[70px]"
-                  >
-                    Seja dono do futuro
-                    <br class="hidden lg:inline" />
-                    da arte digital
-                  </h1>
-                </div>
-                <p class="max-w-[557px] text-sm leading-6 text-muted-foreground">
-                  Descubra NFTs selecionados de criadores emergentes e consagrados. Colecione arte
-                  digital rara, apoie artistas e tenha uma parte da cultura da internet.
-                </p>
+    <div id="prerender" aria-hidden="true">
+      <header class="hairline sticky top-0 z-40 bg-background/95">
+        <div class="container-page">
+          <div class="flex h-16 items-center lg:h-[69px] lg:pt-6"></div>
+        </div>
+      </header>
+      <section
+        class="container-page flex flex-col gap-8 pt-8 lg:h-[450px] lg:flex-row lg:items-center lg:justify-between lg:gap-0 lg:pt-8 lg:pl-[160px]"
+      >
+        <div class="flex w-full max-w-[600px] flex-col gap-11 lg:items-end">
+          <div class="flex w-full flex-col gap-8">
+            <div class="flex flex-col gap-1">
+              <div class="flex flex-col gap-2">
+                <p class="text-sm leading-4 font-medium tracking-[1.4px]">Bem-vindo à Kurio</p>
+                <h1
+                  class="text-[28px] leading-[44px] font-bold uppercase sm:text-[36px] sm:leading-[56px] lg:text-[43px] lg:leading-[70px]"
+                >
+                  Seja dono do futuro
+                  <br class="hidden lg:inline" />
+                  da arte digital
+                </h1>
               </div>
-              <span
-                class="inline-flex h-10 w-[140px] items-center justify-center rounded-md bg-primary text-base leading-5 font-bold text-primary-foreground uppercase"
-                >Explorar</span
-              >
+              <p class="max-w-[557px] text-sm leading-6 text-muted-foreground">
+                Descubra NFTs selecionados de criadores emergentes e consagrados. Colecione arte
+                digital rara, apoie artistas e tenha uma parte da cultura da internet.
+              </p>
             </div>
-            <img
-              src="/assets/icons/hero-dots.svg"
-              alt=""
-              width="40"
-              height="8"
-              class="hidden lg:block"
+            <span
+              class="inline-flex h-10 w-[140px] items-center justify-center rounded-md bg-primary text-base leading-5 font-bold text-primary-foreground uppercase"
+              >Explorar</span
+            >
+          </div>
+          <img
+            src="/assets/icons/hero-dots.svg"
+            alt=""
+            width="40"
+            height="8"
+            class="hidden lg:block"
+          />
+        </div>
+        <div class="w-full max-w-[450px] shrink-0 lg:w-[450px]">
+          <picture>
+            <source
+              media="(min-width: 1024px)"
+              srcset="
+                /assets/nfts/ape-emerald-sm.webp  320w,
+                /assets/nfts/ape-emerald.webp     640w,
+                /assets/nfts/ape-emerald-lg.webp 1024w
+              "
+              sizes="(min-width: 1024px) 450px, 90vw"
             />
-          </div>
-          <div class="w-full max-w-[450px] shrink-0 lg:w-[450px]">
-            <picture>
-              <source
-                media="(min-width: 1024px)"
-                srcset="
-                  /assets/nfts/ape-emerald-sm.webp  320w,
-                  /assets/nfts/ape-emerald.webp     640w,
-                  /assets/nfts/ape-emerald-lg.webp 1024w
-                "
-                sizes="(min-width: 1024px) 450px, 90vw"
-              />
-              <img
-                src="/assets/nfts/ape-emerald.webp"
-                srcset="/assets/nfts/ape-emerald-sm.webp 320w, /assets/nfts/ape-emerald.webp 640w"
-                sizes="(min-width: 1024px) 450px, 90vw"
-                alt=""
-                width="450"
-                height="450"
-                fetchpriority="high"
-                decoding="sync"
-                class="aspect-square h-auto w-full rounded-hero bg-muted object-cover"
-              />
-            </picture>
-          </div>
-        </section>
-      </div>
-      <script>
-        ;(function () {
-          var el = document.getElementById('prerender')
-          if (!el) return
-          var path = location.pathname
-          if (path === '/') return
-          var match = /^\/nft\/(nft-\d{3})\/?$/.exec(path)
-          if (!match) {
-            el.remove()
-            return
-          }
-          var slugs = ['ape-emerald', 'ape-sage', 'ape-ivory', 'ape-golden']
-          var byId = {
-            'nft-001': 'ape-emerald',
-            'nft-004': 'ape-sage',
-            'nft-009': 'ape-ivory',
-            'nft-012': 'ape-sage',
-            'nft-002': 'ape-sage',
-            'nft-003': 'ape-ivory',
-            'nft-005': 'ape-golden',
-            'nft-006': 'ape-golden',
-            'nft-007': 'ape-golden',
-          }
-          var slug = byId[match[1]] || slugs[Number(match[1].slice(-3)) % slugs.length]
-          el.innerHTML =
-            '<header class="sticky top-0 z-40 bg-background/95"><div class="container-page"><div class="flex h-16 items-center lg:h-[69px] lg:pt-6"></div></div></header>' +
-            '<article class="container-page pt-8"><div class="h-5"></div><div class="mt-5 grid gap-8 lg:grid-cols-[568px_minmax(0,1fr)] lg:gap-[37px]"><div class="flex flex-col-reverse gap-3 sm:flex-row"><div class="flex gap-3 sm:w-[98px] sm:flex-col"></div><div class="min-w-0 flex-1 rounded-lg bg-card p-4">' +
-            '<picture><source media="(min-width: 1024px)" srcset="/assets/nfts/' +
-            slug +
-            '-sm.webp 320w, /assets/nfts/' +
-            slug +
-            '.webp 640w, /assets/nfts/' +
-            slug +
-            '-lg.webp 1024w" sizes="(min-width: 1024px) 408px, 90vw" /><img src="/assets/nfts/' +
-            slug +
-            '.webp" srcset="/assets/nfts/' +
-            slug +
-            '-sm.webp 320w, /assets/nfts/' +
-            slug +
-            '.webp 640w" sizes="(min-width: 1024px) 408px, 90vw" alt="" width="640" height="640" fetchpriority="high" decoding="sync" class="aspect-square h-auto w-full rounded-art bg-muted object-cover" /></picture>' +
-            '</div></div></div></article>'
-        })()
-      </script>
+            <img
+              id="prerender-hero-image"
+              src="/assets/nfts/ape-emerald.webp"
+              srcset="/assets/nfts/ape-emerald-sm.webp 320w, /assets/nfts/ape-emerald.webp 640w"
+              sizes="(min-width: 1024px) 450px, 90vw"
+              alt=""
+              width="450"
+              height="450"
+              fetchpriority="high"
+              decoding="sync"
+              class="aspect-square h-auto w-full rounded-hero bg-muted object-cover"
+            />
+          </picture>
+        </div>
+      </section>
     </div>
+    <script>
+      ;(function () {
+        var el = document.getElementById('prerender')
+        if (!el) return
+        var path = location.pathname
+        if (path === '/') return
+        var match = /^\/nft\/(nft-\d{3})\/?$/.exec(path)
+        if (!match) {
+          el.remove()
+          return
+        }
+        var slugs = ['ape-emerald', 'ape-sage', 'ape-ivory', 'ape-golden']
+        var byId = {
+          'nft-001': 'ape-emerald',
+          'nft-004': 'ape-sage',
+          'nft-009': 'ape-ivory',
+          'nft-012': 'ape-sage',
+          'nft-002': 'ape-sage',
+          'nft-003': 'ape-ivory',
+          'nft-005': 'ape-golden',
+          'nft-006': 'ape-golden',
+          'nft-007': 'ape-golden',
+        }
+        var slug = byId[match[1]] || slugs[Number(match[1].slice(-3)) % slugs.length]
+        el.innerHTML =
+          '<header class="sticky top-0 z-40 bg-background/95"><div class="container-page"><div class="flex h-16 items-center lg:h-[69px] lg:pt-6"></div></div></header>' +
+          '<article class="container-page pt-8"><div class="h-5"></div><div class="mt-5 grid gap-8 lg:grid-cols-[568px_minmax(0,1fr)] lg:gap-[37px]"><div class="flex flex-col-reverse gap-3 sm:flex-row"><div class="flex gap-3 sm:w-[98px] sm:flex-col"></div><div class="min-w-0 flex-1 rounded-lg bg-card p-4">' +
+          '<picture><source media="(min-width: 1024px)" srcset="/assets/nfts/' +
+          slug +
+          '-sm.webp 320w, /assets/nfts/' +
+          slug +
+          '.webp 640w, /assets/nfts/' +
+          slug +
+          '-lg.webp 1024w" sizes="(min-width: 1024px) 408px, 90vw" /><img id="prerender-detail-image" src="/assets/nfts/' +
+          slug +
+          '.webp" srcset="/assets/nfts/' +
+          slug +
+          '-sm.webp 320w, /assets/nfts/' +
+          slug +
+          '.webp 640w" sizes="(min-width: 1024px) 408px, 90vw" alt="" width="640" height="640" fetchpriority="high" decoding="sync" class="aspect-square h-auto w-full rounded-art bg-muted object-cover" /></picture>' +
+          '</div></div></div></article>'
+      })()
+    </script>
+    <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
