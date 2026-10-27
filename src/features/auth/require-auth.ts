@@ -9,7 +9,13 @@ import { sessionStore } from './session-store'
  */
 export function requireAuth({ location }: { location: ParsedLocation }): void {
   if (!sessionStore.getToken()) {
-    throw redirect({ to: '/login', search: { redirect: location.href } })
+    throw redirect({
+      to: '/login',
+      search: {
+        redirect: location.href,
+        reason: sessionStore.wasRecentlyExpired() ? 'expired' : 'required',
+      },
+    })
   }
 }
 

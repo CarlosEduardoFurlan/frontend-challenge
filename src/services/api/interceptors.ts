@@ -30,6 +30,7 @@ export function installSessionInterceptors(client: AxiosInstance): void {
         error.code !== 'invalid_credentials' &&
         sessionStore.getToken()
       ) {
+        sessionStore.markExpired()
         sessionStore.clear()
         sessionEvents.emit({ type: 'expired' })
       }

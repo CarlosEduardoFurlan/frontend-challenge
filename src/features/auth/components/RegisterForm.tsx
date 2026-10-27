@@ -31,7 +31,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const form = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: { name: '', email: '', password: '', confirmPassword: '' },
-    mode: 'onBlur',
+    mode: 'onTouched',
   })
 
   async function onSubmit(values: RegisterInput) {

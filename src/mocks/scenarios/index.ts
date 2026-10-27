@@ -130,7 +130,9 @@ export const SCENARIOS: ScenarioConfig[] = [
   scenario({
     id: 'favorites-fail',
     label: 'Falha ao favoritar',
-    description: 'Mutations de favoritos respondem 500 (testa rollback otimista).',
+    description:
+      'Mutations de favoritos respondem 500 após ~1 s (deixa o estado otimista visível antes do rollback).',
+    latency: { min: 900, max: 1200 },
     failures: [
       {
         match: /(POST|DELETE) \/api\/favorites/,
