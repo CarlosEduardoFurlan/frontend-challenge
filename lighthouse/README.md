@@ -16,29 +16,52 @@ node scripts/lighthouse.mjs --skip-build --runs=3 --port=4174
 Ferramentas: Lighthouse 13.5.0 · Chrome 156 (headless) · Node 24.19 · Windows 11 (i5-12450HX,
 12 núcleos, 16 GB). A configuração está versionada em `scripts/lighthouse.mjs`.
 
-## Resultados (medianas de 3 execuções)
+## Resultados (medianas de 3 execuções) — build da branch `fix/figma-fidelity`
+
+Execução de 2026-10-27 (`lighthouse/reports/2026-10-27T20-11-47-simulate` e
+`2026-10-27T20-13-38-devtools`), depois da correção de fidelidade ao Figma.
 
 ### Modo `simulate` (padrão do Lighthouse, modelo Lantern)
 
 | Página  | Perfil  | Performance | Accessibility | Best Practices | SEO | LCP (ms) | CLS   | TBT (ms) |
 | ------- | ------- | ----------: | ------------: | -------------: | --: | -------: | ----- | -------: |
-| início  | mobile  |      **86** |           100 |            100 | 100 |     3801 | 0.028 |       51 |
-| início  | desktop |         100 |           100 |            100 | 100 |      795 | 0.017 |        0 |
-| detalhe | mobile  |      **83** |           100 |            100 | 100 |     4283 | 0.028 |       58 |
-| detalhe | desktop |          99 |           100 |            100 | 100 |      927 | 0.017 |        0 |
+| início  | mobile  |      **84** |           100 |            100 | 100 |     4020 | 0.028 |       58 |
+| início  | desktop |          99 |           100 |            100 | 100 |      842 | 0.017 |        0 |
+| detalhe | mobile  |      **81** |           100 |            100 | 100 |     4431 | 0.033 |       90 |
+| detalhe | desktop |          99 |           100 |            100 | 100 |      934 | 0.028 |        0 |
 
 ### Modo `devtools` (throttling real aplicado via protocolo DevTools, métricas observadas)
 
 | Página  | Perfil  | Performance | Accessibility | Best Practices | SEO | LCP (ms) | CLS   | TBT (ms) |
 | ------- | ------- | ----------: | ------------: | -------------: | --: | -------: | ----- | -------: |
-| início  | mobile  |          99 |           100 |            100 | 100 |     2186 | 0.028 |        8 |
-| início  | desktop |         100 |           100 |            100 | 100 |      169 | 0.017 |        0 |
-| detalhe | mobile  |          96 |           100 |            100 | 100 |     2132 | 0.028 |      125 |
-| detalhe | desktop |         100 |           100 |            100 | 100 |      444 | 0.017 |        0 |
+| início  | mobile  |          94 |           100 |            100 | 100 |     2680 | 0.028 |      176 |
+| início  | desktop |         100 |           100 |            100 | 100 |      143 | 0.017 |        0 |
+| detalhe | mobile  |          93 |           100 |            100 | 100 |     2613 | 0.028 |      155 |
+| detalhe | desktop |         100 |           100 |            100 | 100 |      473 | 0.028 |        0 |
 
 Metas do desafio: Performance ≥ 90, Accessibility ≥ 95, Best Practices ≥ 95, SEO ≥ 90.
 Todas as metas são atingidas em desktop (ambos os modos) e em mobile no modo `devtools`.
-**No modo `simulate`, Performance mobile fica em 86 (início) e 83 (detalhe)**: abaixo da meta.
+**No modo `simulate`, Performance mobile fica em 84 (início) e 81 (detalhe)**: abaixo da meta,
+como na medição anterior à correção visual (86/83).
+
+### Efeito da correção de fidelidade ao Figma
+
+A primeira medição após o redesign (`2026-10-27T20-00-41-simulate`) deu 82 (início) e **72**
+(detalhe) no mobile simulado, com TBT de 330 ms no detalhe. Duas causas foram identificadas e
+corrigidas antes da medição final:
+
+- o chunk compartilhado `app-ui` passou a carregar os componentes exclusivos da home (filtros,
+  slider, promos, blog) também na página de detalhe; eles voltaram ao chunk da rota inicial
+  (`app-ui` 303 → 285 KB, chunk da home 19 KB);
+- a arte principal (hero/detalhe) oferecia a variante de 1024 px via `srcset`, e o perfil mobile
+  do Lighthouse (DPR 1,75) a escolhia; agora um `<picture>` reserva a variante grande para
+  viewports ≥ 1024 px e o telefone baixa no máximo a de 640 px (o `preload` segue a mesma regra).
+
+Uma medição A/B na mesma máquina e hora (build do commit anterior ao redesign, `3396c65`, em um
+worktree) deu 77 pontos / TBT 315 ms para o detalhe mobile em execução única, contra 73 / 316 ms
+do redesign antes das correções: a diferença de TBT entre sessões (58 ms na medição da manhã)
+vem da variação da máquina, não do redesign. O custo residual do redesign fica em ~2 pontos no
+mobile simulado, pelo conteúdo adicional da página (promos, blog, rodapé completo).
 
 ## Por que os dois modos divergem no mobile
 
@@ -46,13 +69,13 @@ A aplicação pré-renderiza estaticamente a hero da home (e um placeholder da a
 `index.html`, com CSS crítico inline e `preload` da imagem. No Chrome real, essa imagem pinta
 antes de qualquer JavaScript: medindo os candidatos a LCP com `PerformanceObserver` sob 4G lento e
 CPU 4x (`scripts/dev/lcp-candidates.mjs`), o LCP é a imagem estática a ~1,0 s, e é isso que o
-modo `devtools` observa (LCP ≈ 2,1 s com a latência simulada).
+modo `devtools` observa (LCP ≈ 2,6 s com a latência simulada e as artes do Figma).
 
 O modo `simulate` usa o modelo Lantern: ele identifica o elemento LCP no DOM final (a imagem
 renderizada pelo React, que substitui a estática ao montar), reconstrói o caminho crítico de rede
 até ele e, como esse elemento foi criado por JavaScript, assume que o LCP depende do download e
 da execução de todo o bundle inicial (~175 KB gzip: React, TanStack, UI). Daí o LCP estimado de
-~3,8 s. É uma limitação do modelo para páginas com pré-renderização parcial, não um atraso que o
+~4,0 s. É uma limitação do modelo para páginas com pré-renderização parcial, não um atraso que o
 usuário veja; ainda assim registramos o número porque é o que `npx lighthouse` reporta por padrão.
 
 ## Otimizações aplicadas (todas mantêm as funcionalidades, imagens e fontes da entrega)
@@ -66,8 +89,9 @@ usuário veja; ainda assim registramos o número porque é o que `npx lighthouse
   `socket`, `mocks` (MSW). Zod e decimal.js saíram do bundle inicial; menus do header são
   carregados sob demanda.
 - `modulepreload` do chunk da rota inicial (home) e, via script inline, do chunk do detalhe.
-- Imagens WebP com `width`/`height`, `srcset` 320/640 e `loading="lazy"` fora da dobra;
-  skeletons com as mesmas dimensões do conteúdo (CLS ≤ 0,03).
+- Artes do Figma em WebP com `width`/`height`, `srcset` 320/640 (1024 apenas para desktop via
+  `<picture>`) e `loading="lazy"` fora da dobra; skeletons com as mesmas dimensões do conteúdo
+  (CLS ≤ 0,035).
 
 ## Causas residuais e limitações
 
