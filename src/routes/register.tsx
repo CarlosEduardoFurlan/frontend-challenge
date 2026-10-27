@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 
 import { parseAuthSearch } from '@/features/auth/auth-search'
-import { AuthLayout } from '@/features/auth/components/AuthLayout'
+import { AuthShell } from '@/features/auth/components/AuthShell'
 import { RegisterForm } from '@/features/auth/components/RegisterForm'
 import { sanitizeRedirect } from '@/features/auth/require-auth'
 import { toast } from '@/hooks/use-toast'
@@ -16,18 +16,20 @@ function RegisterPage() {
   const navigate = useNavigate()
 
   return (
-    <AuthLayout
-      title="Criar conta"
-      description="Leva menos de um minuto. Nenhum dado real é necessário."
+    <AuthShell
+      mode="register"
+      title="Criar perfil de colecionador"
+      description="Crie seu perfil de colecionador e conecte uma carteira quando quiser."
+      redirect={redirect}
       footer={
         <>
-          Já tem conta?{' '}
+          Já tem uma conta?{' '}
           <Link
             to="/login"
             search={{ redirect }}
-            className="font-bold text-text-accent underline-offset-4 hover:underline"
+            className="text-text-accent underline underline-offset-4 outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
           >
-            Entrar
+            Entre
           </Link>
         </>
       }
@@ -42,6 +44,6 @@ function RegisterPage() {
           void navigate({ to: sanitizeRedirect(redirect), replace: true })
         }}
       />
-    </AuthLayout>
+    </AuthShell>
   )
 }

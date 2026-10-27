@@ -14,6 +14,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { toast } from '@/hooks/use-toast'
 
 import { applyApiErrors } from '../apply-api-errors'
 import { useLogin } from '../hooks'
@@ -23,6 +24,11 @@ import { PasswordInput } from './PasswordInput'
 interface LoginFormProps {
   onSuccess: () => void
 }
+
+/** Figma login fields: placeholder-only inputs (labels are visually hidden), "Esqueceu a senha?" and the primary button. */
+export const AUTH_FIELD_CLASS = 'h-[50px] rounded-xl text-lg lg:h-10 lg:rounded-md lg:text-sm'
+export const AUTH_BUTTON_CLASS =
+  'h-[60px] w-full rounded-xl text-xl lg:h-10 lg:rounded-md lg:text-lg'
 
 export function LoginForm({ onSuccess }: LoginFormProps) {
   const login = useLogin()
@@ -63,13 +69,14 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>E-mail</FormLabel>
+              <FormLabel className="sr-only">E-mail</FormLabel>
               <FormControl>
                 <Input
                   type="email"
                   autoComplete="email"
                   inputMode="email"
-                  placeholder="voce@exemplo.com"
+                  placeholder="contato@email.com"
+                  className={AUTH_FIELD_CLASS}
                   {...field}
                 />
               </FormControl>
@@ -83,16 +90,35 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Senha</FormLabel>
+              <FormLabel className="sr-only">Senha</FormLabel>
               <FormControl>
-                <PasswordInput autoComplete="current-password" {...field} />
+                <PasswordInput
+                  autoComplete="current-password"
+                  placeholder="Senha"
+                  className={AUTH_FIELD_CLASS}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit" size="lg" className="w-full" loading={login.isPending}>
+        <button
+          type="button"
+          onClick={() =>
+            toast({
+              title: 'Recuperação de senha indisponível',
+              description: 'Fora do escopo desta demonstração. Use as credenciais de teste.',
+              variant: 'info',
+            })
+          }
+          className="-mt-1 cursor-pointer self-end text-lg text-text-accent outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring lg:text-sm"
+        >
+          Esqueceu a senha?
+        </button>
+
+        <Button type="submit" className={AUTH_BUTTON_CLASS} loading={login.isPending}>
           Entrar
         </Button>
       </form>
