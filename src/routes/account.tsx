@@ -1,36 +1,91 @@
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router'
-import { Package, User, Wallet } from 'lucide-react'
+import {
+  AlertTriangle,
+  Download,
+  Heart,
+  LogOut,
+  ShoppingCart,
+  Tag,
+  User,
+  Wallet,
+} from 'lucide-react'
 
+import { useLogout } from '@/features/auth/hooks'
 import { requireAuth } from '@/features/auth/require-auth'
+import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/account')({
   beforeLoad: requireAuth,
   component: AccountLayout,
 })
 
+/**
+ * Figma "Meu perfil" sidebar (Carteiras frame 9:1670): 310px color/surface-card panel with the
+ * section title and one row per area (icon + 16px label in text-accent); the active row has a
+ * 4px primary bar on the left. "Sair" sits below a hairline. Rows without a screen in this
+ * challenge ("Ofertas", "Arquivos baixados", "Suporte") are listed but not navigable.
+ */
 const NAV = [
-  { to: '/account/profile', label: 'Perfil', icon: User },
+  { to: '/account/profile', label: 'Dados do perfil', icon: User },
   { to: '/account/wallets', label: 'Carteiras', icon: Wallet },
-  { to: '/account/orders', label: 'Pedidos', icon: Package },
+  { to: '/account/orders', label: 'Atividade', icon: ShoppingCart },
+  { to: '/favorites', label: 'Lista de interesse', icon: Heart },
 ] as const
 
-/** Private area shell: side navigation on desktop, horizontal tabs on mobile. */
+const OUT_OF_SCOPE = [
+  { label: 'Ofertas', icon: Tag },
+  { label: 'Arquivos baixados', icon: Download },
+  { label: 'Suporte', icon: AlertTriangle },
+] as const
+
+const rowClass =
+  'relative flex h-[45px] items-center gap-3 px-6 text-base text-text-accent outline-none transition-colors'
+
 function AccountLayout() {
+  const logout = useLogout()
+
   return (
-    <div className="container-page grid gap-6 py-8 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-10">
-      <nav aria-label="Conta" className="lg:sticky lg:top-20 lg:self-start">
-        <ul className="flex gap-1 overflow-x-auto rounded-xl border border-border bg-card p-1 lg:flex-col">
+    <div className="container-page grid grid-cols-[minmax(0,1fr)] gap-8 pt-8 lg:grid-cols-[310px_minmax(0,1fr)] lg:gap-7">
+      <nav aria-label="Conta" className="rounded-lg bg-card pb-2 lg:self-start">
+        <h2 className="px-2.5 pt-5 pb-3 text-xl font-bold">Meu perfil</h2>
+        <ul className="flex flex-col">
           {NAV.map(({ to, label, icon: Icon }) => (
-            <li key={to} className="shrink-0 lg:shrink">
+            <li key={to}>
               <Link
                 to={to}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring data-[status=active]:bg-accent data-[status=active]:text-foreground"
+                className={cn(
+                  rowClass,
+                  'hover:bg-surface-dark/60 focus-visible:ring-2 focus-visible:ring-ring data-[status=active]:bg-surface-dark/40 data-[status=active]:before:absolute data-[status=active]:before:inset-y-0 data-[status=active]:before:left-0 data-[status=active]:before:w-1 data-[status=active]:before:bg-primary',
+                )}
               >
                 <Icon className="size-4" aria-hidden="true" />
                 {label}
               </Link>
             </li>
           ))}
+          {OUT_OF_SCOPE.map(({ label, icon: Icon }) => (
+            <li key={label}>
+              <span
+                className={cn(rowClass, 'cursor-default')}
+                aria-disabled="true"
+                title="Área fora do escopo da demonstração"
+              >
+                <Icon className="size-4" aria-hidden="true" />
+                {label}
+              </span>
+            </li>
+          ))}
+          <li className="mt-1 border-t border-primary/60 pt-1">
+            <button
+              type="button"
+              onClick={() => logout.mutate()}
+              className={cn(rowClass, 'w-full cursor-pointer font-bold hover:bg-surface-dark/60')}
+              data-testid="account-logout"
+            >
+              <LogOut className="size-4" aria-hidden="true" />
+              Sair
+            </button>
+          </li>
         </ul>
       </nav>
       <div className="min-w-0">

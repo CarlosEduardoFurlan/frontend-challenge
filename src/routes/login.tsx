@@ -32,7 +32,7 @@ function LoginPage() {
           <Link
             to="/register"
             search={{ redirect }}
-            className="font-medium text-primary underline-offset-4 hover:underline"
+            className="font-bold text-text-accent underline-offset-4 hover:underline"
           >
             Criar conta
           </Link>

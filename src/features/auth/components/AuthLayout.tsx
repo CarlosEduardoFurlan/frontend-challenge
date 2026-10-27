@@ -1,7 +1,5 @@
 import type { ReactNode } from 'react'
 
-import { Logo } from '@/components/shared/Logo'
-
 interface AuthLayoutProps {
   title: string
   description: string
@@ -9,20 +7,22 @@ interface AuthLayoutProps {
   footer: ReactNode
 }
 
-/** Centered card used by login and register, following the mobile frames of the Figma file. */
+/**
+ * Login and register share the "Marketplace Page" shell of the Figma file (header with
+ * divider). The auth frames themselves (9:115, 9:1022, 16:1022, 16:1228) could not be
+ * fetched because of the MCP rate limit, so the form uses the verified design system: 28px
+ * bold title, 14px text-secondary description, bordered fields and a full-width primary button.
+ */
 export function AuthLayout({ title, description, children, footer }: AuthLayoutProps) {
   return (
-    <section className="container-page flex min-h-[70dvh] items-center justify-center py-10">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-card sm:p-8">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <Logo className="[&>span]:inline" />
-          <div>
-            <h1 className="font-display text-xl uppercase">{title}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-          </div>
+    <section className="container-page flex min-h-[70dvh] justify-center pt-10 pb-6">
+      <div className="w-full max-w-[480px]">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-[28px] leading-tight font-bold">{title}</h1>
+          <p className="text-sm leading-6 text-muted-foreground">{description}</p>
         </div>
         <div className="mt-8">{children}</div>
-        <div className="mt-6 text-center text-sm text-muted-foreground">{footer}</div>
+        <div className="mt-6 text-sm text-muted-foreground">{footer}</div>
       </div>
     </section>
   )

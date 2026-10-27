@@ -141,7 +141,7 @@ export function MockPanel() {
         </div>
 
         <div className="grid gap-2">
-          <h3 className="text-sm font-semibold">Eventos Socket.IO</h3>
+          <h3 className="text-sm font-bold">Eventos Socket.IO</h3>
           <Button
             variant="outline"
             size="sm"
