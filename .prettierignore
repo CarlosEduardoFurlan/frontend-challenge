@@ -1,0 +1,9 @@
+dist
+node_modules
+public/mockServiceWorker.js
+src/app/router/routeTree.gen.ts
+playwright-report
+test-results
+lighthouse/reports
+package-lock.json
+README.md
