@@ -369,6 +369,21 @@ export interface UpsertWalletRequest {
   network: NetworkId
 }
 
+/** Simulated wallet connection at checkout (no browser extension involved). */
+export interface WalletConnectRequest {
+  walletId: string
+  network: NetworkId
+}
+
+export interface WalletConnection {
+  walletId: string
+  address: string
+  network: NetworkId
+  connectedAt: string
+  /** When set, the simulated wallet disconnects after this many ms. */
+  sessionTtlMs: number | null
+}
+
 /* ----------------------------------------------------------------------------
  * Socket.IO events
  * ------------------------------------------------------------------------- */

@@ -2,6 +2,7 @@ import type { NftUpdatedEvent } from '@/types/api'
 
 import { replayNftEvent, updateEditionAvailability, updateEditionPrice } from './lib/nft-store'
 import { getCurrentScenarioId, setScenario } from './lib/scenario-state'
+import { replayOrderEvent, settlePendingOrders } from './lib/order-store'
 import { getDb, persist, resetDb } from './persistence/db'
 import { listScenarios } from './scenarios'
 
@@ -17,6 +18,9 @@ export interface MockControlApi {
   reset(): Promise<void>
   /** Expires every active session server-side (simulates token revocation / TTL end). */
   expireSessions(): number
+  /** Settles every pending order immediately (confirmed by default). */
+  settlePendingOrders(outcome?: 'confirmed' | 'rejected'): number
+  replayOrderEvent(orderId: string, overrides?: { eventId?: string; version?: number }): unknown
   updatePrice(nftId: string, editionId: string, priceEth: string): NftUpdatedEvent | null
   updateAvailability(nftId: string, editionId: string, available: number): NftUpdatedEvent | null
   replayNftEvent(
@@ -48,6 +52,8 @@ export function installMockControl(): void {
       await resetDb()
     },
     expireSessions,
+    settlePendingOrders,
+    replayOrderEvent,
     updatePrice: updateEditionPrice,
     updateAvailability: updateEditionAvailability,
     replayNftEvent,

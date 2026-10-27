@@ -66,6 +66,15 @@ export function MockPanel() {
       }),
   })
 
+  const settleOrders = useMutation({
+    mutationFn: () => mockControlApi.settleOrders(),
+    onSuccess: (data) =>
+      toast({
+        title: 'Pedidos pendentes liquidados',
+        description: `${data.settled} pedido(s) atualizados.`,
+      }),
+  })
+
   const soldOutEvent = useMutation({
     mutationFn: () => mockControlApi.updateAvailability('nft-002', 'nft-002-std', 0),
     onSuccess: () =>
@@ -139,6 +148,14 @@ export function MockPanel() {
             loading={soldOutEvent.isPending}
           >
             nft.updated: esgotar edição padrão de nft-002
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => settleOrders.mutate()}
+            loading={settleOrders.isPending}
+          >
+            order.updated: liquidar pedidos pendentes agora
           </Button>
           <p className="text-xs text-muted-foreground">
             Sockets conectados: {status.data?.connectedSockets ?? '–'}

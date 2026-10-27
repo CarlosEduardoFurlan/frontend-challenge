@@ -10,19 +10,27 @@ import { env } from '@/lib/env'
 export async function enableMocking(): Promise<void> {
   if (!env.mocksEnabled) return
 
-  const [{ worker }, { initScenarioFromLocation }, { loadDb, resetDb }, { installMockControl }] =
-    await Promise.all([
-      import('./browser'),
-      import('./lib/scenario-state'),
-      import('./persistence/db'),
-      import('./control'),
-    ])
+  const [
+    { worker },
+    { initScenarioFromLocation },
+    { loadDb, resetDb },
+    { installMockControl },
+    { resumePendingOrders },
+  ] = await Promise.all([
+    import('./browser'),
+    import('./lib/scenario-state'),
+    import('./persistence/db'),
+    import('./control'),
+    import('./lib/order-store'),
+  ])
 
   const { reset } = initScenarioFromLocation()
   if (reset) await resetDb()
   else await loadDb()
 
   installMockControl()
+  // Pending orders keep settling after a refresh (simulated payment runs server-side).
+  resumePendingOrders()
 
   await worker.start({
     onUnhandledRequest: 'bypass',
