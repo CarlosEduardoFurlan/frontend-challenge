@@ -22,6 +22,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import { FavoriteButton } from '@/features/favorites/components/FavoriteButton'
 import { DESKTOP_QUERY, useMediaQuery } from '@/hooks/use-media-query'
 import { cn } from '@/lib/utils'
 
@@ -39,12 +40,10 @@ import { CatalogFilters } from './CatalogFilters'
 
 interface CatalogSectionProps {
   search: CatalogSearch
-  /** Renders the favourite toggle for a card (wired by the favourites feature). */
-  renderFavorite?: (nftId: string) => ReactNode
   renderCardBadge?: (nftId: string) => ReactNode
 }
 
-export function CatalogSection({ search, renderFavorite, renderCardBadge }: CatalogSectionProps) {
+export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps) {
   const navigate = useNavigate()
   const resolved = resolveCatalogSearch(search)
   const params = toListParams(resolved)
@@ -285,12 +284,9 @@ export function CatalogSection({ search, renderFavorite, renderCardBadge }: Cata
                       available={nft.available}
                       priority={index < 3}
                       badge={renderCardBadge?.(nft.id)}
-                      favorite={undefined}
+                      favoriteSlot={<FavoriteButton nftId={nft.id} name={nft.name} summary={nft} />}
                       className="h-full"
                     />
-                    {renderFavorite ? (
-                      <div className="sr-only">{renderFavorite(nft.id)}</div>
-                    ) : null}
                   </li>
                 ))}
               </ul>

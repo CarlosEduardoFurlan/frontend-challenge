@@ -1,5 +1,4 @@
 import { Link } from '@tanstack/react-router'
-import { Heart } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -17,12 +16,8 @@ export interface NftCardProps {
   imageUrl: string
   priceEth: DecimalString
   available: number
-  /** Optional favourite toggle rendered over the image. */
-  favorite?: {
-    active: boolean
-    pending?: boolean
-    onToggle: () => void
-  }
+  /** Favourite toggle rendered over the image (see features/favorites). */
+  favoriteSlot?: ReactNode
   /** Extra badge (e.g. "Preço atualizado") rendered on the image. */
   badge?: ReactNode
   className?: string
@@ -36,7 +31,7 @@ export function NftCard({
   imageUrl,
   priceEth,
   available,
-  favorite,
+  favoriteSlot,
   badge,
   className,
   priority,
@@ -68,22 +63,7 @@ export function NftCard({
         ) : badge ? (
           <div className="absolute top-2 left-2">{badge}</div>
         ) : null}
-        {favorite ? (
-          <button
-            type="button"
-            onClick={favorite.onToggle}
-            aria-pressed={favorite.active}
-            aria-busy={favorite.pending || undefined}
-            aria-label={favorite.active ? `Remover ${name} dos favoritos` : `Favoritar ${name}`}
-            className={cn(
-              'absolute top-2 right-2 inline-flex size-9 cursor-pointer items-center justify-center rounded-full bg-background/80 text-foreground backdrop-blur transition-colors outline-none hover:bg-background focus-visible:ring-2 focus-visible:ring-ring',
-              favorite.active && 'text-primary',
-            )}
-            data-testid="favorite-toggle"
-          >
-            <Heart className={cn('size-4', favorite.active && 'fill-current')} aria-hidden="true" />
-          </button>
-        ) : null}
+        {favoriteSlot ? <div className="absolute top-2 right-2">{favoriteSlot}</div> : null}
       </div>
       <div className="flex min-w-0 flex-col gap-1">
         <h3 className="truncate text-sm font-semibold">
