@@ -75,7 +75,12 @@ Google/Facebook não exportadas (ícone e monogramas).
 
 ## Testes executados
 
-Ver a seção "Verificação" de `docs/FIGMA-AUDIT.md` (atualizada com os números da execução final)
-e `lighthouse/README.md`.
+- `npm run typecheck`, `npm run lint`, `npm run format:check`: limpos.
+- Playwright E2E (`chromium-desktop` + `chromium-mobile`): 144/144 na execução final da branch.
+- Regressão visual (`npm run test:visual`): 10/10 com as baselines regeneradas após a comparação.
+- Lighthouse (3 execuções por página/perfil, medianas): simulate início 92 / detalhe 90 (mobile)
+  e 99/99 (desktop); devtools 95/92 (mobile) e 100/100 (desktop); Accessibility, Best Practices e
+  SEO 100 em todos. Detalhes, LCP/CLS/TBT e histórico em `lighthouse/README.md`.
+- Ver também a seção "Verificação" de `docs/FIGMA-AUDIT.md`.
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)

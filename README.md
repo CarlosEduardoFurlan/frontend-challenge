@@ -160,8 +160,9 @@ A versão publicada deve corresponder ao commit da branch `main` após o merge d
 - **Fontes**: Roboto Mono (400/500/700), única família do arquivo, local em `public/fonts`
   (subconjunto Latin). Artes e ícones originais em `public/assets/`.
 - **Socket.IO sobre MSW**: ver limitações do binding e contornos em `ARCHITECTURE.md`.
-- **Lighthouse mobile** no modo simulado fica em 84/81 (meta 90); no modo devtools, 94/93.
-  Causas documentadas em `lighthouse/README.md`.
+- **Lighthouse mobile** atinge a meta nos dois modos (simulate 92/90, devtools 95/92) depois que
+  o React passou a adotar a imagem pré-renderizada; a margem do detalhe mobile simulado é de
+  poucos pontos (`lighthouse/README.md`).
 - **Regressão visual** com baselines versionadas apenas para Windows/Chromium; o CI renderiza em
   Linux e guarda as baselines como artefato.
 - **Pull requests**: não puderam ser abertos automaticamente (sem `gh`/token). Cada branch foi

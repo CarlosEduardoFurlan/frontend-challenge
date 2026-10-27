@@ -1,6 +1,6 @@
 {
-  "reportDir": "lighthouse\\reports\\2026-10-27T20-13-38-devtools",
-  "generatedAt": "2026-10-27T20:13:40.842Z",
+  "reportDir": "lighthouse\\reports\\2026-10-27T21-56-02-devtools",
+  "generatedAt": "2026-10-27T21:56:05.093Z",
   "environment": {
     "os": "Windows_NT 10.0.26300 (x64)",
     "cpu": "12th Gen Intel(R) Core(TM) i5-12450HX",
@@ -24,31 +24,31 @@
       "path": "/",
       "profile": "mobile",
       "medianScores": {
-        "performance": 94,
+        "performance": 95,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "medianMetrics": {
-        "lcpMs": 2680,
-        "cls": 0.028,
-        "tbtMs": 176
+        "lcpMs": 2643,
+        "cls": 0.031,
+        "tbtMs": 152
       },
       "runs": [
         {
           "run": 1,
           "scores": {
-            "performance": 93,
+            "performance": 95,
             "accessibility": 100,
             "best-practices": 100,
             "seo": 100
           },
           "metrics": {
-            "lcpMs": 2682,
-            "cls": 0.028,
-            "tbtMs": 205,
+            "lcpMs": 2645,
+            "cls": 0.031,
+            "tbtMs": 129,
             "fcpMs": 935,
-            "speedIndexMs": 2045
+            "speedIndexMs": 2392
           }
         },
         {
@@ -60,27 +60,27 @@
             "seo": 100
           },
           "metrics": {
-            "lcpMs": 2672,
-            "cls": 0.028,
-            "tbtMs": 149,
-            "fcpMs": 880,
-            "speedIndexMs": 1852
+            "lcpMs": 2643,
+            "cls": 0.031,
+            "tbtMs": 153,
+            "fcpMs": 893,
+            "speedIndexMs": 2347
           }
         },
         {
           "run": 3,
           "scores": {
-            "performance": 94,
+            "performance": 95,
             "accessibility": 100,
             "best-practices": 100,
             "seo": 100
           },
           "metrics": {
-            "lcpMs": 2680,
-            "cls": 0.028,
-            "tbtMs": 176,
-            "fcpMs": 923,
-            "speedIndexMs": 1875
+            "lcpMs": 2639,
+            "cls": 0.031,
+            "tbtMs": 152,
+            "fcpMs": 919,
+            "speedIndexMs": 2374
           }
         }
       ]
@@ -96,7 +96,7 @@
         "seo": 100
       },
       "medianMetrics": {
-        "lcpMs": 143,
+        "lcpMs": 55,
         "cls": 0.017,
         "tbtMs": 0
       },
@@ -110,11 +110,11 @@
             "seo": 100
           },
           "metrics": {
-            "lcpMs": 142,
+            "lcpMs": 151,
             "cls": 0.017,
             "tbtMs": 0,
-            "fcpMs": 39,
-            "speedIndexMs": 136
+            "fcpMs": 45,
+            "speedIndexMs": 118
           }
         },
         {
@@ -126,11 +126,11 @@
             "seo": 100
           },
           "metrics": {
-            "lcpMs": 149,
+            "lcpMs": 52,
             "cls": 0.017,
             "tbtMs": 0,
-            "fcpMs": 55,
-            "speedIndexMs": 129
+            "fcpMs": 42,
+            "speedIndexMs": 111
           }
         },
         {
@@ -142,11 +142,11 @@
             "seo": 100
           },
           "metrics": {
-            "lcpMs": 143,
+            "lcpMs": 55,
             "cls": 0.017,
             "tbtMs": 0,
-            "fcpMs": 48,
-            "speedIndexMs": 117
+            "fcpMs": 43,
+            "speedIndexMs": 114
           }
         }
       ]
@@ -156,15 +156,15 @@
       "path": "/nft/nft-001",
       "profile": "mobile",
       "medianScores": {
-        "performance": 93,
+        "performance": 92,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "medianMetrics": {
-        "lcpMs": 2613,
-        "cls": 0.028,
-        "tbtMs": 155
+        "lcpMs": 2549,
+        "cls": 0.03,
+        "tbtMs": 142
       },
       "runs": [
         {
@@ -176,27 +176,27 @@
             "seo": 100
           },
           "metrics": {
-            "lcpMs": 2630,
-            "cls": 0.028,
-            "tbtMs": 179,
-            "fcpMs": 2085,
-            "speedIndexMs": 3159
+            "lcpMs": 2561,
+            "cls": 0.03,
+            "tbtMs": 159,
+            "fcpMs": 2028,
+            "speedIndexMs": 3809
           }
         },
         {
           "run": 2,
           "scores": {
-            "performance": 93,
+            "performance": 92,
             "accessibility": 100,
             "best-practices": 100,
             "seo": 100
           },
           "metrics": {
-            "lcpMs": 2595,
-            "cls": 0.028,
-            "tbtMs": 155,
-            "fcpMs": 2060,
-            "speedIndexMs": 3061
+            "lcpMs": 2549,
+            "cls": 0.03,
+            "tbtMs": 142,
+            "fcpMs": 2023,
+            "speedIndexMs": 3870
           }
         },
         {
@@ -208,11 +208,11 @@
             "seo": 100
           },
           "metrics": {
-            "lcpMs": 2613,
-            "cls": 0.028,
-            "tbtMs": 128,
-            "fcpMs": 2096,
-            "speedIndexMs": 3064
+            "lcpMs": 2537,
+            "cls": 0.03,
+            "tbtMs": 139,
+            "fcpMs": 2021,
+            "speedIndexMs": 3746
           }
         }
       ]
@@ -228,7 +228,7 @@
         "seo": 100
       },
       "medianMetrics": {
-        "lcpMs": 473,
+        "lcpMs": 490,
         "cls": 0.028,
         "tbtMs": 0
       },
@@ -242,11 +242,11 @@
             "seo": 100
           },
           "metrics": {
-            "lcpMs": 477,
+            "lcpMs": 49,
             "cls": 0.028,
             "tbtMs": 0,
-            "fcpMs": 76,
-            "speedIndexMs": 179
+            "fcpMs": 49,
+            "speedIndexMs": 158
           }
         },
         {
@@ -258,11 +258,11 @@
             "seo": 100
           },
           "metrics": {
-            "lcpMs": 466,
+            "lcpMs": 514,
             "cls": 0.028,
             "tbtMs": 0,
-            "fcpMs": 39,
-            "speedIndexMs": 176
+            "fcpMs": 71,
+            "speedIndexMs": 178
           }
         },
         {
@@ -274,11 +274,11 @@
             "seo": 100
           },
           "metrics": {
-            "lcpMs": 473,
+            "lcpMs": 490,
             "cls": 0.028,
             "tbtMs": 0,
-            "fcpMs": 40,
-            "speedIndexMs": 176
+            "fcpMs": 55,
+            "speedIndexMs": 174
           }
         }
       ]

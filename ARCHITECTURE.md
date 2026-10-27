@@ -176,7 +176,8 @@ O recibo guarda o snapshot dos itens e valores.
 ## 11. Limitações técnicas
 
 - Backend inteiramente simulado na página: sem compartilhamento entre abas; reset via URL/painel.
-- Lighthouse mobile (modo simulate) 84/81 por limitação do modelo com a pré-renderização
-  (detalhes em `lighthouse/README.md`); `bf-cache` inelegível pelo WebSocket aberto.
+- Lighthouse mobile (modo simulate) 92/90, com margem pequena no detalhe; depende de o React
+  adotar o nó `<img>` pré-renderizado (`src/lib/prerender.ts`, detalhes em
+  `lighthouse/README.md`); `bf-cache` inelegível pelo WebSocket aberto.
 - Baselines visuais apenas Windows/Chromium.
 - Pull requests não abertos automaticamente (sem `gh`/token); ver `docs/BRANCHING.md`.
