@@ -29,6 +29,15 @@ PAIRS = [
     ("desktop-order-confirmation", "order--desktop-1440"),
     ("desktop-wallets", "account-wallets--desktop-1440"),
     ("mobile-checkout", "checkout--mobile-414"),
+    # Frames exported manually from Figma (2x PNG) after the MCP quota was exhausted.
+    ("desktop-login", "login--desktop-1440"),
+    ("desktop-register", "register--desktop-1440"),
+    ("desktop-profile", "account-profile--desktop-1440"),
+    ("mobile-home", "home--mobile-414"),
+    ("mobile-nft-detail", "nft-nft-001--mobile-414"),
+    ("mobile-cart", "cart--mobile-414"),
+    ("mobile-login", "login--mobile-414"),
+    ("mobile-register", "register--mobile-414"),
 ]
 GUTTER = 24
 HEADER = 36
@@ -51,6 +60,9 @@ def main() -> None:
             continue
         with Image.open(ref_path) as ref, Image.open(after_path) as after:
             ref = ref.convert("RGB")
+            # Manual exports are 2x renders (828 or 2880 wide): bring them to the frame size.
+            if ref.width in (828, 2880):
+                ref = fit_width(ref, ref.width // 2)
             width = ref.width
             after = fit_width(after.convert("RGB"), width)
             height = max(ref.height, after.height)

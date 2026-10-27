@@ -134,18 +134,29 @@ e dos assets). Passos: importar o repositório na Vercel → framework Vite → 
 → output `dist` → sem variáveis obrigatórias. Netlify/Cloudflare Pages funcionam com o mesmo
 build (configure o rewrite `/* → /index.html`).
 
-**URL pública: não publicada neste ambiente.** Não havia credenciais da Vercel (nem CLI/token)
-disponíveis para executar o deploy; a configuração está pronta e a versão publicada deve
-corresponder ao commit da branch `main` após o merge do PR final.
+**URL pública: pendente de autenticação na Vercel.** O ambiente de execução não tem sessão da
+Vercel. Um deployment anônimo (`npx vercel deploy --temporary`) foi criado para validação, mas a
+Vercel responde `403` (`X-Vercel-Mitigated: deny`) a qualquer acesso até que ele seja reivindicado
+em uma conta, então não serve como demonstração pública. Para publicar (nenhum segredo passa pelo
+chat):
+
+1. No terminal, dentro do repositório: `npx vercel login` (abre o navegador e grava a sessão em
+   `%APPDATA%\com.vercel.cli`).
+2. Preview da branch: `npx vercel` (ou produção a partir da `main`: `npx vercel --prod`).
+   O `vercel.json` já define framework, build, saída, rewrite da SPA e os headers do service worker.
+3. Validar a URL com as mesmas suítes: `REMOTE_BASE_URL=https://<deploy>.vercel.app npx playwright test --config=playwright.remote.config.ts`.
+
+A versão publicada deve corresponder ao commit da branch `main` após o merge do PR final.
 
 ## Principais decisões e limitações
 
 - **Figma**: inspecionado pelo MCP oficial do Figma (arquivo "Frontend Challenge (Copy)"). Tokens,
-  tipografia e assets vêm das variáveis e exports do arquivo; 7 dos 15 frames foram comparados
-  lado a lado (início, detalhe, carrinho, pagamento, confirmação, carteiras e pagamento mobile).
-  Os 8 frames restantes não puderam ser capturados porque o plano Starter do Figma limita o MCP a
-  20 chamadas de leitura por mês; essas telas seguem o design system sem verificação por frame.
-  Detalhes, comparações e divergências assumidas em [`docs/FIGMA-AUDIT.md`](docs/FIGMA-AUDIT.md).
+  tipografia e assets vêm das variáveis e exports do arquivo. Os 15 frames foram comparados lado
+  a lado: 7 capturados pelo MCP (início, detalhe, carrinho, pagamento, confirmação, carteiras e
+  pagamento mobile) e 8 exportados manualmente do Figma depois que o plano Starter esgotou a cota
+  de 20 chamadas/mês do MCP (login, cadastro, perfil e os mobiles de início, detalhe, carrinho,
+  login e cadastro). Detalhes, comparações e divergências assumidas em
+  [`docs/FIGMA-AUDIT.md`](docs/FIGMA-AUDIT.md).
 - **Fontes**: Roboto Mono (400/500/700), única família do arquivo, local em `public/fonts`
   (subconjunto Latin). Artes e ícones originais em `public/assets/`.
 - **Socket.IO sobre MSW**: ver limitações do binding e contornos em `ARCHITECTURE.md`.

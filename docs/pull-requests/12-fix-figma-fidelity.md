@@ -1,23 +1,26 @@
 # PR #12 — fix/figma-fidelity → develop
 
+Abrir em: `https://github.com/CarlosEduardoFurlan/frontend-challenge/compare/develop...fix/figma-fidelity?expand=1`
+
 ## Objetivo e escopo
 
 Corrigir a fidelidade visual ao arquivo Figma "Frontend Challenge (Copy)"
 (`fwIfA7xCwcap7SbD0YZ5pA`) usando o MCP oficial do Figma: tokens, tipografia, assets originais,
-componentes compartilhados e as telas desktop/mobile, preservando toda a funcionalidade, os
-cenários MSW e a suíte de testes.
+componentes compartilhados e as 15 telas (desktop e mobile), preservando toda a funcionalidade,
+os cenários MSW e a suíte de testes.
 
 ## O que foi inspecionado no Figma
 
 - `whoami`, `create_session`, `get_metadata`, `get_variable_defs` e `get_design_context` do frame
   "Desktop / Início" (`2:2`): 12 variáveis de cor, 25 estilos de texto (Roboto Mono 400/500/700),
   código de referência e 25 assets.
-- Screenshots de 7 frames: início, detalhe, carrinho, pagamento, confirmação, carteiras e pagamento
-  mobile (`docs/figma-comparison/figma-reference/`).
-- Os outros 8 frames (login, cadastro, perfil e as versões mobile de início, detalhe, carrinho,
-  login e cadastro) não puderam ser capturados: o plano Starter limita o MCP a 20 chamadas de
-  leitura por mês e a cota esgotou. Essas telas seguem o design system verificado, sem comparação
-  frame a frame (ver `docs/FIGMA-AUDIT.md`).
+- Screenshots de 7 frames pelo MCP: início, detalhe, carrinho, pagamento, confirmação, carteiras e
+  pagamento mobile.
+- Os outros 8 frames (login, cadastro, perfil e os mobiles de início, detalhe, carrinho, login e
+  cadastro) foram exportados manualmente do Figma em PNG 2x depois que o plano Starter esgotou a
+  cota de 20 chamadas/mês do MCP. Todos os 15 frames estão em
+  `docs/figma-comparison/figma-reference/` e comparados lado a lado em
+  `docs/figma-comparison/comparisons/` (`scripts/figma-compare.py`).
 
 ## Conteúdo
 
@@ -29,38 +32,50 @@ cenários MSW e a suíte de testes.
 - **Componentes compartilhados** (`fix(figma)`): Header Row (nav de 4 itens, busca por ícone,
   carrinho com badge, botão Entrar), Footer de três blocos, cards 258×300, paginação 35 px,
   breadcrumbs, stepper redondo.
+- **Chrome mobile** (`fix(figma)`): abaixo de 1024px o header dá lugar ao campo de busca + botão
+  de filtros e à barra inferior (início, favoritos, botão central, carrinho, conta) da home
+  mobile; telas de mercado com botão de voltar + título; telas de autenticação em tela inteira.
 - **Início** (`fix(figma)`): hero, sidebar (Filters + Featured NFT Banner), toolbar com abas e
-  ordenação, grade 3×3, promos, Diário da Cunhagem; filtro "Rede" implementado de ponta a ponta;
-  pré-render e preload de LCP atualizados.
+  ordenação, grade 3×3, promos, Diário da Cunhagem; no mobile, card do hero, abas e grade de 2
+  colunas com faixa "RARO"; filtro "Rede" implementado de ponta a ponta; pré-render e preload de
+  LCP atualizados.
 - **Detalhe, carrinho, pagamento, confirmação** (`fix(figma)`): layouts reproduzidos das
-  referências, inclusive o fluxo de pagamento mobile (cards de carteira, opções de rede com
-  medalhão, botão pill).
-- **Conta, carteiras, auth, favoritos** (`fix(figma)`): sidebar "Meu perfil", blocos de carteira,
-  perfil no mesmo shell, auth com o design system.
-- **Testes** (`test(e2e)`, `test(visual)`): busca atrás do ícone do header, banner de destaque,
-  galeria com a mesma arte; baselines visuais regeneradas após a comparação.
-- **Docs**: `docs/FIGMA-AUDIT.md` completo, comparações lado a lado em
-  `docs/figma-comparison/comparisons/`, README/ARCHITECTURE/matriz atualizados.
+  referências desktop e mobile (arte em largura total com botões redondos, painel com "Comprar
+  NFT", cards do carrinho, cupom em pílula, "Pagamento com carteira").
+- **Login / cadastro** (`fix(figma)`): modal de 500 px sobre a home no desktop (abas Entrar |
+  Criar conta, "Ou continue com", faixa primary) e tela inteira com o wordmark no mobile.
+- **Perfil, carteiras, favoritos** (`fix(figma)`): sidebar "Meu perfil", "Perfil do
+  colecionador" em duas colunas com a linha do avatar, blocos de carteira, "Lista de interesse".
+- **Performance** (`perf`): componentes exclusivos da home fora do chunk compartilhado, overlays
+  (menus, drawers, slider) com seus consumidores lazy, painel de mocks carregado sob demanda,
+  arte de 1024 px apenas para desktop via `<picture>`, e a imagem pré-renderizada do hero/detalhe
+  é adotada pelo React (mesmo nó DOM) em vez de ser renderizada de novo.
+- **Testes** (`test(e2e)`, `test(visual)`): fixture aguarda `main` (não há header no mobile), busca
+  atrás do ícone no desktop e sempre visível no mobile, banner de destaque, galeria com a mesma
+  arte; baselines visuais regeneradas após a comparação; `playwright.remote.config.ts` executa as
+  mesmas suítes contra uma URL publicada (`REMOTE_BASE_URL`).
+- **Docs**: `docs/FIGMA-AUDIT.md` completo (15 frames), README/ARCHITECTURE/matriz atualizados,
+  `lighthouse/README.md` com as medianas.
 
 ## Divergências assumidas (funcionalidade exigida pelo desafio)
 
-"Adicionar ao carrinho" ao lado de "COMPRAR"; coleção e disponibilidade nos cards; favorito ao
-passar o mouse; contagem de resultados; filtro "Disponibilidade"; campos de checkout reais
-(nome, e-mail, CPF) no lugar dos campos fictícios do design; ilustração "THANK YOU" substituída
-por ícone (asset não exportado pela cota).
+"Adicionar ao carrinho" ao lado de "COMPRAR" (desktop) e botão redondo do carrinho (mobile);
+coleção e disponibilidade nos cards; favorito ao passar o mouse (desktop); contagem de
+resultados e seletor de ordenação; filtro "Disponibilidade"; campos de checkout reais (nome,
+e-mail, CPF) no lugar dos campos fictícios do design; barra inferior mantida em todas as telas
+mobile (o arquivo só a mostra na home); pontos de galeria no detalhe mobile; login social e
+recuperação de senha explicados em toast (não existem no mock); ilustração "THANK YOU" e marcas
+Google/Facebook não exportadas (ícone e monogramas).
+
+## Deploy
+
+`vercel deploy --temporary` gerou um deployment anônimo, mas a Vercel o protege (`403`,
+`X-Vercel-Mitigated: deny`) até ser reivindicado; a validação pública exige um deploy autenticado
+(`npx vercel login` + `npx vercel`), ver README.
 
 ## Testes executados
 
-```
-npm run typecheck ✔  npm run lint ✔  npm run format:check ✔  npm run build ✔
-npm run test:e2e   144/144 (chromium-desktop + chromium-mobile, build de produção)
-npm run test:a11y  22/22
-npm run test:visual 10/10 (baselines regeneradas após a comparação com o Figma)
-scripts/dev/login-stress.mjs  30 logins / 8 contextos: 0 falhas
-auth + profile-wallets ×3     90/90
-scripts/dev/overflow.mjs      sem overflow horizontal em 390 px
-```
-
-Lighthouse: ver `lighthouse/README.md` (3 execuções por página/perfil, medianas).
+Ver a seção "Verificação" de `docs/FIGMA-AUDIT.md` (atualizada com os números da execução final)
+e `lighthouse/README.md`.
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)

@@ -149,7 +149,8 @@ O recibo guarda o snapshot dos itens e valores.
 - Toasts (`role=status`) + live regions para mutations e eventos; eventos de estoque causados
   pela própria compra não geram toast.
 - Formulários validam em `onTouched` (evita perda de clique por layout shift ao sumir a mensagem).
-- Links fora do escopo (editorial, suporte…) aparecem como "em breve", sem fingir navegação.
+- Links fora do escopo (central de ajuda, estúdio do criador…) seguem o rodapé do Figma como texto
+  não navegável, com `aria-disabled` e dica "fora do escopo", sem fingir navegação.
 
 ## 10. Figma, assets e desvios
 
@@ -157,9 +158,13 @@ O recibo guarda o snapshot dos itens e valores.
   frame "Desktop / Início" alimentam `globals.css`, os primitivos de UI e os componentes da home;
   os demais frames capturados (detalhe, carrinho, pagamento, confirmação, carteiras, pagamento
   mobile) foram reproduzidos a partir das referências em `docs/figma-comparison/figma-reference/`.
-- Cota do plano Starter (20 chamadas/mês) impediu a captura de 8 frames (login, cadastro, perfil e
-  as versões mobile de início, detalhe, carrinho, login e cadastro): essas telas usam o design
-  system sem verificação frame a frame. Tudo registrado em `docs/FIGMA-AUDIT.md`.
+- A cota do plano Starter (20 chamadas/mês) esgotou após 7 frames; os outros 8 (login, cadastro,
+  perfil e as versões mobile de início, detalhe, carrinho, login e cadastro) foram exportados
+  manualmente em PNG 2x e comparados com `scripts/figma-compare.py`. Tudo registrado em
+  `docs/FIGMA-AUDIT.md`.
+- Abaixo de 1024px a aplicação troca o header pelo chrome mobile dos frames: campo de busca +
+  filtros e barra inferior na home, botão de voltar + título nas telas de mercado, tela inteira
+  nas telas de autenticação (`src/components/shared/MobileChrome.tsx`, `routes/__root.tsx`).
 - Assets: as quatro artes e os ícones do arquivo são convertidos por `scripts/figma-assets.py`
   para `public/assets/` (WebP 320/640/1024 e SVG); o mapeamento id → arte em
   `src/mocks/fixtures/nfts.ts` é replicado no preload de LCP do `index.html`.
