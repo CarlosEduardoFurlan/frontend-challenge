@@ -20,6 +20,7 @@ export function toSummary(nft: Nft): NftSummary {
     priceEth: nft.priceEth,
     available: nft.available,
     featured: nft.featured,
+    rare: nft.traits.some((trait) => trait.label === 'Raridade' && trait.value === 'Rara'),
     likes: nft.likes,
     createdAt: nft.createdAt,
     version: nft.version,

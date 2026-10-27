@@ -1,4 +1,5 @@
-import { Heart, Link2, Mail, Share2 } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
+import { ChevronLeft, Heart, Link2, Mail, Share2 } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs'
@@ -7,6 +8,7 @@ import { QuantityStepper } from '@/components/shared/QuantityStepper'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CATEGORY_LABELS } from '@/features/catalog/search-params'
+import { DESKTOP_QUERY, useMediaQuery } from '@/hooks/use-media-query'
 import { formatDate, tokenId } from '@/lib/format'
 import { mulEth } from '@/lib/money'
 import { NETWORKS } from '@/mocks/fixtures/networks'
@@ -18,20 +20,30 @@ import { NftGallery } from './NftGallery'
 
 export interface NftDetailProps {
   nft: Nft
-  /** Favourite toggle (wired by the favourites feature). */
-  favoriteSlot?: ReactNode
+  /** Favourite toggle (wired by the favourites feature): outlined button on desktop, round button on mobile. */
+  renderFavorite?: (variant: 'inline' | 'circle') => ReactNode
   /** Purchase actions receive the current selection (wired by the cart feature). */
-  renderActions?: (selection: { editionId: string; quantity: number; canBuy: boolean }) => ReactNode
+  renderActions?: (selection: {
+    editionId: string
+    quantity: number
+    canBuy: boolean
+    variant: 'desktop' | 'mobile'
+  }) => ReactNode
   /** Banner shown when a realtime update changed this NFT. */
   updateNotice?: ReactNode
 }
 
 /**
- * Figma "Desktop / Detalhes do NFT" (10:244): breadcrumb, gallery on the left, then title,
+ * Desktop ("Desktop / Detalhes do NFT", 10:244): breadcrumb, gallery on the left, then title,
  * price with the collectors line, "Sobre este NFT", edition chips, quantity + actions, token
- * metadata and share links. Below, the "Detalhes do NFT" tabs over a hairline.
+ * metadata and share links; below, the "Detalhes do NFT" tabs over a hairline.
+ * Mobile ("Mobile / Detalhes do NFT", 15:5536): the artwork fills the width with a round back
+ * button and the favourite button over it; a rounded panel holds the title with the likes
+ * chip, the description, the edition chips, the metadata lines and a bottom block with the
+ * quantity, the price, the "Comprar NFT" pill and the round cart button.
  */
-export function NftDetail({ nft, favoriteSlot, renderActions, updateNotice }: NftDetailProps) {
+export function NftDetail({ nft, renderFavorite, renderActions, updateNotice }: NftDetailProps) {
+  const isDesktop = useMediaQuery(DESKTOP_QUERY)
   const selection = usePurchaseSelection(nft)
   const soldOut = nft.available <= 0
   const lineTotal = selection.edition
@@ -39,6 +51,203 @@ export function NftDetail({ nft, favoriteSlot, renderActions, updateNotice }: Nf
     : null
   const shareUrl = typeof window === 'undefined' ? '' : window.location.href
   const shareText = `${nft.name} na KURIO`
+
+  const editions = (
+    <EditionSelector
+      editions={nft.editions}
+      value={selection.editionId}
+      onChange={selection.setEditionId}
+    />
+  )
+
+  const metadata = (
+    <dl className="flex flex-col gap-2 text-sm leading-6 text-muted-foreground lg:text-sm">
+      <div className="flex gap-1">
+        <dt className="shrink-0">ID do token:</dt>
+        <dd className="font-mono">{tokenId(nft.id)}</dd>
+      </div>
+      <div className="flex gap-1">
+        <dt className="shrink-0">Coleção:</dt>
+        <dd>{nft.collection}</dd>
+      </div>
+      <div className="flex gap-1">
+        <dt className="shrink-0">Atributos:</dt>
+        <dd>{nft.traits.map((trait) => trait.value).join(', ')}</dd>
+      </div>
+    </dl>
+  )
+
+  const share = (
+    <div className="flex items-center gap-3">
+      <h2 className="text-[15px] leading-none font-bold">Compartilhar este NFT:</h2>
+      <ul className="flex items-center gap-2">
+        <li>
+          <button
+            type="button"
+            onClick={() => void navigator.clipboard?.writeText(shareUrl)}
+            aria-label="Copiar link do NFT"
+            className="inline-flex size-6 cursor-pointer items-center justify-center rounded-sm text-text-accent outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Link2 className="size-4" aria-hidden="true" />
+          </button>
+        </li>
+        <li>
+          <a
+            href={`mailto:?subject=${encodeURIComponent(shareText)}&body=${encodeURIComponent(shareUrl)}`}
+            aria-label="Compartilhar por e-mail"
+            className="inline-flex size-6 items-center justify-center rounded-sm text-text-accent outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Mail className="size-4" aria-hidden="true" />
+          </a>
+        </li>
+        <li>
+          <a
+            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Compartilhar nas redes sociais"
+            className="inline-flex size-6 items-center justify-center rounded-sm text-text-accent outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Share2 className="size-4" aria-hidden="true" />
+          </a>
+        </li>
+      </ul>
+    </div>
+  )
+
+  const quantityHint = selection.edition ? (
+    <p className="text-xs text-muted-foreground" data-testid="quantity-hint">
+      {selection.maxQuantity > 0
+        ? `Máximo de ${selection.maxQuantity} unidade${selection.maxQuantity === 1 ? '' : 's'} nesta edição · total `
+        : 'Edição indisponível no momento'}
+      {selection.maxQuantity > 0 ? (
+        <EthPrice value={lineTotal ?? '0'} className="font-bold text-text-accent" />
+      ) : null}
+    </p>
+  ) : null
+
+  const tabs = (
+    <Tabs defaultValue="details" className="mt-12 lg:mt-20">
+      <TabsList>
+        <TabsTrigger value="details">Detalhes do NFT</TabsTrigger>
+        <TabsTrigger value="traits">Atributos ({nft.traits.length})</TabsTrigger>
+      </TabsList>
+      <TabsContent value="details" className="flex flex-col gap-4 text-sm leading-6">
+        <p className="text-muted-foreground">
+          {nft.name} é uma obra digital da coleção {nft.collection}, categoria{' '}
+          {CATEGORY_LABELS[nft.category]}, criada por {nft.creator.name}. Cada atributo fica
+          armazenado nos metadados do token e verificado na rede.
+        </p>
+        <p className="text-muted-foreground">{nft.description}</p>
+        <dl className="flex flex-col gap-2">
+          <div>
+            <dt className="font-bold">Rede:</dt>
+            <dd className="text-muted-foreground">
+              Cunhado na {NETWORKS[nft.network].label} com procedência imutável e metadados
+              verificáveis.
+            </dd>
+          </div>
+          <div>
+            <dt className="font-bold">Edições:</dt>
+            <dd className="text-muted-foreground">
+              {nft.editions
+                .map((edition) => `${edition.name}: ${edition.available} de ${edition.total}`)
+                .join(' · ')}
+            </dd>
+          </div>
+          <div>
+            <dt className="font-bold">Publicado em:</dt>
+            <dd className="text-muted-foreground">{formatDate(nft.createdAt)}</dd>
+          </div>
+        </dl>
+      </TabsContent>
+      <TabsContent value="traits">
+        <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-4">
+          {nft.traits.map((trait) => (
+            <div key={trait.label} className="rounded-lg bg-card p-3">
+              <dt className="text-xs text-muted-foreground">{trait.label}</dt>
+              <dd className="font-bold">{trait.value}</dd>
+            </div>
+          ))}
+          <div className="rounded-lg bg-card p-3">
+            <dt className="text-xs text-muted-foreground">Criador</dt>
+            <dd className="font-bold">{nft.creator.name}</dd>
+          </div>
+        </dl>
+      </TabsContent>
+    </Tabs>
+  )
+
+  if (!isDesktop) {
+    return (
+      <article className="pt-4" data-testid="nft-detail" data-nft-version={nft.version}>
+        <div className="relative px-6">
+          <NftGallery name={nft.name} images={nft.images} variant="mobile" />
+          <Link
+            to="/"
+            hash="catalogo"
+            aria-label="Voltar ao mercado"
+            className="absolute top-3 left-9 inline-flex size-[46px] items-center justify-center rounded-full bg-background/70 text-text-accent backdrop-blur outline-none hover:bg-background focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <ChevronLeft className="size-5" aria-hidden="true" />
+          </Link>
+          <div className="absolute top-3 right-9">{renderFavorite?.('circle')}</div>
+        </div>
+
+        {updateNotice ? <div className="mx-6 mt-4">{updateNotice}</div> : null}
+
+        <section className="mt-4 rounded-t-[26px] bg-card px-6 pt-8 pb-6">
+          <div className="flex items-start justify-between gap-3">
+            <h1 className="text-2xl leading-tight font-bold">{nft.name}</h1>
+            {soldOut ? (
+              <Badge variant="muted">Esgotado</Badge>
+            ) : (
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-primary px-3 py-1 text-sm text-text-accent">
+                <Heart className="size-3.5 fill-primary text-primary" aria-hidden="true" />
+                <span className="tabular-nums">{nft.likes}</span>
+                <span className="sr-only">curtidas de colecionadores</span>
+              </span>
+            )}
+          </div>
+          <p className="mt-4 text-base leading-7 text-muted-foreground">{nft.description}</p>
+          <div className="mt-6">{editions}</div>
+          <div className="mt-5 text-base [&_dl]:text-base [&_dl]:leading-8">{metadata}</div>
+          <div className="mt-5">{share}</div>
+
+          <div className="mt-6 flex flex-col gap-4 rounded-2xl bg-surface-dark/40 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="text-base text-muted-foreground">Qtd.</span>
+                <QuantityStepper
+                  label="quantidade"
+                  value={selection.quantity}
+                  min={1}
+                  max={Math.max(1, selection.maxQuantity)}
+                  onChange={selection.setQuantity}
+                  disabled={!selection.canBuy}
+                />
+              </div>
+              <EthPrice
+                value={lineTotal ?? nft.priceEth}
+                className="text-2xl font-bold text-text-accent"
+              />
+            </div>
+            {quantityHint}
+            {renderActions && selection.editionId
+              ? renderActions({
+                  editionId: selection.editionId,
+                  quantity: selection.quantity,
+                  canBuy: selection.canBuy,
+                  variant: 'mobile',
+                })
+              : null}
+          </div>
+        </section>
+
+        <div className="px-6">{tabs}</div>
+      </article>
+    )
+  }
 
   return (
     <article
@@ -82,11 +291,7 @@ export function NftDetail({ nft, favoriteSlot, renderActions, updateNotice }: Nf
             <p className="text-sm leading-6 text-muted-foreground">{nft.description}</p>
           </div>
 
-          <EditionSelector
-            editions={nft.editions}
-            value={selection.editionId}
-            onChange={selection.setEditionId}
-          />
+          {editions}
 
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-col gap-2">
@@ -98,16 +303,7 @@ export function NftDetail({ nft, favoriteSlot, renderActions, updateNotice }: Nf
                 onChange={selection.setQuantity}
                 disabled={!selection.canBuy}
               />
-              {selection.edition ? (
-                <p className="text-xs text-muted-foreground" data-testid="quantity-hint">
-                  {selection.maxQuantity > 0
-                    ? `Máximo de ${selection.maxQuantity} unidade${selection.maxQuantity === 1 ? '' : 's'} nesta edição · total `
-                    : 'Edição indisponível no momento'}
-                  {selection.maxQuantity > 0 ? (
-                    <EthPrice value={lineTotal ?? '0'} className="font-bold text-text-accent" />
-                  ) : null}
-                </p>
-              ) : null}
+              {quantityHint}
             </div>
             <div className="flex flex-wrap items-center gap-3">
               {renderActions && selection.editionId
@@ -115,114 +311,19 @@ export function NftDetail({ nft, favoriteSlot, renderActions, updateNotice }: Nf
                     editionId: selection.editionId,
                     quantity: selection.quantity,
                     canBuy: selection.canBuy,
+                    variant: 'desktop',
                   })
                 : null}
-              {favoriteSlot}
+              {renderFavorite?.('inline')}
             </div>
           </div>
 
-          <dl className="flex flex-col gap-2 text-sm leading-6 text-muted-foreground">
-            <div className="flex gap-1">
-              <dt>ID do token:</dt>
-              <dd className="font-mono">{tokenId(nft.id)}</dd>
-            </div>
-            <div className="flex gap-1">
-              <dt>Coleção:</dt>
-              <dd>{nft.collection}</dd>
-            </div>
-            <div className="flex gap-1">
-              <dt>Atributos:</dt>
-              <dd>{nft.traits.map((trait) => trait.value).join(', ')}</dd>
-            </div>
-          </dl>
-
-          <div className="flex items-center gap-3">
-            <h2 className="text-[15px] leading-none font-bold">Compartilhar este NFT:</h2>
-            <ul className="flex items-center gap-2">
-              <li>
-                <button
-                  type="button"
-                  onClick={() => void navigator.clipboard?.writeText(shareUrl)}
-                  aria-label="Copiar link do NFT"
-                  className="inline-flex size-6 cursor-pointer items-center justify-center rounded-sm text-text-accent outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <Link2 className="size-4" aria-hidden="true" />
-                </button>
-              </li>
-              <li>
-                <a
-                  href={`mailto:?subject=${encodeURIComponent(shareText)}&body=${encodeURIComponent(shareUrl)}`}
-                  aria-label="Compartilhar por e-mail"
-                  className="inline-flex size-6 items-center justify-center rounded-sm text-text-accent outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <Mail className="size-4" aria-hidden="true" />
-                </a>
-              </li>
-              <li>
-                <a
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="Compartilhar nas redes sociais"
-                  className="inline-flex size-6 items-center justify-center rounded-sm text-text-accent outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <Share2 className="size-4" aria-hidden="true" />
-                </a>
-              </li>
-            </ul>
-          </div>
+          {metadata}
+          {share}
         </div>
       </div>
 
-      <Tabs defaultValue="details" className="mt-20">
-        <TabsList>
-          <TabsTrigger value="details">Detalhes do NFT</TabsTrigger>
-          <TabsTrigger value="traits">Atributos ({nft.traits.length})</TabsTrigger>
-        </TabsList>
-        <TabsContent value="details" className="flex flex-col gap-4 text-sm leading-6">
-          <p className="text-muted-foreground">
-            {nft.name} é uma obra digital da coleção {nft.collection}, categoria{' '}
-            {CATEGORY_LABELS[nft.category]}, criada por {nft.creator.name}. Cada atributo fica
-            armazenado nos metadados do token e verificado na rede.
-          </p>
-          <p className="text-muted-foreground">{nft.description}</p>
-          <dl className="flex flex-col gap-2">
-            <div>
-              <dt className="font-bold">Rede:</dt>
-              <dd className="text-muted-foreground">
-                Cunhado na {NETWORKS[nft.network].label} com procedência imutável e metadados
-                verificáveis.
-              </dd>
-            </div>
-            <div>
-              <dt className="font-bold">Edições:</dt>
-              <dd className="text-muted-foreground">
-                {nft.editions
-                  .map((edition) => `${edition.name}: ${edition.available} de ${edition.total}`)
-                  .join(' · ')}
-              </dd>
-            </div>
-            <div>
-              <dt className="font-bold">Publicado em:</dt>
-              <dd className="text-muted-foreground">{formatDate(nft.createdAt)}</dd>
-            </div>
-          </dl>
-        </TabsContent>
-        <TabsContent value="traits">
-          <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-4">
-            {nft.traits.map((trait) => (
-              <div key={trait.label} className="rounded-lg bg-card p-3">
-                <dt className="text-xs text-muted-foreground">{trait.label}</dt>
-                <dd className="font-bold">{trait.value}</dd>
-              </div>
-            ))}
-            <div className="rounded-lg bg-card p-3">
-              <dt className="text-xs text-muted-foreground">Criador</dt>
-              <dd className="font-bold">{nft.creator.name}</dd>
-            </div>
-          </dl>
-        </TabsContent>
-      </Tabs>
+      {tabs}
     </article>
   )
 }

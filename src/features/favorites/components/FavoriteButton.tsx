@@ -9,8 +9,11 @@ interface FavoriteButtonProps {
   nftId: string
   name: string
   summary?: NftSummary
-  /** `overlay` floats over the card image; `inline` is the outlined "Favoritar" button of the detail frame. */
-  variant?: 'overlay' | 'inline'
+  /**
+   * `overlay` floats over the card image; `inline` is the outlined "Favoritar" button of the
+   * desktop detail frame; `circle` is the round button over the artwork on the mobile frame.
+   */
+  variant?: 'overlay' | 'inline' | 'circle'
   className?: string
 }
 
@@ -37,7 +40,9 @@ export function FavoriteButton({
         'inline-flex cursor-pointer items-center justify-center gap-2 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring',
         variant === 'overlay'
           ? 'size-9 rounded-full bg-background/80 text-foreground backdrop-blur hover:bg-background'
-          : 'h-10 rounded-md border border-primary px-4 text-sm font-bold text-text-accent hover:bg-primary/10',
+          : variant === 'circle'
+            ? 'size-[46px] rounded-full bg-background/70 text-text-accent backdrop-blur hover:bg-background [&_svg]:size-5'
+            : 'h-10 rounded-md border border-primary px-4 text-sm font-bold text-text-accent hover:bg-primary/10',
         active && variant === 'overlay' && 'text-primary',
         className,
       )}

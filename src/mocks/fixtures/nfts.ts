@@ -193,6 +193,7 @@ export function buildNftFixtures(): Nft[] {
       priceEth: basePrice,
       available,
       featured: [0, 3, 8, 11].includes(index),
+      rare: index % 5 === 0,
       likes: 180 - index * 6 + (index % 5) * 11,
       createdAt,
       version: 1,

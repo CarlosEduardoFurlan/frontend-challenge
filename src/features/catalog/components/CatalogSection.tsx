@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { SlidersHorizontal } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -18,7 +17,6 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from '@/components/ui/sheet'
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton'
 import { DESKTOP_QUERY, useMediaQuery } from '@/hooks/use-media-query'
@@ -40,6 +38,9 @@ import { FeaturedBanner } from './FeaturedBanner'
 interface CatalogSectionProps {
   search: CatalogSearch
   renderCardBadge?: (nftId: string) => ReactNode
+  /** Mobile filter sheet, controlled by the home page (its trigger sits in the search bar). */
+  filtersOpen?: boolean
+  onFiltersOpenChange?: (open: boolean) => void
 }
 
 /** Figma toolbar tabs; each one is a sort preset ("Todos os NFTs" = relevance). */
@@ -54,12 +55,19 @@ const TABS: Array<{ label: string; sort: SortOption }> = [
  * apart) and the product grid 48px to the right: toolbar (tabs + "Ordenar por"), rows of three
  * 258px cards (34px column gap, 72px row gap) and the right-aligned pagination 88px below.
  */
-export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps) {
+export function CatalogSection({
+  search,
+  renderCardBadge,
+  filtersOpen: controlledOpen,
+  onFiltersOpenChange,
+}: CatalogSectionProps) {
   const navigate = useNavigate()
   const resolved = resolveCatalogSearch(search)
   const params = toListParams(resolved)
   const list = useQuery(nftListQuery(params))
-  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
+  const filtersOpen = controlledOpen ?? uncontrolledOpen
+  const setFiltersOpen = onFiltersOpenChange ?? setUncontrolledOpen
   const resultsRef = useRef<HTMLDivElement>(null)
   const isDesktop = useMediaQuery(DESKTOP_QUERY)
 
@@ -146,7 +154,7 @@ export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps)
     <section
       id="catalogo"
       aria-labelledby="catalog-title"
-      className="container-page scroll-mt-24 pt-24"
+      className="container-page scroll-mt-24 pt-10 lg:pt-24"
     >
       <h2 id="catalog-title" className="sr-only">
         Catálogo
@@ -190,7 +198,7 @@ export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps)
               })}
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
+            {isDesktop ? (
               <div className="flex items-center gap-1 pb-[5px] text-[15px] leading-none">
                 <Label htmlFor="catalog-sort" className="text-[15px] whitespace-nowrap">
                   Ordenar por:
@@ -209,25 +217,17 @@ export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps)
                   ))}
                 </NativeSelect>
               </div>
-
-              {isDesktop ? null : (
-                <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
-                  <SheetTrigger asChild>
-                    <Button variant="outline" size="sm" data-testid="open-filters">
-                      <SlidersHorizontal aria-hidden="true" />
-                      Filtros
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="bottom" className="max-h-[85dvh] p-0">
-                    <SheetHeader className="px-5 pt-5">
-                      <SheetTitle>Filtros</SheetTitle>
-                      <SheetDescription>Refine os resultados do catálogo.</SheetDescription>
-                    </SheetHeader>
-                    {filters}
-                  </SheetContent>
-                </Sheet>
-              )}
-            </div>
+            ) : (
+              <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+                <SheetContent side="bottom" className="max-h-[85dvh] p-0">
+                  <SheetHeader className="px-5 pt-5">
+                    <SheetTitle>Filtros</SheetTitle>
+                    <SheetDescription>Refine os resultados do catálogo.</SheetDescription>
+                  </SheetHeader>
+                  {filters}
+                </SheetContent>
+              </Sheet>
+            )}
           </div>
 
           <div
@@ -239,6 +239,27 @@ export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps)
             <p data-testid="catalog-count">
               {data ? `${data.total} resultado${data.total === 1 ? '' : 's'}` : ' '}
             </p>
+            {isDesktop ? null : (
+              <div className="ml-auto flex items-center gap-1">
+                <Label htmlFor="catalog-sort" className="text-xs whitespace-nowrap text-brass">
+                  Ordenar por:
+                </Label>
+                <NativeSelect
+                  id="catalog-sort"
+                  appearance="inline"
+                  value={resolved.sort}
+                  onChange={(e) => applySearch({ sort: e.target.value as SortOption })}
+                  className="h-5 text-xs"
+                  data-testid="catalog-sort"
+                >
+                  {SORT_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {SORT_LABELS[option]}
+                    </option>
+                  ))}
+                </NativeSelect>
+              </div>
+            )}
             {refreshing ? (
               <Badge variant="muted" data-testid="catalog-refreshing">
                 Atualizando…
@@ -278,7 +299,7 @@ export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps)
             <>
               <ul
                 className={cn(
-                  'mt-6 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:gap-x-[34px] lg:gap-y-[72px]',
+                  'mt-6 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:gap-x-[34px] lg:gap-y-[72px]',
                   refreshing && 'opacity-80',
                 )}
                 data-testid="catalog-grid"
@@ -293,6 +314,7 @@ export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps)
                       imageUrl={nft.imageUrl}
                       priceEth={nft.priceEth}
                       available={nft.available}
+                      rare={nft.rare}
                       priority={index < 3}
                       badge={renderCardBadge?.(nft.id)}
                       favoriteSlot={<FavoriteButton nftId={nft.id} name={nft.name} summary={nft} />}

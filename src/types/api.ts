@@ -110,6 +110,8 @@ export interface NftSummary {
   /** Sum of edition availability. */
   available: number
   featured: boolean
+  /** Carries the "Raridade: Rara" trait (ribbon on the mobile cards). */
+  rare: boolean
   likes: number
   createdAt: string
   /** Monotonic version bumped on every price/availability change. */

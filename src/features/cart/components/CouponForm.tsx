@@ -5,20 +5,24 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toApiError } from '@/services/api/errors'
+import { cn } from '@/lib/utils'
 
 import { useApplyCoupon, useRemoveCoupon } from '../hooks'
 
 interface CouponFormProps {
   appliedCode: string | null
   description?: string | null
+  /** `desktop`: labelled field with the attached button (11:1278); `mobile`: pill field (16:360). */
+  variant?: 'desktop' | 'mobile'
 }
 
-/** Figma "Código promocional": bold label, bordered field with the attached "Aplicar" button. */
-export function CouponForm({ appliedCode, description }: CouponFormProps) {
+/** Figma "Código promocional": field with the attached "Aplicar" button. */
+export function CouponForm({ appliedCode, description, variant = 'desktop' }: CouponFormProps) {
   const apply = useApplyCoupon()
   const remove = useRemoveCoupon()
   const [code, setCode] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const mobile = variant === 'mobile'
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -35,9 +39,12 @@ export function CouponForm({ appliedCode, description }: CouponFormProps) {
   if (appliedCode) {
     return (
       <div className="flex flex-col gap-2">
-        <p className="text-sm font-bold">Código promocional</p>
+        {mobile ? null : <p className="text-sm font-bold">Código promocional</p>}
         <div
-          className="flex h-10 items-center justify-between gap-3 rounded-md border border-primary px-3"
+          className={cn(
+            'flex h-10 items-center justify-between gap-3 border border-primary px-3',
+            mobile ? 'h-[50px] rounded-full px-5' : 'rounded-md',
+          )}
           data-testid="coupon-applied"
         >
           <div className="flex min-w-0 items-center gap-2 text-sm">
@@ -65,10 +72,15 @@ export function CouponForm({ appliedCode, description }: CouponFormProps) {
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-2" noValidate data-testid="coupon-form">
-      <Label htmlFor="coupon-code" className="text-sm font-bold">
+      <Label htmlFor="coupon-code" className={cn('text-sm font-bold', mobile && 'sr-only')}>
         Código promocional
       </Label>
-      <div className="flex h-10 rounded-md border border-input focus-within:border-primary">
+      <div
+        className={cn(
+          'flex border border-input focus-within:border-primary',
+          mobile ? 'h-[50px] rounded-full' : 'h-10 rounded-md',
+        )}
+      >
         <Input
           id="coupon-code"
           value={code}
@@ -78,12 +90,20 @@ export function CouponForm({ appliedCode, description }: CouponFormProps) {
           autoComplete="off"
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? 'coupon-error' : 'coupon-hint'}
-          className="h-full rounded-r-none border-0 text-xs focus-visible:ring-0"
+          className={cn(
+            'h-full rounded-r-none border-0 focus-visible:ring-0',
+            mobile ? 'rounded-l-full pl-5 text-sm' : 'text-xs',
+          )}
           data-testid="coupon-input"
         />
         <Button
           type="submit"
-          className="h-full rounded-l-none px-5"
+          className={cn(
+            'h-full',
+            mobile
+              ? 'rounded-full bg-[linear-gradient(90deg,#e89b55_0%,#d28a4c_100%)] px-6 text-lg'
+              : 'rounded-l-none px-5',
+          )}
           loading={apply.isPending}
           disabled={!code.trim()}
           data-testid="coupon-apply"

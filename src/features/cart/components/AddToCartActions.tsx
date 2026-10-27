@@ -11,10 +11,17 @@ interface AddToCartActionsProps {
   editionId: string
   quantity: number
   canBuy: boolean
+  /** `desktop`: "COMPRAR" + outlined add-to-cart (10:244); `mobile`: "Comprar NFT" pill + round cart button (15:5536). */
+  variant?: 'desktop' | 'mobile'
 }
 
-/** Figma detail actions: the primary "COMPRAR" button plus an outlined add-to-cart action. */
-export function AddToCartActions({ nftId, editionId, quantity, canBuy }: AddToCartActionsProps) {
+export function AddToCartActions({
+  nftId,
+  editionId,
+  quantity,
+  canBuy,
+  variant = 'desktop',
+}: AddToCartActionsProps) {
   const add = useAddToCart()
   const buy = useBuyNow()
   const { isAuthenticated } = useSession()
@@ -28,6 +35,34 @@ export function AddToCartActions({ nftId, editionId, quantity, canBuy }: AddToCa
       return
     }
     await buy.buyNow({ nftId, editionId, quantity })
+  }
+
+  if (variant === 'mobile') {
+    return (
+      <div className="flex items-center gap-4">
+        <Button
+          size="pill"
+          className="flex-1"
+          disabled={!canBuy}
+          loading={buy.isPending}
+          onClick={() => void handleBuyNow()}
+          data-testid="buy-now"
+        >
+          Comprar NFT
+        </Button>
+        <Button
+          variant="secondary"
+          className="size-[60px] shrink-0 rounded-full border-0 bg-surface-dark/70 text-text-accent [&_svg]:size-6"
+          disabled={!canBuy}
+          loading={add.isPending}
+          onClick={() => add.mutate({ nftId, editionId, quantity })}
+          aria-label="Adicionar ao carrinho"
+          data-testid="add-to-cart"
+        >
+          {add.isPending ? null : <ShoppingCart aria-hidden="true" />}
+        </Button>
+      </div>
+    )
   }
 
   return (

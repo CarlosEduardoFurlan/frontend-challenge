@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs'
+import { MobileTopBar } from '@/components/shared/MobileChrome'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { announce } from '@/components/shared/LiveAnnouncer'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -26,6 +27,7 @@ import { useQuote } from '@/features/cart/hooks'
 import { QuoteSummary } from '@/features/cart/components/QuoteSummary'
 import { profileQuery } from '@/features/profile/hooks'
 import { useWallets } from '@/features/wallets/hooks'
+import { DESKTOP_QUERY, useMediaQuery } from '@/hooks/use-media-query'
 import { queryKeys } from '@/lib/query-keys'
 import { isApiError, toApiError } from '@/services/api/errors'
 import type { NetworkId, Quote, User } from '@/types/api'
@@ -46,6 +48,7 @@ interface CheckoutPageProps {
  * rede" options and the "Confirmar compra" button on the right.
  */
 export function CheckoutPage({ user }: CheckoutPageProps) {
+  const isDesktop = useMediaQuery(DESKTOP_QUERY)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const initialDraft = useMemo(() => readDraft(user.id), [user.id])
@@ -222,7 +225,8 @@ export function CheckoutPage({ user }: CheckoutPageProps) {
     }
   }
 
-  const breadcrumbs = (
+  // Mobile frame 16:748 opens with a round back button and the centred "Pagamento com carteira".
+  const breadcrumbs = isDesktop ? (
     <Breadcrumbs
       items={[
         { label: 'Início', to: '/' },
@@ -230,6 +234,8 @@ export function CheckoutPage({ user }: CheckoutPageProps) {
         { label: 'Pagamento' },
       ]}
     />
+  ) : (
+    <MobileTopBar title="Pagamento com carteira" backTo="/cart" className="-mx-6 -mt-4" />
   )
 
   if (wallets.isPending || profile.isPending || quote.cart.isPending) {
@@ -294,9 +300,15 @@ export function CheckoutPage({ user }: CheckoutPageProps) {
           data-testid="checkout-form"
         >
           <div className="flex flex-col gap-6">
-            <h1 id="checkout-title" className="text-lg leading-none font-bold">
-              Perfil do colecionador
-            </h1>
+            {isDesktop ? (
+              <h1 id="checkout-title" className="text-lg leading-none font-bold">
+                Perfil do colecionador
+              </h1>
+            ) : (
+              <h2 id="checkout-title" className="text-lg leading-none font-bold">
+                Perfil do colecionador
+              </h2>
+            )}
             <div className="grid gap-x-6 gap-y-6 sm:grid-cols-2">
               <FormField
                 control={form.control}

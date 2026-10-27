@@ -16,6 +16,8 @@ export interface NftCardProps {
   imageUrl: string
   priceEth: DecimalString
   available: number
+  /** "RARO" ribbon of the mobile frame (NFTs with the rare trait). */
+  rare?: boolean
   /** Favourite toggle rendered over the image (see features/favorites). */
   favoriteSlot?: ReactNode
   /** Extra badge (e.g. "Preço atualizado") rendered on the image. */
@@ -25,9 +27,10 @@ export interface NftCardProps {
 }
 
 /**
- * Figma product card (home frame, 258 wide): a 300px color/surface-card box holding the
- * 250px artwork with 15px radius, then the name (16 regular, foreground) and the price
- * (18 bold, text-accent) 12px apart. The box has square corners in the design.
+ * Desktop product card (home frame, 258 wide): a 300px color/surface-card box with square
+ * corners holding the 250px artwork (15px radius), then the name (16 regular) and the price
+ * (18 bold, text-accent) 12px apart. Mobile (14:5226): the box gets 20px rounded corners, a
+ * round favourite button and the "RARO" ribbon on rare pieces.
  */
 export function NftCard({
   id,
@@ -36,6 +39,7 @@ export function NftCard({
   imageUrl,
   priceEth,
   available,
+  rare,
   favoriteSlot,
   badge,
   className,
@@ -49,7 +53,7 @@ export function NftCard({
       data-testid="nft-card"
       data-nft-id={id}
     >
-      <div className="relative flex aspect-[258/300] w-full items-center justify-center bg-card p-[4px] sm:p-[8px]">
+      <div className="relative flex aspect-[258/300] w-full items-center justify-center rounded-[20px] bg-card p-2 lg:rounded-none lg:p-[8px]">
         <Link
           to="/nft/$nftId"
           params={{ nftId: id }}
@@ -64,9 +68,13 @@ export function NftCard({
           </Badge>
         ) : badge ? (
           <div className="absolute top-2 left-2">{badge}</div>
+        ) : rare ? (
+          <span className="absolute top-2 left-2 rounded-tl-[14px] bg-primary px-3 py-1 text-xs font-bold text-primary-foreground uppercase lg:hidden">
+            Raro
+          </span>
         ) : null}
         {favoriteSlot ? (
-          <div className="absolute top-2 right-2 transition-opacity lg:opacity-0 lg:group-focus-within:opacity-100 lg:group-hover:opacity-100">
+          <div className="absolute top-3 right-3 transition-opacity lg:top-2 lg:right-2 lg:opacity-0 lg:group-focus-within:opacity-100 lg:group-hover:opacity-100">
             {favoriteSlot}
           </div>
         ) : null}
@@ -97,7 +105,7 @@ export function NftCard({
 export function NftCardSkeleton({ className }: { className?: string }) {
   return (
     <div className={cn('flex flex-col gap-3', className)} data-testid="nft-card-skeleton">
-      <div className="flex aspect-[258/300] w-full items-center justify-center bg-card p-[4px] sm:p-[8px]">
+      <div className="flex aspect-[258/300] w-full items-center justify-center rounded-[20px] bg-card p-2 lg:rounded-none lg:p-[8px]">
         <Skeleton className="aspect-square w-full max-w-[250px] rounded-art" />
       </div>
       {/* Line heights mirror the real card (16 / 16 / 16 rows, 6px gaps) to avoid shifts. */}
