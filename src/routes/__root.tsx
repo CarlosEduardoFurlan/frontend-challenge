@@ -4,6 +4,7 @@ import { AppFooter } from '@/components/shared/AppFooter'
 import { AppHeader } from '@/components/shared/AppHeader'
 import { LiveAnnouncer } from '@/components/shared/LiveAnnouncer'
 import { Toaster } from '@/components/ui/toaster'
+import { MockPanel } from '@/features/mock-panel/MockPanel'
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -26,6 +27,7 @@ function RootLayout() {
       <AppFooter />
       <Toaster />
       <LiveAnnouncer />
+      <MockPanel />
     </div>
   )
 }
