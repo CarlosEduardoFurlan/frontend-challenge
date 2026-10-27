@@ -1,20 +1,14 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Info } from 'lucide-react'
-import { z } from 'zod'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { parseAuthSearch } from '@/features/auth/auth-search'
 import { AuthLayout } from '@/features/auth/components/AuthLayout'
 import { LoginForm } from '@/features/auth/components/LoginForm'
 import { sanitizeRedirect } from '@/features/auth/require-auth'
-import { DEMO_USERS } from '@/mocks/fixtures/users'
-
-const loginSearchSchema = z.object({
-  redirect: z.string().optional().catch(undefined),
-  reason: z.enum(['expired', 'required']).optional().catch(undefined),
-})
 
 export const Route = createFileRoute('/login')({
-  validateSearch: loginSearchSchema,
+  validateSearch: parseAuthSearch,
   component: LoginPage,
 })
 
@@ -26,7 +20,7 @@ const REASON_MESSAGES = {
 function LoginPage() {
   const { redirect, reason } = Route.useSearch()
   const navigate = useNavigate()
-  const demo = DEMO_USERS[0]
+  const demo = { email: 'ana@example.com', password: 'Senha@123' }
 
   return (
     <AuthLayout

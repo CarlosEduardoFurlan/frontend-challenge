@@ -1,6 +1,7 @@
 import type { QueryClient } from '@tanstack/react-query'
 
-import { formatEth, mulEth } from '@/lib/money'
+import { mulEth } from '@/lib/money'
+import { formatEth } from '@/lib/money-format'
 import { queryKeys } from '@/lib/query-keys'
 import type {
   Cart,
@@ -77,6 +78,14 @@ export function applyNftUpdated(
   }
   const viewingDetail =
     (queryClient.getQueryCache().find({ queryKey: detailKey })?.getObserversCount() ?? 0) > 0
+  // A fetch in flight may return data computed before this event: schedule a refetch so the
+  // cache ends up consistent with the server after the current request settles.
+  if (queryClient.getQueryState(detailKey)?.fetchStatus === 'fetching') {
+    void queryClient.invalidateQueries({ queryKey: detailKey })
+  }
+  if (queryClient.isFetching({ queryKey: queryKeys.nfts.lists }) > 0) {
+    void queryClient.invalidateQueries({ queryKey: queryKeys.nfts.lists })
+  }
 
   // Lists (catalog pages, featured, related)
   queryClient.setQueriesData<NftListResponse>({ queryKey: queryKeys.nfts.lists }, (list) =>

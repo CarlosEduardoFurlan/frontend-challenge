@@ -1,4 +1,4 @@
-import { formatEth, type DecimalString } from '@/lib/money'
+import { formatEth, type DecimalString } from '@/lib/money-format'
 import { cn } from '@/lib/utils'
 
 interface EthPriceProps {

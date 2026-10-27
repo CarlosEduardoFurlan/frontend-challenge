@@ -28,7 +28,7 @@ import { cn } from '@/lib/utils'
 
 import { nftListQuery, toListParams } from '../queries'
 import {
-  catalogSearchSchema,
+  parseCatalogSearch,
   resolveCatalogSearch,
   SORT_LABELS,
   SORT_OPTIONS,
@@ -63,7 +63,7 @@ export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps)
         hash: 'catalogo',
         replace: false,
         search: (prev) => {
-          const next = { ...catalogSearchSchema.parse(prev), ...normalisePatch(patch) }
+          const next = { ...parseCatalogSearch(prev), ...normalisePatch(patch) }
           if (!options?.keepPage) delete next.page
           return next
         },
@@ -105,7 +105,7 @@ export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps)
         hash: 'catalogo',
         replace: true,
         search: (prev) => ({
-          ...catalogSearchSchema.parse(prev),
+          ...parseCatalogSearch(prev),
           page: list.data.totalPages > 1 ? list.data.totalPages : undefined,
         }),
       })
