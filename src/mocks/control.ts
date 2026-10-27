@@ -2,7 +2,7 @@ import type { NftUpdatedEvent } from '@/types/api'
 
 import { replayNftEvent, updateEditionAvailability, updateEditionPrice } from './lib/nft-store'
 import { getCurrentScenarioId, setScenario } from './lib/scenario-state'
-import { resetDb } from './persistence/db'
+import { getDb, persist, resetDb } from './persistence/db'
 import { listScenarios } from './scenarios'
 
 /**
@@ -15,6 +15,8 @@ export interface MockControlApi {
   setScenario(id: string): string
   listScenarios(): ReturnType<typeof listScenarios>
   reset(): Promise<void>
+  /** Expires every active session server-side (simulates token revocation / TTL end). */
+  expireSessions(): number
   updatePrice(nftId: string, editionId: string, priceEth: string): NftUpdatedEvent | null
   updateAvailability(nftId: string, editionId: string, available: number): NftUpdatedEvent | null
   replayNftEvent(
@@ -29,6 +31,14 @@ declare global {
   }
 }
 
+export function expireSessions(): number {
+  const db = getDb()
+  const past = new Date(Date.now() - 1000).toISOString()
+  db.sessions.forEach((session) => (session.expiresAt = past))
+  persist()
+  return db.sessions.length
+}
+
 export function installMockControl(): void {
   window.__mock = {
     getScenario: getCurrentScenarioId,
@@ -37,6 +47,7 @@ export function installMockControl(): void {
     reset: async () => {
       await resetDb()
     },
+    expireSessions,
     updatePrice: updateEditionPrice,
     updateAvailability: updateEditionAvailability,
     replayNftEvent,

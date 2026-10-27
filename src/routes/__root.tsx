@@ -4,6 +4,8 @@ import { AppFooter } from '@/components/shared/AppFooter'
 import { AppHeader } from '@/components/shared/AppHeader'
 import { LiveAnnouncer } from '@/components/shared/LiveAnnouncer'
 import { Toaster } from '@/components/ui/toaster'
+import { SessionWatcher } from '@/features/auth/components/SessionWatcher'
+import { useLogout, useSession } from '@/features/auth/hooks'
 import { MockPanel } from '@/features/mock-panel/MockPanel'
 
 export const Route = createRootRoute({
@@ -12,6 +14,9 @@ export const Route = createRootRoute({
 })
 
 function RootLayout() {
+  const session = useSession()
+  const logout = useLogout()
+
   return (
     <div className="flex min-h-dvh flex-col">
       <a
@@ -20,13 +25,19 @@ function RootLayout() {
       >
         Pular para o conteúdo
       </a>
-      <AppHeader user={null} cartCount={0} onLogout={() => undefined} />
+      <AppHeader
+        user={session.user}
+        sessionLoading={session.isLoading}
+        cartCount={0}
+        onLogout={() => logout.mutate()}
+      />
       <main id="main-content" className="flex-1" tabIndex={-1}>
         <Outlet />
       </main>
       <AppFooter />
       <Toaster />
       <LiveAnnouncer />
+      <SessionWatcher />
       <MockPanel />
     </div>
   )

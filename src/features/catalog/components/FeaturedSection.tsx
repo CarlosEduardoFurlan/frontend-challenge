@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { NftCard, NftCardSkeleton } from '@/components/shared/NftCard'
 import { SectionHeading } from '@/components/shared/SectionHeading'
+import { FavoriteButton } from '@/features/favorites/components/FavoriteButton'
 
 import { featuredNftsQuery } from '../queries'
 
@@ -43,6 +44,7 @@ export function FeaturedSection() {
                     imageUrl={nft.imageUrl}
                     priceEth={nft.priceEth}
                     available={nft.available}
+                    favoriteSlot={<FavoriteButton nftId={nft.id} name={nft.name} summary={nft} />}
                     className="h-full"
                   />
                 </li>

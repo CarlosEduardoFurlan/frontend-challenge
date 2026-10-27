@@ -7,8 +7,11 @@ import '@/app/styles/globals.css'
 import { AppProviders } from '@/app/providers/AppProviders'
 import { createAppRouter } from '@/app/router/router'
 import { enableMocking } from '@/mocks/enable'
+import { apiClient } from '@/services/api/client'
+import { installSessionInterceptors } from '@/services/api/interceptors'
 
 async function bootstrap() {
+  installSessionInterceptors(apiClient)
   await enableMocking()
 
   const router = createAppRouter()

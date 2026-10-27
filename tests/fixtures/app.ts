@@ -47,9 +47,10 @@ export const test = base.extend<{ app: AppFixture }>({
         await page.evaluate(() => window.__mock!.reset())
       },
       async login(email = DEMO.ana.email, password = DEMO.ana.password) {
-        await page.getByLabel('E-mail').fill(email)
-        await page.getByLabel('Senha', { exact: true }).fill(password)
-        await page.getByRole('button', { name: 'Entrar' }).click()
+        const form = page.getByTestId('login-form')
+        await form.getByLabel('E-mail').fill(email)
+        await form.getByLabel('Senha', { exact: true }).fill(password)
+        await form.getByRole('button', { name: 'Entrar' }).click()
         await expect(page.getByTestId('header-user-menu')).toBeVisible()
       },
     }
