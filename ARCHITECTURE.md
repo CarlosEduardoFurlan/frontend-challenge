@@ -14,7 +14,7 @@ src/
 ├── routes/       rotas file-based do TanStack Router (componentes lazy por rota)
 └── types/        contratos REST e de eventos compartilhados por mocks, services e UI
 tests/            e2e (12 grupos), visual (baselines), fixtures (app fixture)
-scripts/          lighthouse.mjs, screenshot.mjs, generate-artwork.py, dev/ (análise)
+scripts/          lighthouse.mjs, screenshot.mjs, figma-assets.py, figma-compare.py, dev/ (análise)
 lighthouse/       README com resultados, relatórios versionados
 ```
 
@@ -153,11 +153,20 @@ O recibo guarda o snapshot dos itens e valores.
 
 ## 10. Figma, assets e desvios
 
-- Figma inacessível por API/MCP (403 sem token); apenas o thumbnail público de 800 px foi usado
-  para derivar paleta, tipografia display e composição. **Fidelidade não verificada.**
-- Artes dos NFTs, avatares e logo gerados localmente (`scripts/generate-artwork.py`, SVG).
-- Fontes substituídas por Silkscreen + Inter (locais, subconjunto Latin).
-- Wordmark "NFT Market" definido por falta de acesso ao nome/logo original.
+- Figma lido pelo MCP remoto oficial: variáveis de cor, estilos de texto e o design context do
+  frame "Desktop / Início" alimentam `globals.css`, os primitivos de UI e os componentes da home;
+  os demais frames capturados (detalhe, carrinho, pagamento, confirmação, carteiras, pagamento
+  mobile) foram reproduzidos a partir das referências em `docs/figma-comparison/figma-reference/`.
+- Cota do plano Starter (20 chamadas/mês) impediu a captura de 8 frames (login, cadastro, perfil e
+  as versões mobile de início, detalhe, carrinho, login e cadastro): essas telas usam o design
+  system sem verificação frame a frame. Tudo registrado em `docs/FIGMA-AUDIT.md`.
+- Assets: as quatro artes e os ícones do arquivo são convertidos por `scripts/figma-assets.py`
+  para `public/assets/` (WebP 320/640/1024 e SVG); o mapeamento id → arte em
+  `src/mocks/fixtures/nfts.ts` é replicado no preload de LCP do `index.html`.
+- Divergências assumidas para manter a funcionalidade exigida: botão "Adicionar ao carrinho" ao
+  lado de "COMPRAR", contagem/disponibilidade nos cards, favorito ao passar o mouse, busca atrás do
+  ícone do header, filtro "Disponibilidade" e campos de checkout reais em vez dos campos fictícios
+  do design (ENS, código de indicação).
 
 ## 11. Limitações técnicas
 

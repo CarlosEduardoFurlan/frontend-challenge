@@ -29,7 +29,8 @@ react-hook-form · Playwright · Lighthouse · ESLint + Prettier.
 ## Pré-requisitos e instalação
 
 - Node.js ≥ 20 (desenvolvido com 24) e npm ≥ 10.
-- Python 3 + Pillow apenas se quiser regenerar as artes (`scripts/generate-artwork.py`).
+- Python 3 + Pillow apenas para reconverter os assets do Figma (`scripts/figma-assets.py`) ou
+  gerar as folhas de comparação (`scripts/figma-compare.py`).
 
 ```bash
 npm ci                      # dependências (lockfile versionado)
@@ -139,11 +140,14 @@ corresponder ao commit da branch `main` após o merge do PR final.
 
 ## Principais decisões e limitações
 
-- **Figma**: a API do Figma exige token e não havia integração MCP; apenas o thumbnail público
-  foi analisado. A identidade visual (paleta quente escura, laranja, display pixelado) foi derivada
-  dele; **fidelidade pixel a pixel não foi verificada**. Artes dos NFTs são geradas localmente
-  (`scripts/generate-artwork.py`), pois os assets originais não eram acessíveis.
-- **Fontes**: Silkscreen (display) e Inter (texto), locais em `public/fonts` (subconjunto Latin).
+- **Figma**: inspecionado pelo MCP oficial do Figma (arquivo "Frontend Challenge (Copy)"). Tokens,
+  tipografia e assets vêm das variáveis e exports do arquivo; 7 dos 15 frames foram comparados
+  lado a lado (início, detalhe, carrinho, pagamento, confirmação, carteiras e pagamento mobile).
+  Os 8 frames restantes não puderam ser capturados porque o plano Starter do Figma limita o MCP a
+  20 chamadas de leitura por mês; essas telas seguem o design system sem verificação por frame.
+  Detalhes, comparações e divergências assumidas em [`docs/FIGMA-AUDIT.md`](docs/FIGMA-AUDIT.md).
+- **Fontes**: Roboto Mono (400/500/700), única família do arquivo, local em `public/fonts`
+  (subconjunto Latin). Artes e ícones originais em `public/assets/`.
 - **Socket.IO sobre MSW**: ver limitações do binding e contornos em `ARCHITECTURE.md`.
 - **Lighthouse mobile** no modo simulado fica em 86/83 (meta 90); no modo devtools, 99/96.
   Causas documentadas em `lighthouse/README.md`.
