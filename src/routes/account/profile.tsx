@@ -11,9 +11,8 @@ export const Route = createFileRoute('/account/profile')({
 })
 
 /**
- * Profile screen in the account shell. The Figma frame for this screen (9:1238) could not be
- * fetched (MCP rate limit); the layout mirrors the Carteiras frame: 20px bold title, 14px
- * description and a two-column form.
+ * "Desktop / Perfil do colecionador" (9:1238): 16px bold section titles, a two-column form with
+ * the avatar row and a narrow single-column "Alterar senha" block.
  */
 function ProfilePage() {
   const profile = useProfile()
@@ -21,12 +20,7 @@ function ProfilePage() {
   return (
     <div className="flex flex-col gap-10">
       <section className="flex flex-col gap-6">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-xl leading-tight font-bold">Dados do perfil</h1>
-          <p className="text-sm text-muted-foreground">
-            Nome, nome de usuário, bio e avatar exibidos na sua conta.
-          </p>
-        </div>
+        <h1 className="text-base leading-tight font-bold">Perfil do colecionador</h1>
         {profile.isPending ? (
           <div className="flex flex-col gap-6" aria-busy="true" aria-label="Carregando perfil">
             <div className="flex items-center gap-4">
@@ -51,12 +45,7 @@ function ProfilePage() {
       </section>
 
       <section className="flex flex-col gap-6">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-xl leading-tight font-bold">Alterar senha</h2>
-          <p className="text-sm text-muted-foreground">
-            Confirme a senha atual para definir uma nova.
-          </p>
-        </div>
+        <h2 className="text-base leading-tight font-bold">Alterar senha</h2>
         <PasswordForm />
       </section>
     </div>
