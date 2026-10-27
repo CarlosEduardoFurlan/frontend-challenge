@@ -136,9 +136,10 @@ test.describe('cart', () => {
     await app.goto('/nft/nft-004')
     await page.getByTestId('buy-now').click()
     await expect(page).toHaveURL(/\/login\?.*redirect=%2Fcheckout/)
-    await expect(page.getByTestId('header-cart-count')).toHaveText('1')
     await app.login()
     await expect(page).toHaveURL(/\/checkout$/)
+    // The guest item survived the login (the auth screens have no cart badge on mobile).
+    await expect(page.getByTestId('header-cart-count')).toHaveText('1')
   })
 
   test('reflects price and availability changes from the API in the cart', async ({
