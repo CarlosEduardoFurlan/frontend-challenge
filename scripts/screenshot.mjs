@@ -12,8 +12,10 @@ import { chromium } from '@playwright/test'
 const [baseUrl = 'http://localhost:4173', outDir = './docs/screenshots', ...routes] =
   process.argv.slice(2)
 const targets = routes.length ? routes : ['/']
+const onlyWidths = process.env.SHOT_WIDTHS ? process.env.SHOT_WIDTHS.split(',') : null
 const widths = [
   { name: 'mobile-390', width: 390, height: 844, mobile: true },
+  { name: 'mobile-414', width: 414, height: 896, mobile: true },
   { name: 'tablet-768', width: 768, height: 1024, mobile: true },
   { name: 'desktop-1440', width: 1440, height: 900, mobile: false },
 ]
@@ -23,6 +25,7 @@ const browser = await chromium.launch()
 
 for (const route of targets) {
   for (const vp of widths) {
+    if (onlyWidths && !onlyWidths.includes(vp.name)) continue
     const context = await browser.newContext({
       viewport: { width: vp.width, height: vp.height },
       isMobile: vp.mobile,
