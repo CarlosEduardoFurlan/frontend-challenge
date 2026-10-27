@@ -9,10 +9,110 @@
       content="Marketplace de NFTs: descubra, colecione e compre arte digital com carteiras simuladas."
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="preload"
+      href="/fonts/silkscreen-latin-400-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/inter-latin-400-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <title>NFT Marketplace</title>
+    <script>
+      // Make the LCP artwork discoverable from the initial document: the home hero is static
+      // and detail artworks follow the /nfts/<id>-1.webp convention of the local asset set.
+      ;(function () {
+        var match = /^\/nft\/([a-z0-9-]+)\/?$/.exec(location.pathname)
+        var src =
+          location.pathname === '/'
+            ? '/nfts/nft-001-1.webp'
+            : match
+              ? '/nfts/' + match[1] + '-1.webp'
+              : null
+        if (!src) return
+        var link = document.createElement('link')
+        link.rel = 'preload'
+        link.as = 'image'
+        link.href = src
+        link.setAttribute('fetchpriority', 'high')
+        document.head.appendChild(link)
+      })()
+    </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!--
+        Static pre-render of the above-the-fold content. It paints as soon as the HTML and the
+        inline CSS arrive (before any JavaScript), so the largest contentful paint does not wait
+        for the bundle. React replaces this markup when it mounts; the classes mirror the React
+        components so nothing shifts. The inline script below swaps it for a detail placeholder
+        on /nft/:id and removes it on any other route, before the first paint.
+      -->
+      <div id="prerender" aria-hidden="true">
+        <header class="sticky top-0 z-40 border-b border-border bg-background/90">
+          <div class="container-page flex h-16 items-center gap-4"></div>
+        </header>
+        <section
+          class="container-page grid items-center gap-8 py-10 md:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] md:py-16 lg:gap-16"
+        >
+          <div class="flex flex-col items-start gap-5">
+            <p class="text-xs font-semibold tracking-[0.2em] text-primary uppercase">
+              Marketplace de arte digital
+            </p>
+            <h1
+              class="font-display text-[1.75rem] leading-[1.25] uppercase sm:text-4xl lg:text-[2.75rem]"
+            >
+              Seja dono do futuro da arte digital
+            </h1>
+            <p class="max-w-prose text-base text-muted-foreground">
+              Descubra edições limitadas de artistas independentes, acompanhe preços em tempo real e
+              finalize sua compra com carteiras simuladas, sem instalar nada.
+            </p>
+            <span
+              class="inline-flex h-12 items-center justify-center rounded-md bg-primary px-6 text-base font-semibold text-primary-foreground"
+              >Explorar catálogo</span
+            >
+          </div>
+          <div class="relative mx-auto w-full max-w-md md:max-w-none">
+            <img
+              src="/nfts/nft-001-1.webp"
+              alt=""
+              width="640"
+              height="640"
+              fetchpriority="high"
+              decoding="sync"
+              class="aspect-square h-auto w-full rounded-2xl border border-border bg-muted object-cover shadow-card"
+            />
+          </div>
+        </section>
+      </div>
+      <script>
+        ;(function () {
+          var el = document.getElementById('prerender')
+          if (!el) return
+          var path = location.pathname
+          if (path === '/') return
+          var match = /^\/nft\/([a-z0-9-]+)\/?$/.exec(path)
+          if (!match) {
+            el.remove()
+            return
+          }
+          el.innerHTML =
+            '<header class="sticky top-0 z-40 border-b border-border bg-background/90"><div class="container-page flex h-16 items-center gap-4"></div></header>' +
+            '<article class="container-page py-8"><div class="mb-6 h-5"></div><div class="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]"><div class="flex flex-col gap-3 sm:flex-row-reverse"><div class="min-w-0 flex-1">' +
+            '<img src="/nfts/' +
+            match[1] +
+            '-1.webp" alt="" width="640" height="640" fetchpriority="high" decoding="sync" class="aspect-square h-auto w-full rounded-2xl border border-border bg-muted object-cover" />' +
+            '</div></div></div></article>'
+        })()
+      </script>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
