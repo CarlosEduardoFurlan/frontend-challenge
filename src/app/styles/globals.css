@@ -1,0 +1,164 @@
+@import 'tailwindcss';
+
+/* Self-hosted fonts (see ARCHITECTURE.md > Figma deviations). Only Latin subsets load. */
+@import '@fontsource/silkscreen/400.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* ------------------------------------------------------------------
+ * Design tokens
+ * The palette follows the warm dark theme of the Figma file: near-black
+ * brown surfaces, cream text and an orange accent used for primary actions.
+ * ------------------------------------------------------------------ */
+:root {
+  --background: #120b08;
+  --foreground: #f5ede0;
+
+  --card: #1b120d;
+  --card-foreground: #f5ede0;
+  --popover: #221711;
+  --popover-foreground: #f5ede0;
+
+  --primary: #e58a3a;
+  --primary-foreground: #1a0f08;
+  --primary-hover: #f09a4c;
+
+  --secondary: #2a1c14;
+  --secondary-foreground: #f5ede0;
+
+  --muted: #241811;
+  --muted-foreground: #b3a292;
+
+  --accent: #33231a;
+  --accent-foreground: #f5ede0;
+
+  --destructive: #f05252;
+  --destructive-foreground: #fff5f5;
+  --success: #4ade80;
+  --success-foreground: #052e16;
+  --warning: #facc15;
+  --warning-foreground: #1a0f08;
+
+  --border: #3a2a1f;
+  --input: #3a2a1f;
+  --ring: #e58a3a;
+
+  --radius: 0.5rem;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Silkscreen', 'Inter', ui-monospace, monospace;
+
+  --shadow-card: 0 1px 0 0 rgb(255 255 255 / 0.03) inset, 0 8px 24px -12px rgb(0 0 0 / 0.6);
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 12px);
+
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+
+  --shadow-card: var(--shadow-card);
+
+  --animate-shimmer: shimmer 1.6s linear infinite;
+
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/60;
+  }
+
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  /* Visible focus for every focusable element, keyboard users first. */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Skeleton with shimmer effect. The gradient sweep is disabled under reduced motion. */
+  .skeleton {
+    @apply relative overflow-hidden rounded-md bg-muted;
+    background-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgb(255 255 255 / 0.06) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+  }
+
+  .container-page {
+    @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8;
+  }
+}
+
+@layer utilities {
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    @apply sr-only;
+  }
+}
