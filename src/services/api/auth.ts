@@ -12,7 +12,8 @@ export const authApi = {
   async session(signal?: AbortSignal): Promise<Session> {
     return (await apiClient.get<Session>('/auth/session', { signal })).data
   },
-  async logout(): Promise<void> {
-    await apiClient.post('/auth/logout')
+  /** The token is passed explicitly because the local session is cleared before this call. */
+  async logout(token: string): Promise<void> {
+    await apiClient.post('/auth/logout', null, { headers: { Authorization: `Bearer ${token}` } })
   },
 }
