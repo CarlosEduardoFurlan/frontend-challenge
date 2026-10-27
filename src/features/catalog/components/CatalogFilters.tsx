@@ -1,23 +1,24 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { CategoryFacet } from '@/types/api'
+import { Slider } from '@/components/ui/slider'
+import { NETWORKS } from '@/mocks/fixtures/networks'
+import { cn } from '@/lib/utils'
+import type { CategoryFacet, NetworkFacet } from '@/types/api'
 
 import {
   NFT_CATEGORIES,
+  NFT_NETWORKS,
   CATEGORY_LABELS,
   type NftCategory,
+  type NftNetwork,
   type ResolvedCatalogSearch,
 } from '../search-params'
 
 export interface CatalogFiltersProps {
   search: ResolvedCatalogSearch
-  facets: CategoryFacet[] | undefined
+  facets: { categories: CategoryFacet[]; networks: NetworkFacet[] } | undefined
   priceRange: { min: string; max: string } | undefined
   onChange: (patch: Partial<ResolvedCatalogSearch>) => void
   onClear: () => void
@@ -26,9 +27,11 @@ export interface CatalogFiltersProps {
 }
 
 /**
- * Filter panel. Category/availability apply immediately; price range applies on submit so the
- * user can type both bounds before the list refreshes. Every change resets the page to 1 in
- * the parent handler.
+ * Figma "Filters" (component 70485:381, 310 wide, surface-card, 20px padding, 40px between
+ * groups): "Coleções" and "Rede" are lists of 40px rows (15px text, count in bold on the
+ * right) where the selected entries are highlighted in text-accent; "Faixa de preço" is a
+ * range slider with the "Preço: min - max ETH" line and the "Aplicar" button.
+ * Category, network and availability apply immediately; the price range applies on submit.
  */
 export function CatalogFilters({
   search,
@@ -47,16 +50,36 @@ export function CatalogFilters({
     setMaxPrice(search.maxPrice ?? '')
   }, [search.minPrice, search.maxPrice])
 
+  const bounds = useMemo(
+    () => ({ min: Number(priceRange?.min ?? '0'), max: Number(priceRange?.max ?? '10') }),
+    [priceRange],
+  )
+  const sliderValue = [
+    clampNumber(minPrice, bounds.min, bounds),
+    clampNumber(maxPrice, bounds.max, bounds),
+  ]
+
   const activeCount =
     search.category.length +
+    search.network.length +
     (search.minPrice || search.maxPrice ? 1 : 0) +
     (search.available ? 1 : 0)
 
-  function toggleCategory(category: NftCategory, checked: boolean) {
+  function toggleCategory(category: NftCategory) {
+    const checked = !search.category.includes(category)
     const next = checked
       ? [...search.category, category]
       : search.category.filter((c) => c !== category)
     onChange({ category: next })
+    onApplied?.()
+  }
+
+  function toggleNetwork(network: NftNetwork) {
+    const checked = !search.network.includes(network)
+    const next = checked
+      ? [...search.network, network]
+      : search.network.filter((n) => n !== network)
+    onChange({ network: next })
     onApplied?.()
   }
 
@@ -79,76 +102,72 @@ export function CatalogFilters({
   }
 
   return (
-    <div className="flex flex-col gap-5" data-testid="catalog-filters">
-      <div className="flex items-center justify-between">
-        <h3 className="font-display text-sm uppercase">Filtros</h3>
-        {activeCount > 0 ? (
-          <Button
-            variant="link"
-            size="sm"
-            onClick={() => {
-              onClear()
-              onApplied?.()
-            }}
-            data-testid="clear-filters"
-          >
-            Limpar ({activeCount})
-          </Button>
-        ) : null}
-      </div>
-
-      <fieldset className="flex flex-col gap-2">
-        <legend className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-          Categorias
+    <div className="flex flex-col gap-10 bg-card p-5" data-testid="catalog-filters">
+      <fieldset className="flex flex-col gap-3">
+        <legend className="mb-3 flex w-full items-center justify-between text-lg leading-4 font-bold">
+          Coleções
+          {activeCount > 0 ? (
+            <button
+              type="button"
+              className="cursor-pointer text-xs font-bold text-text-accent underline-offset-4 hover:underline"
+              onClick={() => {
+                onClear()
+                onApplied?.()
+              }}
+              data-testid="clear-filters"
+            >
+              Limpar ({activeCount})
+            </button>
+          ) : null}
         </legend>
-        {NFT_CATEGORIES.map((category) => {
-          const facet = facets?.find((f) => f.id === category)
-          const id = `filter-category-${category}`
-          return (
-            <div key={category} className="flex items-center gap-2">
-              <Checkbox
-                id={id}
-                checked={search.category.includes(category)}
-                onCheckedChange={(checked) => toggleCategory(category, checked === true)}
-                data-testid={`filter-category-${category}`}
-              />
-              <Label
-                htmlFor={id}
-                className="flex flex-1 cursor-pointer items-center justify-between font-normal"
-              >
-                <span>{CATEGORY_LABELS[category]}</span>
-                {facets ? (
-                  <span className="text-xs text-muted-foreground tabular-nums">
-                    {facet?.count ?? 0}
-                  </span>
-                ) : (
-                  <Skeleton className="h-3 w-5" />
-                )}
-              </Label>
-            </div>
-          )
-        })}
+        <ul className="px-3">
+          {NFT_CATEGORIES.map((category) => {
+            const facet = facets?.categories.find((f) => f.id === category)
+            const checked = search.category.includes(category)
+            return (
+              <li key={category}>
+                <FilterRow
+                  label={CATEGORY_LABELS[category]}
+                  count={facet?.count}
+                  loading={!facets}
+                  checked={checked}
+                  onToggle={() => toggleCategory(category)}
+                  testId={`filter-category-${category}`}
+                />
+              </li>
+            )
+          })}
+        </ul>
       </fieldset>
-
-      <Separator />
 
       <form
         onSubmit={submitPrice}
         className="flex flex-col gap-3"
         aria-labelledby="price-filter-title"
       >
-        <h4
-          id="price-filter-title"
-          className="text-xs font-semibold tracking-wide text-muted-foreground uppercase"
-        >
-          Preço (ETH)
-        </h4>
-        <div className="grid grid-cols-2 gap-2">
-          <div className="grid gap-1">
-            <Label htmlFor="filter-min-price" className="text-xs">
-              Mínimo
-            </Label>
-            <Input
+        <h3 id="price-filter-title" className="text-lg leading-4 font-bold">
+          Faixa de preço
+        </h3>
+        <div className="flex flex-col gap-3 pl-3">
+          <Slider
+            min={bounds.min}
+            max={bounds.max}
+            step={0.01}
+            value={sliderValue}
+            minStepsBetweenThumbs={1}
+            thumbLabels={['Preço mínimo', 'Preço máximo']}
+            onValueChange={([min, max]) => {
+              if (min !== undefined) setMinPrice(min === bounds.min ? '' : String(min))
+              if (max !== undefined) setMaxPrice(max === bounds.max ? '' : String(max))
+            }}
+            className="w-full max-w-[216px]"
+          />
+          <p className="flex flex-wrap items-center gap-x-1 text-[15px] leading-none">
+            <span>Preço:</span>
+            <label htmlFor="filter-min-price" className="sr-only">
+              Preço mínimo em ETH
+            </label>
+            <input
               id="filter-min-price"
               inputMode="decimal"
               placeholder={priceRange?.min ?? '0'}
@@ -156,14 +175,14 @@ export function CatalogFilters({
               onChange={(e) => setMinPrice(e.target.value)}
               aria-invalid={priceError ? true : undefined}
               aria-describedby={priceError ? 'price-filter-error' : undefined}
+              className="w-14 rounded-sm border-b border-border-soft bg-transparent text-center outline-none placeholder:text-brass focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/40"
               data-testid="filter-min-price"
             />
-          </div>
-          <div className="grid gap-1">
-            <Label htmlFor="filter-max-price" className="text-xs">
-              Máximo
-            </Label>
-            <Input
+            <span aria-hidden="true">-</span>
+            <label htmlFor="filter-max-price" className="sr-only">
+              Preço máximo em ETH
+            </label>
+            <input
               id="filter-max-price"
               inputMode="decimal"
               placeholder={priceRange?.max ?? '10'}
@@ -171,36 +190,103 @@ export function CatalogFilters({
               onChange={(e) => setMaxPrice(e.target.value)}
               aria-invalid={priceError ? true : undefined}
               aria-describedby={priceError ? 'price-filter-error' : undefined}
+              className="w-14 rounded-sm border-b border-border-soft bg-transparent text-center outline-none placeholder:text-brass focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/40"
               data-testid="filter-max-price"
             />
-          </div>
-        </div>
-        {priceError ? (
-          <p id="price-filter-error" role="alert" className="text-xs text-destructive">
-            {priceError}
+            <span>ETH</span>
           </p>
-        ) : null}
-        <Button type="submit" variant="secondary" size="sm" data-testid="apply-price">
-          Aplicar preço
-        </Button>
+          {priceError ? (
+            <p id="price-filter-error" role="alert" className="text-xs text-destructive">
+              {priceError}
+            </p>
+          ) : null}
+          <Button
+            type="submit"
+            size="sm"
+            className="w-fit px-3 leading-5"
+            data-testid="apply-price"
+          >
+            Aplicar
+          </Button>
+        </div>
       </form>
 
-      <Separator />
+      <fieldset className="flex flex-col gap-3">
+        <legend className="mb-3 text-lg leading-4 font-bold">Rede</legend>
+        <ul className="pl-3">
+          {NFT_NETWORKS.map((network) => {
+            const facet = facets?.networks.find((f) => f.id === network)
+            return (
+              <li key={network}>
+                <FilterRow
+                  label={NETWORKS[network].label}
+                  count={facet?.count}
+                  loading={!facets}
+                  checked={search.network.includes(network)}
+                  onToggle={() => toggleNetwork(network)}
+                  testId={`filter-network-${network}`}
+                />
+              </li>
+            )
+          })}
+        </ul>
+      </fieldset>
 
-      <div className="flex items-center gap-2">
-        <Checkbox
-          id="filter-available"
-          checked={search.available}
-          onCheckedChange={(checked) => {
-            onChange({ available: checked === true })
-            onApplied?.()
-          }}
-          data-testid="filter-available"
-        />
-        <Label htmlFor="filter-available" className="cursor-pointer font-normal">
-          Somente disponíveis
-        </Label>
-      </div>
+      <fieldset className="flex flex-col gap-3">
+        <legend className="mb-3 text-lg leading-4 font-bold">Disponibilidade</legend>
+        <ul className="pl-3">
+          <li>
+            <FilterRow
+              label="Somente disponíveis"
+              checked={search.available}
+              onToggle={() => {
+                onChange({ available: !search.available })
+                onApplied?.()
+              }}
+              testId="filter-available"
+            />
+          </li>
+        </ul>
+      </fieldset>
     </div>
   )
+}
+
+interface FilterRowProps {
+  label: string
+  count?: number
+  loading?: boolean
+  checked: boolean
+  onToggle: () => void
+  testId: string
+}
+
+/** 40px row acting as a checkbox: label on the left, count in bold on the right. */
+function FilterRow({ label, count, loading, checked, onToggle, testId }: FilterRowProps) {
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={checked}
+      onClick={onToggle}
+      className={cn(
+        'flex h-10 w-full cursor-pointer items-center justify-between gap-3 rounded-sm text-[15px] leading-10 transition-colors outline-none hover:text-text-accent focus-visible:ring-2 focus-visible:ring-ring/60',
+        checked ? 'text-text-accent' : 'text-muted-foreground',
+      )}
+      data-testid={testId}
+    >
+      <span className="truncate">{label}</span>
+      {loading ? (
+        <Skeleton className="h-3 w-7" />
+      ) : count !== undefined ? (
+        <span className="font-bold tabular-nums">({count})</span>
+      ) : null}
+    </button>
+  )
+}
+
+function clampNumber(raw: string, fallback: number, bounds: { min: number; max: number }) {
+  const value = Number(raw.replace(',', '.'))
+  if (!raw.trim() || Number.isNaN(value)) return fallback
+  return Math.min(bounds.max, Math.max(bounds.min, value))
 }

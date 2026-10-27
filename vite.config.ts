@@ -70,7 +70,8 @@ function criticalAssetsPlugin(): Plugin {
           (match, cssFile: string) => {
             const asset = bundle[cssFile]
             if (!asset || asset.type !== 'asset' || typeof asset.source !== 'string') return match
-            if (asset.source.length > 60_000) return match
+            // ~61 KB raw (11.5 KB gzip) after the Figma redesign; still worth one less round trip.
+            if (asset.source.length > 72_000) return match
             delete bundle[cssFile]
             return `<style>${asset.source}</style>`
           },

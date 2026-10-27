@@ -2,8 +2,10 @@ import { http } from 'msw'
 
 import {
   NFT_CATEGORIES,
+  NFT_NETWORKS,
   SORT_OPTIONS,
   type NftCategory,
+  type NftNetwork,
   type SortOption,
 } from '@/features/catalog/search-params'
 import { env } from '@/lib/env'
@@ -17,6 +19,9 @@ function parseListParams(url: URL): NftListParams {
   const categories = url.searchParams
     .getAll('category')
     .filter((c): c is NftCategory => (NFT_CATEGORIES as readonly string[]).includes(c))
+  const networks = url.searchParams
+    .getAll('network')
+    .filter((n): n is NftNetwork => (NFT_NETWORKS as readonly string[]).includes(n))
   const sort = url.searchParams.get('sort')
   const page = Number(url.searchParams.get('page') ?? '1')
   const pageSize = Number(url.searchParams.get('pageSize') ?? '9')
@@ -25,6 +30,7 @@ function parseListParams(url: URL): NftListParams {
   return {
     q: url.searchParams.get('q') ?? undefined,
     category: categories.length ? categories : undefined,
+    network: networks.length ? networks : undefined,
     minPrice: url.searchParams.get('minPrice') ?? undefined,
     maxPrice: url.searchParams.get('maxPrice') ?? undefined,
     available: url.searchParams.get('available') === 'true',

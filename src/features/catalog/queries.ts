@@ -10,6 +10,7 @@ export function toListParams(search: ResolvedCatalogSearch): NftListParams {
   return {
     q: search.q || undefined,
     category: search.category.length ? search.category : undefined,
+    network: search.network.length ? search.network : undefined,
     minPrice: search.minPrice,
     maxPrice: search.maxPrice,
     available: search.available || undefined,

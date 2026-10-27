@@ -128,6 +128,7 @@ export interface Nft extends NftSummary {
 export interface NftListParams {
   q?: string
   category?: NftCategory[]
+  network?: NetworkId[]
   minPrice?: DecimalString
   maxPrice?: DecimalString
   available?: boolean
@@ -144,6 +145,12 @@ export interface CategoryFacet {
   count: number
 }
 
+export interface NetworkFacet {
+  id: NetworkId
+  label: string
+  count: number
+}
+
 export interface NftListResponse {
   items: NftSummary[]
   page: number
@@ -152,6 +159,7 @@ export interface NftListResponse {
   totalPages: number
   facets: {
     categories: CategoryFacet[]
+    networks: NetworkFacet[]
     priceRange: { min: DecimalString; max: DecimalString }
   }
 }

@@ -8,29 +8,33 @@
  */
 export const NFT_CATEGORIES = [
   'arte',
+  'fotografia',
+  'musica',
   'colecionavel',
   'games',
-  'musica',
-  'fotografia',
   'utilitario',
 ] as const
 export type NftCategory = (typeof NFT_CATEGORIES)[number]
 
+/** Labels follow the "Coleções" list of the Figma sidebar. */
 export const CATEGORY_LABELS: Record<NftCategory, string> = {
-  arte: 'Arte',
-  colecionavel: 'Colecionáveis',
-  games: 'Games',
-  musica: 'Música',
+  arte: 'Arte digital',
   fotografia: 'Fotografia',
-  utilitario: 'Utilitários',
+  musica: 'Música',
+  colecionavel: 'Colecionáveis',
+  games: 'Jogos',
+  utilitario: 'Utilidade',
 }
+
+export const NFT_NETWORKS = ['ethereum', 'polygon', 'arbitrum'] as const
+export type NftNetwork = (typeof NFT_NETWORKS)[number]
 
 export const SORT_OPTIONS = ['relevance', 'newest', 'price_asc', 'price_desc', 'popular'] as const
 export type SortOption = (typeof SORT_OPTIONS)[number]
 
 export const SORT_LABELS: Record<SortOption, string> = {
   relevance: 'Relevância',
-  newest: 'Mais recentes',
+  newest: 'Listados recentemente',
   price_asc: 'Menor preço',
   price_desc: 'Maior preço',
   popular: 'Mais populares',
@@ -41,6 +45,7 @@ export const DEFAULT_PAGE_SIZE = 9
 export interface CatalogSearch {
   q?: string
   category?: NftCategory[]
+  network?: NftNetwork[]
   minPrice?: string
   maxPrice?: string
   available?: boolean
@@ -58,6 +63,16 @@ function parseCategories(value: unknown): NftCategory[] | undefined {
   const list = Array.isArray(value) ? value : value === undefined ? [] : [value]
   const categories = list.filter(isCategory)
   return categories.length ? [...new Set(categories)] : undefined
+}
+
+function isNetwork(value: unknown): value is NftNetwork {
+  return typeof value === 'string' && (NFT_NETWORKS as readonly string[]).includes(value)
+}
+
+function parseNetworks(value: unknown): NftNetwork[] | undefined {
+  const list = Array.isArray(value) ? value : value === undefined ? [] : [value]
+  const networks = list.filter(isNetwork)
+  return networks.length ? [...new Set(networks)] : undefined
 }
 
 function parsePrice(value: unknown): string | undefined {
@@ -81,6 +96,8 @@ export function parseCatalogSearch(input: unknown): CatalogSearch {
   if (q) result.q = q
   const category = parseCategories(raw.category)
   if (category) result.category = category
+  const network = parseNetworks(raw.network)
+  if (network) result.network = network
   const minPrice = parsePrice(raw.minPrice)
   if (minPrice) result.minPrice = minPrice
   const maxPrice = parsePrice(raw.maxPrice)
@@ -97,6 +114,7 @@ export function resolveCatalogSearch(search: CatalogSearch) {
   return {
     q: search.q ?? '',
     category: search.category ?? [],
+    network: search.network ?? [],
     minPrice: search.minPrice,
     maxPrice: search.maxPrice,
     available: search.available ?? false,

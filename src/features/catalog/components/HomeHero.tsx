@@ -1,49 +1,67 @@
 import { Link } from '@tanstack/react-router'
 
 import { NftImage } from '@/components/shared/NftImage'
-import { Button } from '@/components/ui/button'
+
+/** Artwork of the hero in the Figma file ("Frame 136", the Emerald Ape, exported as ape-emerald). */
+export const HERO_ARTWORK = '/assets/nfts/ape-emerald.webp'
 
 /**
- * Hero of the home page. Mirrors the Figma composition: eyebrow, uppercase display headline,
- * supporting copy and a primary CTA on the left; a large square artwork on the right.
+ * Figma "Hero" (frame 70347:239, 1200x450): eyebrow "Bem-vindo à Kurio" (14 medium, 1.4px
+ * tracking), two-line display headline (43 bold, 70px line height), supporting copy (14/24,
+ * text-secondary, 557px wide), the 140x40 "EXPLORAR" button and three primary dots aligned to
+ * the right of the text column; a 450px artwork with 24px radius on the right.
+ * The markup is mirrored by the static pre-render in index.html.
  */
 export function HomeHero() {
   return (
     <section
       aria-labelledby="hero-title"
-      className="container-page grid items-center gap-8 py-10 md:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] md:py-16 lg:gap-16"
+      className="container-page flex flex-col gap-8 pt-8 lg:h-[450px] lg:flex-row lg:items-center lg:justify-between lg:gap-0 lg:pt-8 lg:pl-[160px]"
     >
-      <div className="flex flex-col items-start gap-5">
-        <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">
-          Marketplace de arte digital
-        </p>
-        <h1
-          id="hero-title"
-          className="font-display text-[1.75rem] leading-[1.25] uppercase sm:text-4xl lg:text-[2.75rem]"
-        >
-          Seja dono do futuro da arte digital
-        </h1>
-        <p className="max-w-prose text-base text-muted-foreground">
-          Descubra edições limitadas de artistas independentes, acompanhe preços em tempo real e
-          finalize sua compra com carteiras simuladas, sem instalar nada.
-        </p>
-        <Button asChild size="lg">
-          <Link to="/" hash="catalogo">
-            Explorar catálogo
+      <div className="flex w-full max-w-[600px] flex-col gap-11 lg:items-end">
+        <div className="flex w-full flex-col gap-8">
+          <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-2">
+              <p className="text-sm leading-4 font-medium tracking-[1.4px]">Bem-vindo à Kurio</p>
+              <h1
+                id="hero-title"
+                className="text-[28px] leading-[44px] font-bold uppercase sm:text-[36px] sm:leading-[56px] lg:text-[43px] lg:leading-[70px]"
+              >
+                Seja dono do futuro
+                <br className="hidden lg:inline" />
+                da arte digital
+              </h1>
+            </div>
+            <p className="max-w-[557px] text-sm leading-6 text-muted-foreground">
+              Descubra NFTs selecionados de criadores emergentes e consagrados. Colecione arte
+              digital rara, apoie artistas e tenha uma parte da cultura da internet.
+            </p>
+          </div>
+          <Link
+            to="/"
+            hash="catalogo"
+            className="inline-flex h-10 w-[140px] items-center justify-center rounded-md bg-primary text-base leading-5 font-bold text-primary-foreground uppercase outline-none hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            Explorar
           </Link>
-        </Button>
-      </div>
-      <div className="relative mx-auto w-full max-w-md md:max-w-none">
-        <div
-          className="absolute -inset-4 -z-10 rounded-3xl bg-primary/10 blur-2xl"
-          aria-hidden="true"
+        </div>
+        <img
+          src="/assets/icons/hero-dots.svg"
+          alt=""
+          width={40}
+          height={8}
+          className="hidden lg:block"
         />
+      </div>
+      <div className="w-full max-w-[450px] shrink-0 lg:w-[450px]">
         <NftImage
-          src="/nfts/nft-001-1.webp"
-          alt="Arte em destaque: composição geométrica em tons de laranja"
+          src={HERO_ARTWORK}
+          alt="Arte em destaque: macaco de óculos escuros e jaqueta verde"
           priority
-          sizes="(min-width: 768px) 448px, 90vw"
-          className="rounded-2xl border border-border shadow-card"
+          sizes="(min-width: 1024px) 450px, 90vw"
+          width={450}
+          height={450}
+          className="rounded-hero"
         />
       </div>
     </section>
