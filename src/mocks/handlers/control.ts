@@ -8,6 +8,7 @@ import { replayNftEvent, updateEditionAvailability, updateEditionPrice } from '.
 import { getCurrentScenarioId, setScenario } from '../lib/scenario-state'
 import { getDb, resetDb } from '../persistence/db'
 import { expireSessions } from '../control'
+import { settlePendingOrders } from '../lib/order-store'
 import { listScenarios } from '../scenarios'
 import { getConnectedSocketCount } from '../realtime/server'
 
@@ -58,6 +59,18 @@ export const controlHandlers = [
   http.post(
     `${env.apiUrl}/__mock/session/expire`,
     withScenario(() => json({ expired: expireSessions() }), { bypass: true }),
+  ),
+
+  http.post(
+    `${env.apiUrl}/__mock/orders/settle`,
+    withScenario(
+      async ({ request }) => {
+        type SettleBody = { outcome?: 'confirmed' | 'rejected' }
+        const body = await readBody<SettleBody>(request).catch((): SettleBody => ({}))
+        return json({ settled: settlePendingOrders(body.outcome) })
+      },
+      { bypass: true },
+    ),
   ),
 
   http.post(
