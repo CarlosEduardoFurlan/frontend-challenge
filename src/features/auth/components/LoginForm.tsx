@@ -30,7 +30,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
-    mode: 'onBlur',
+    mode: 'onTouched',
   })
 
   async function onSubmit(values: LoginInput) {

@@ -41,9 +41,19 @@ function notify() {
   listeners.forEach((listener) => listener())
 }
 
+const RECENT_EXPIRY_MS = 5 * 60_000
+let expiredAt: number | null = null
+
 export const sessionStore = {
   get(): StoredSession | null {
     return current
+  },
+  /** Records that the server rejected the session, so the login page can explain why. */
+  markExpired(): void {
+    expiredAt = Date.now()
+  },
+  wasRecentlyExpired(): boolean {
+    return expiredAt !== null && Date.now() - expiredAt < RECENT_EXPIRY_MS
   },
   getToken(): string | null {
     return current?.token ?? null
