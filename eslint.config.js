@@ -44,4 +44,9 @@ export default tseslint.config(
     files: ['src/components/**/*.tsx', 'src/routes/**/*.tsx'],
     rules: { 'react-refresh/only-export-components': 'off' },
   },
+  {
+    // Playwright fixtures use a `use` callback that is not a React hook.
+    files: ['tests/**/*.ts', 'scripts/**/*.{ts,mjs}'],
+    rules: { 'react-hooks/rules-of-hooks': 'off' },
+  },
 )
