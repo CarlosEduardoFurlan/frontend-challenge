@@ -21,11 +21,7 @@ function NftDetailPage() {
   const detail = useQuery(nftDetailQuery(nftId))
 
   if (detail.isPending) {
-    return (
-      <div className="container-page py-8">
-        <NftDetailSkeleton />
-      </div>
-    )
+    return <NftDetailSkeleton />
   }
 
   if (detail.isError) {
@@ -62,7 +58,7 @@ function NftDetailPage() {
         }
         renderActions={(selection) => <AddToCartActions nftId={detail.data.id} {...selection} />}
       />
-      <RelatedNfts nft={detail.data} />
+      <RelatedNfts category={detail.data.category} excludeIds={[detail.data.id]} />
     </>
   )
 }

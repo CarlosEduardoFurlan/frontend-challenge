@@ -1,7 +1,6 @@
 import { Tag, X } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -14,6 +13,7 @@ interface CouponFormProps {
   description?: string | null
 }
 
+/** Figma "Código promocional": bold label, bordered field with the attached "Aplicar" button. */
 export function CouponForm({ appliedCode, description }: CouponFormProps) {
   const apply = useApplyCoupon()
   const remove = useRemoveCoupon()
@@ -34,49 +34,56 @@ export function CouponForm({ appliedCode, description }: CouponFormProps) {
 
   if (appliedCode) {
     return (
-      <div
-        className="flex items-center justify-between gap-3 rounded-lg border border-success/40 bg-success/10 px-3 py-2"
-        data-testid="coupon-applied"
-      >
-        <div className="flex min-w-0 items-center gap-2 text-sm">
-          <Tag className="size-4 shrink-0 text-success" aria-hidden="true" />
-          <span className="font-semibold">{appliedCode}</span>
-          {description ? (
-            <span className="truncate text-xs text-muted-foreground">{description}</span>
-          ) : null}
-        </div>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => remove.mutate()}
-          loading={remove.isPending}
-          aria-label="Remover cupom"
-          data-testid="coupon-remove"
+      <div className="flex flex-col gap-2">
+        <p className="text-sm font-bold">Código promocional</p>
+        <div
+          className="flex h-10 items-center justify-between gap-3 rounded-md border border-primary px-3"
+          data-testid="coupon-applied"
         >
-          <X aria-hidden="true" />
-        </Button>
+          <div className="flex min-w-0 items-center gap-2 text-sm">
+            <Tag className="size-4 shrink-0 text-text-accent" aria-hidden="true" />
+            <span className="font-bold">{appliedCode}</span>
+            {description ? (
+              <span className="truncate text-xs text-muted-foreground">{description}</span>
+            ) : null}
+          </div>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="size-8"
+            onClick={() => remove.mutate()}
+            loading={remove.isPending}
+            aria-label="Remover cupom"
+            data-testid="coupon-remove"
+          >
+            <X aria-hidden="true" />
+          </Button>
+        </div>
       </div>
     )
   }
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-2" noValidate data-testid="coupon-form">
-      <Label htmlFor="coupon-code">Cupom de desconto</Label>
-      <div className="flex gap-2">
+      <Label htmlFor="coupon-code" className="text-sm font-bold">
+        Código promocional
+      </Label>
+      <div className="flex h-10 rounded-md border border-input focus-within:border-primary">
         <Input
           id="coupon-code"
           value={code}
           onChange={(event) => setCode(event.target.value.toUpperCase())}
-          placeholder="Ex.: BEMVINDO10"
+          placeholder="Digite o código promocional..."
           autoCapitalize="characters"
           autoComplete="off"
           aria-invalid={error ? true : undefined}
-          aria-describedby={error ? 'coupon-error' : undefined}
+          aria-describedby={error ? 'coupon-error' : 'coupon-hint'}
+          className="h-full rounded-r-none border-0 text-xs focus-visible:ring-0"
           data-testid="coupon-input"
         />
         <Button
           type="submit"
-          variant="secondary"
+          className="h-full rounded-l-none px-5"
           loading={apply.isPending}
           disabled={!code.trim()}
           data-testid="coupon-apply"
@@ -94,9 +101,8 @@ export function CouponForm({ appliedCode, description }: CouponFormProps) {
           {error}
         </p>
       ) : (
-        <p className="text-xs text-muted-foreground">
-          Cupons de demonstração: <Badge variant="outline">BEMVINDO10</Badge>{' '}
-          <Badge variant="outline">JUNGLE20</Badge> <Badge variant="outline">FIXO005</Badge>
+        <p id="coupon-hint" className="text-xs text-muted-foreground">
+          Cupons de demonstração: BEMVINDO10 · JUNGLE20 · FIXO005
         </p>
       )}
     </form>

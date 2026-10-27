@@ -84,10 +84,7 @@ function OrdersPage() {
                   <Badge variant={STATUS_BADGE[order.status].variant}>
                     {STATUS_BADGE[order.status].label}
                   </Badge>
-                  <EthPrice
-                    value={order.totalEth}
-                    className="text-sm font-semibold text-text-accent"
-                  />
+                  <EthPrice value={order.totalEth} className="text-sm font-bold text-text-accent" />
                 </div>
               </Link>
             </li>

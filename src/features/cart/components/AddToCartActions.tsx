@@ -1,5 +1,5 @@
 import { useNavigate } from '@tanstack/react-router'
-import { ShoppingCart, Zap } from 'lucide-react'
+import { ShoppingCart } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { useSession } from '@/features/auth/hooks'
@@ -13,6 +13,7 @@ interface AddToCartActionsProps {
   canBuy: boolean
 }
 
+/** Figma detail actions: the primary "COMPRAR" button plus an outlined add-to-cart action. */
 export function AddToCartActions({ nftId, editionId, quantity, canBuy }: AddToCartActionsProps) {
   const add = useAddToCart()
   const buy = useBuyNow()
@@ -30,11 +31,19 @@ export function AddToCartActions({ nftId, editionId, quantity, canBuy }: AddToCa
   }
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row">
+    <>
       <Button
-        size="lg"
-        variant="secondary"
-        className="flex-1"
+        className="w-[130px] text-sm uppercase"
+        disabled={!canBuy}
+        loading={buy.isPending}
+        onClick={() => void handleBuyNow()}
+        data-testid="buy-now"
+      >
+        Comprar
+      </Button>
+      <Button
+        variant="outline"
+        className="text-sm"
         disabled={!canBuy}
         loading={add.isPending}
         onClick={() => add.mutate({ nftId, editionId, quantity })}
@@ -42,16 +51,6 @@ export function AddToCartActions({ nftId, editionId, quantity, canBuy }: AddToCa
       >
         <ShoppingCart aria-hidden="true" /> Adicionar ao carrinho
       </Button>
-      <Button
-        size="lg"
-        className="flex-1"
-        disabled={!canBuy}
-        loading={buy.isPending}
-        onClick={() => void handleBuyNow()}
-        data-testid="buy-now"
-      >
-        <Zap aria-hidden="true" /> Comprar agora
-      </Button>
-    </div>
+    </>
   )
 }
