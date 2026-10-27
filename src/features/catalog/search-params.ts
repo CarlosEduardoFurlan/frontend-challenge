@@ -53,9 +53,12 @@ export const catalogSearchSchema = z.object({
   category: categoryList,
   minPrice: priceString,
   maxPrice: priceString,
-  available: z.boolean().optional().catch(undefined),
+  available: z
+    .preprocess((value) => value === true || value === 'true', z.boolean())
+    .optional()
+    .catch(undefined),
   sort: z.enum(SORT_OPTIONS).optional().catch(undefined),
-  page: z.number().int().min(1).optional().catch(undefined),
+  page: z.coerce.number().int().min(1).optional().catch(undefined),
 })
 
 export type CatalogSearch = z.infer<typeof catalogSearchSchema>
