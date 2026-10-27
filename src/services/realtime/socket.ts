@@ -1,5 +1,6 @@
 import type { Socket } from 'socket.io-client'
 
+import { whenNetworkReady } from '@/lib/app-ready'
 import { env } from '@/lib/env'
 import type { ClientToServerEvents, ServerToClientEvents } from '@/types/api'
 
@@ -16,6 +17,7 @@ export type AppSocket = Socket<ServerToClientEvents, ClientToServerEvents>
  * is used (and keeps the client out of the initial bundle).
  */
 export async function createSocket(token: string | null): Promise<AppSocket> {
+  await whenNetworkReady()
   const { io } = await import('socket.io-client')
   return io(env.socketUrl, {
     path: '/socket.io',

@@ -1,5 +1,6 @@
 import axios, { type AxiosInstance } from 'axios'
 
+import { whenNetworkReady } from '@/lib/app-ready'
 import { env } from '@/lib/env'
 
 import { toApiError } from './errors'
@@ -18,6 +19,12 @@ export const apiClient: AxiosInstance = axios.create({
     Accept: 'application/json',
     'Content-Type': 'application/json',
   },
+})
+
+// Requests issued while the mock layer is still starting wait for it (no-op without mocks).
+apiClient.interceptors.request.use(async (config) => {
+  await whenNetworkReady()
+  return config
 })
 
 apiClient.interceptors.response.use(
