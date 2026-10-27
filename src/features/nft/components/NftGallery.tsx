@@ -21,21 +21,21 @@ export function NftGallery({ name, images, variant = 'desktop' }: NftGalleryProp
   const [index, setIndex] = useState(0)
   const current = images[index] ?? images[0] ?? ''
   const first = images[0] ?? ''
-  // Desktop: adopt the <img> shipped in index.html for this NFT instead of rendering a second one.
+  // Adopt the <img> shipped in index.html for this NFT (both variants) instead of rendering a second one.
   const slotRef = useRef<HTMLDivElement>(null)
-  const [adopted, setAdopted] = useState(
-    () => variant === 'desktop' && Boolean(prerenderedImage('prerender-detail-image', first)),
+  const [adopted, setAdopted] = useState(() =>
+    Boolean(prerenderedImage('prerender-detail-image', first)),
   )
   useLayoutEffect(() => {
     const node = prerenderedImage('prerender-detail-image', first)
-    if (node && slotRef.current && variant === 'desktop') {
+    if (node && slotRef.current) {
       adoptPrerenderedImage(
         node,
         slotRef.current,
         'Arte do NFT ' + name + ', imagem 1 de ' + images.length,
       )
     }
-  }, [first, images.length, name, variant])
+  }, [first, images.length, name])
   // Switching slot renders the React image again (the adopted node is replaced).
   useLayoutEffect(() => {
     if (index !== 0) setAdopted(false)
@@ -68,13 +68,17 @@ export function NftGallery({ name, images, variant = 'desktop' }: NftGalleryProp
   if (variant === 'mobile') {
     return (
       <div className="flex flex-col gap-3" data-testid="nft-gallery">
-        <NftImage
-          src={current}
-          alt={`Arte do NFT ${name}, imagem ${index + 1} de ${images.length}`}
-          priority
-          sizes="90vw"
-          className="rounded-[20px]"
-        />
+        <div ref={adopted ? slotRef : undefined}>
+          {adopted ? null : (
+            <NftImage
+              src={current}
+              alt={`Arte do NFT ${name}, imagem ${index + 1} de ${images.length}`}
+              priority
+              sizes="90vw"
+              className="rounded-[20px]"
+            />
+          )}
+        </div>
         {images.length > 1 ? (
           <div
             role="tablist"

@@ -83,7 +83,7 @@
         swaps it for a detail placeholder on /nft/:id and removes it on any other route.
       -->
     <div id="prerender" aria-hidden="true">
-      <header class="hairline sticky top-0 z-40 bg-background/95">
+      <header class="hairline sticky top-0 z-40 hidden bg-background/95 lg:block">
         <div class="container-page">
           <div class="flex h-16 items-center lg:h-[69px] lg:pt-6"></div>
         </div>
@@ -173,23 +173,37 @@
           'nft-007': 'ape-golden',
         }
         var slug = byId[match[1]] || slugs[Number(match[1].slice(-3)) % slugs.length]
-        el.innerHTML =
-          '<header class="sticky top-0 z-40 bg-background/95"><div class="container-page"><div class="flex h-16 items-center lg:h-[69px] lg:pt-6"></div></div></header>' +
-          '<article class="container-page pt-8"><div class="h-5"></div><div class="mt-5 grid gap-8 lg:grid-cols-[568px_minmax(0,1fr)] lg:gap-[37px]"><div class="flex flex-col-reverse gap-3 sm:flex-row"><div class="flex gap-3 sm:w-[98px] sm:flex-col"></div><div class="min-w-0 flex-1 rounded-lg bg-card p-4">' +
-          '<picture><source media="(min-width: 1024px)" srcset="/assets/nfts/' +
+        var sources = '/assets/nfts/' + slug + '-sm.webp 320w, /assets/nfts/' + slug + '.webp 640w'
+        var attrs =
+          ' src="/assets/nfts/' +
           slug +
-          '-sm.webp 320w, /assets/nfts/' +
-          slug +
-          '.webp 640w, /assets/nfts/' +
-          slug +
-          '-lg.webp 1024w" sizes="(min-width: 1024px) 408px, 90vw" /><img id="prerender-detail-image" src="/assets/nfts/' +
-          slug +
-          '.webp" srcset="/assets/nfts/' +
-          slug +
-          '-sm.webp 320w, /assets/nfts/' +
-          slug +
-          '.webp 640w" sizes="(min-width: 1024px) 408px, 90vw" alt="" width="640" height="640" fetchpriority="high" decoding="sync" class="aspect-square h-auto w-full rounded-art bg-muted object-cover" /></picture>' +
-          '</div></div></div></article>'
+          '.webp" alt="" width="640" height="640" fetchpriority="high" decoding="sync"'
+        if (window.matchMedia('(min-width: 1024px)').matches) {
+          // Mirrors NftDetail/NftGallery (desktop variant).
+          el.innerHTML =
+            '<header class="sticky top-0 z-40 bg-background/95"><div class="container-page"><div class="flex h-16 items-center lg:h-[69px] lg:pt-6"></div></div></header>' +
+            '<article class="container-page pt-8"><div class="h-5"></div><div class="mt-5 grid gap-8 lg:grid-cols-[568px_minmax(0,1fr)] lg:gap-[37px]"><div class="flex flex-col-reverse gap-3 sm:flex-row"><div class="flex gap-3 sm:w-[98px] sm:flex-col"></div><div class="min-w-0 flex-1 rounded-lg bg-card p-4"><div>' +
+            '<picture><source media="(min-width: 1024px)" srcset="' +
+            sources +
+            ', /assets/nfts/' +
+            slug +
+            '-lg.webp 1024w" sizes="(min-width: 1024px) 408px, 90vw" /><img id="prerender-detail-image"' +
+            attrs +
+            ' srcset="' +
+            sources +
+            '" sizes="(min-width: 1024px) 408px, 90vw" class="aspect-square h-auto w-full rounded-art bg-muted object-cover" /></picture>' +
+            '</div></div></div></div></article>'
+        } else {
+          // Mirrors NftDetail/NftGallery (mobile variant): no header, artwork with 20px radius.
+          el.innerHTML =
+            '<article class="pt-4"><div class="relative px-6"><div class="flex flex-col gap-3"><div>' +
+            '<img id="prerender-detail-image"' +
+            attrs +
+            ' srcset="' +
+            sources +
+            '" sizes="90vw" class="aspect-square h-auto w-full rounded-[20px] bg-muted object-cover" />' +
+            '</div></div></div></article>'
+        }
       })()
     </script>
     <div id="root"></div>
