@@ -35,7 +35,7 @@ jobs:
     name: Playwright E2E (desktop + mobile)
     runs-on: ubuntu-latest
     needs: quality
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -50,6 +50,35 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report
+          name: playwright-report-e2e
           path: playwright-report
+          retention-days: 14
+
+  visual:
+    # Screenshot baselines are platform-specific. The versioned baselines were produced on
+    # Windows/Chromium; this job renders the same screens on Linux, stores the Linux baselines
+    # as an artifact and fails only on rendering errors. Pixel comparison against versioned
+    # baselines happens locally with `npm run test:visual`.
+    name: Playwright visual (Linux render + artifact)
+    runs-on: ubuntu-latest
+    needs: quality
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test --project=visual --project=visual-mobile --update-snapshots=missing
+        env:
+          CI: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-baselines-linux
+          path: |
+            tests/visual/__snapshots__
+            playwright-report
           retention-days: 14
