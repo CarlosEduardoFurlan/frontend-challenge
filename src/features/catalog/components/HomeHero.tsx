@@ -57,6 +57,7 @@ export function HomeHero() {
           src={HERO_ARTWORK}
           alt="Arte em destaque: macaco de óculos escuros e jaqueta verde"
           priority
+          large
           sizes="(min-width: 1024px) 450px, 90vw"
           width={450}
           height={450}

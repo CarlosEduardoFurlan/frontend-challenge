@@ -72,6 +72,7 @@ export function NftGallery({ name, images }: NftGalleryProps) {
           src={current}
           alt={`Arte do NFT ${name}, imagem ${index + 1} de ${images.length}`}
           priority
+          large
           sizes="(min-width: 1024px) 408px, 90vw"
           className="rounded-art"
         />

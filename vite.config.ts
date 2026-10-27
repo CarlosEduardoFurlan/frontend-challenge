@@ -103,11 +103,14 @@ const MOCK_PACKAGES = [
   'punycode',
 ]
 
+// The home-only components (filters, slider, promos, blog) are left to the route splitting so
+// the NFT detail page does not pay for them; queries and search params are shared by Rollup.
 const SHARED_UI_SEGMENTS = [
   '/src/components/',
   '/src/lib/',
   '/src/hooks/',
-  '/src/features/catalog/',
+  '/src/features/catalog/queries.ts',
+  '/src/features/catalog/search-params.ts',
   '/src/features/favorites/',
 ]
 

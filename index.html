@@ -53,15 +53,15 @@
         link.rel = 'preload'
         link.as = 'image'
         link.href = '/assets/nfts/' + slug + '.webp'
+        var desktop = window.matchMedia('(min-width: 1024px)').matches
         link.setAttribute(
           'imagesrcset',
           '/assets/nfts/' +
             slug +
             '-sm.webp 320w, /assets/nfts/' +
             slug +
-            '.webp 640w, /assets/nfts/' +
-            slug +
-            '-lg.webp 1024w',
+            '.webp 640w' +
+            (desktop ? ', /assets/nfts/' + slug + '-lg.webp 1024w' : ''),
         )
         link.setAttribute(
           'imagesizes',
@@ -124,21 +124,28 @@
             />
           </div>
           <div class="w-full max-w-[450px] shrink-0 lg:w-[450px]">
-            <img
-              src="/assets/nfts/ape-emerald.webp"
-              srcset="
-                /assets/nfts/ape-emerald-sm.webp  320w,
-                /assets/nfts/ape-emerald.webp     640w,
-                /assets/nfts/ape-emerald-lg.webp 1024w
-              "
-              sizes="(min-width: 1024px) 450px, 90vw"
-              alt=""
-              width="450"
-              height="450"
-              fetchpriority="high"
-              decoding="sync"
-              class="aspect-square h-auto w-full rounded-hero bg-muted object-cover"
-            />
+            <picture>
+              <source
+                media="(min-width: 1024px)"
+                srcset="
+                  /assets/nfts/ape-emerald-sm.webp  320w,
+                  /assets/nfts/ape-emerald.webp     640w,
+                  /assets/nfts/ape-emerald-lg.webp 1024w
+                "
+                sizes="(min-width: 1024px) 450px, 90vw"
+              />
+              <img
+                src="/assets/nfts/ape-emerald.webp"
+                srcset="/assets/nfts/ape-emerald-sm.webp 320w, /assets/nfts/ape-emerald.webp 640w"
+                sizes="(min-width: 1024px) 450px, 90vw"
+                alt=""
+                width="450"
+                height="450"
+                fetchpriority="high"
+                decoding="sync"
+                class="aspect-square h-auto w-full rounded-hero bg-muted object-cover"
+              />
+            </picture>
           </div>
         </section>
       </div>
@@ -169,15 +176,19 @@
           el.innerHTML =
             '<header class="sticky top-0 z-40 bg-background/95"><div class="container-page"><div class="flex h-16 items-center lg:h-[69px] lg:pt-6"></div></div></header>' +
             '<article class="container-page pt-8"><div class="h-5"></div><div class="mt-5 grid gap-8 lg:grid-cols-[568px_minmax(0,1fr)] lg:gap-[37px]"><div class="flex flex-col-reverse gap-3 sm:flex-row"><div class="flex gap-3 sm:w-[98px] sm:flex-col"></div><div class="min-w-0 flex-1 rounded-lg bg-card p-4">' +
-            '<img src="/assets/nfts/' +
-            slug +
-            '.webp" srcset="/assets/nfts/' +
+            '<picture><source media="(min-width: 1024px)" srcset="/assets/nfts/' +
             slug +
             '-sm.webp 320w, /assets/nfts/' +
             slug +
             '.webp 640w, /assets/nfts/' +
             slug +
-            '-lg.webp 1024w" sizes="(min-width: 1024px) 408px, 90vw" alt="" width="640" height="640" fetchpriority="high" decoding="sync" class="aspect-square h-auto w-full rounded-art bg-muted object-cover" />' +
+            '-lg.webp 1024w" sizes="(min-width: 1024px) 408px, 90vw" /><img src="/assets/nfts/' +
+            slug +
+            '.webp" srcset="/assets/nfts/' +
+            slug +
+            '-sm.webp 320w, /assets/nfts/' +
+            slug +
+            '.webp 640w" sizes="(min-width: 1024px) 408px, 90vw" alt="" width="640" height="640" fetchpriority="high" decoding="sync" class="aspect-square h-auto w-full rounded-art bg-muted object-cover" /></picture>' +
             '</div></div></div></article>'
         })()
       </script>
