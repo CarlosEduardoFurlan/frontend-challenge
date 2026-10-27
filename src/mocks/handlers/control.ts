@@ -7,6 +7,7 @@ import { httpError, json, readBody, withScenario } from '../lib/http'
 import { replayNftEvent, updateEditionAvailability, updateEditionPrice } from '../lib/nft-store'
 import { getCurrentScenarioId, setScenario } from '../lib/scenario-state'
 import { getDb, resetDb } from '../persistence/db'
+import { expireSessions } from '../control'
 import { listScenarios } from '../scenarios'
 import { getConnectedSocketCount } from '../realtime/server'
 
@@ -52,6 +53,11 @@ export const controlHandlers = [
       },
       { bypass: true },
     ),
+  ),
+
+  http.post(
+    `${env.apiUrl}/__mock/session/expire`,
+    withScenario(() => json({ expired: expireSessions() }), { bypass: true }),
   ),
 
   http.post(
