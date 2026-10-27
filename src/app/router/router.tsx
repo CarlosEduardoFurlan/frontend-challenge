@@ -1,6 +1,7 @@
 import { createRouter } from '@tanstack/react-router'
 
 import { routeTree } from './routeTree.gen'
+import { parseSearch, stringifySearch } from './search'
 
 export function createAppRouter() {
   return createRouter({
@@ -8,6 +9,8 @@ export function createAppRouter() {
     defaultPreload: 'intent',
     defaultPreloadStaleTime: 0,
     scrollRestoration: true,
+    parseSearch,
+    stringifySearch,
   })
 }
 

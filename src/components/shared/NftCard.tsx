@@ -90,7 +90,7 @@ export function NftCard({
           <Link
             to="/nft/$nftId"
             params={{ nftId: id }}
-            className="outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:underline"
+            className="outline-none hover:underline focus-visible:underline"
             tabIndex={-1}
           >
             {name}
