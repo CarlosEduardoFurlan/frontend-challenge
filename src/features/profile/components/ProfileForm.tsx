@@ -94,6 +94,9 @@ export function ProfileForm({ user }: { user: User }) {
           <div className="flex flex-col gap-2">
             <p className="text-sm font-medium">Avatar</p>
             <div className="flex flex-wrap gap-2">
+              <label htmlFor="avatar-file" className="sr-only">
+                Arquivo do avatar
+              </label>
               <input
                 ref={fileRef}
                 id="avatar-file"

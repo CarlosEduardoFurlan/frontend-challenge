@@ -10,8 +10,9 @@ const isCI = Boolean(process.env.CI)
  * - Tests run against the production build served by `vite preview`, so MSW (service worker
  *   + WebSocket interception) is exercised exactly as in the demo deploy.
  * - `chromium-desktop` and `chromium-mobile` run the functional E2E suite.
- * - `visual` runs screenshot regression for home, detail, cart and checkout with stable
- *   fixtures. Baselines are versioned under `tests/visual/__snapshots__`.
+ * - `visual` / `visual-mobile` run screenshot regression for home, detail, cart and checkout
+ *   with stable fixtures. Baselines are versioned under `tests/visual/__snapshots__/<project>/<platform>`;
+ *   regenerate with `npm run test:visual:update` (UPDATE_SNAPSHOTS=1).
  * - Every test starts isolated: a fresh browser context and the mock state reset via the
  *   `?mock-reset` query param handled by the mock layer.
  */
@@ -26,12 +27,16 @@ export default defineConfig({
   expect: {
     timeout: 10_000,
     toHaveScreenshot: {
-      maxDiffPixelRatio: 0.01,
+      maxDiffPixelRatio: 0.002,
+      threshold: 0.2,
       animations: 'disabled',
       caret: 'hide',
+      scale: 'css',
     },
   },
-  snapshotPathTemplate: '{testDir}/visual/__snapshots__/{projectName}/{testFilePath}/{arg}{ext}',
+  // Baselines are platform-specific (font rasterisation differs between OSes), hence {platform}.
+  snapshotPathTemplate: '{testDir}/__snapshots__/{projectName}/{platform}/{arg}{ext}',
+  updateSnapshots: process.env.UPDATE_SNAPSHOTS ? 'all' : 'missing',
   use: {
     baseURL: BASE_URL,
     trace: 'retain-on-failure',
@@ -55,6 +60,11 @@ export default defineConfig({
       name: 'visual',
       testDir: './tests/visual',
       use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
+    },
+    {
+      name: 'visual-mobile',
+      testDir: './tests/visual',
+      use: { ...devices['Pixel 7'], viewport: { width: 390, height: 844 } },
     },
   ],
   webServer: {
