@@ -208,7 +208,7 @@
 
   /* Figma desktop frames: 1440 wide with 120px side margins → 1200px content column. */
   .container-page {
-    @apply mx-auto w-full max-w-[1200px] px-4 sm:px-6 lg:max-w-[1440px] lg:px-[120px];
+    @apply mx-auto w-full max-w-[1200px] px-6 lg:max-w-[1440px] lg:px-[120px];
   }
 
   /* Hairline rule used under the header, section titles and table headers (stroke 0.3-1px primary). */

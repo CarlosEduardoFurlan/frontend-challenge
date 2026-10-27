@@ -1,5 +1,4 @@
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
-import { Menu } from 'lucide-react'
 import { lazy, Suspense, useEffect, useState, type FormEvent } from 'react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -11,10 +10,9 @@ import { cn } from '@/lib/utils'
 
 import { Logo } from './Logo'
 
-// Dropdown (Radix menu + floating-ui) and the drawer content are only needed after an
-// interaction or a login, so they stay out of the initial bundle.
+// The dropdown (Radix menu + floating-ui) is only needed after a login, so it stays out of the
+// initial bundle. Below 1024px the root layout renders the mobile chrome instead of this header.
 const UserMenu = lazy(() => import('./UserMenu'))
-const MobileNav = lazy(() => import('./MobileNav'))
 
 export interface HeaderUser {
   name: string
@@ -64,7 +62,6 @@ export function AppHeader({ user, cartCount, onLogout, sessionLoading }: AppHead
   const activeKey: NavKey = market ? 'market' : 'home'
   const [searchOpen, setSearchOpen] = useState(() => Boolean(currentQuery))
   const [query, setQuery] = useState(currentQuery)
-  const [mobileOpen, setMobileOpen] = useState(false)
 
   // Keep the field in sync with the URL (history navigation restores the previous term).
   useEffect(() => {
@@ -79,7 +76,6 @@ export function AppHeader({ user, cartCount, onLogout, sessionLoading }: AppHead
       search: (prev) => ({ ...prev, q: q || undefined, page: undefined }),
       hash: 'catalogo',
     })
-    setMobileOpen(false)
   }
 
   function submitSearch(event: FormEvent<HTMLFormElement>) {
@@ -178,41 +174,13 @@ export function AppHeader({ user, cartCount, onLogout, sessionLoading }: AppHead
             ) : (
               <Link
                 to="/login"
-                className="hidden h-[35px] w-[100px] items-center justify-center gap-1 rounded-md bg-primary text-base font-medium text-primary-foreground outline-none hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background lg:inline-flex"
+                className="inline-flex h-[35px] w-[100px] items-center justify-center gap-1 rounded-md bg-primary text-base font-medium text-primary-foreground outline-none hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 data-testid="header-login"
               >
                 <img src="/assets/icons/login.svg" alt="" width={18} height={17} />
                 Entrar
               </Link>
             )}
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden"
-              aria-label="Abrir menu"
-              aria-haspopup="dialog"
-              aria-expanded={mobileOpen}
-              onClick={() => setMobileOpen(true)}
-              data-testid="open-mobile-menu"
-            >
-              <Menu aria-hidden="true" />
-            </Button>
-            {mobileOpen ? (
-              <Suspense fallback={null}>
-                <MobileNav
-                  open={mobileOpen}
-                  onOpenChange={setMobileOpen}
-                  user={user}
-                  links={NAV_LINKS}
-                  onNavigate={() => setMobileOpen(false)}
-                  onLogout={() => {
-                    setMobileOpen(false)
-                    onLogout()
-                  }}
-                />
-              </Suspense>
-            ) : null}
           </div>
         </div>
 

@@ -75,7 +75,7 @@ const SOCIAL = [
   { name: 'YouTube', icon: 'social-youtube' },
 ] as const
 
-export function AppFooter() {
+export function AppFooter({ className }: { className?: string }) {
   const [subscribed, setSubscribed] = useState(false)
 
   function handleNewsletter(event: FormEvent<HTMLFormElement>) {
@@ -85,7 +85,7 @@ export function AppFooter() {
   }
 
   return (
-    <footer className="mt-24 pb-6">
+    <footer className={cn('mt-24 pb-6', className)}>
       <div className="container-page">
         {/* Block 1: feature medallions + newsletter (surface-card, 32px padding). */}
         <div className="rounded-t-lg bg-card p-6 lg:p-8">
