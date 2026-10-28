@@ -213,6 +213,7 @@ A versão publicada deve corresponder ao commit da branch `main` após o merge d
   poucos pontos (`lighthouse/README.md`).
 - **Regressão visual** com baselines versionadas apenas para Windows/Chromium; o CI renderiza em
   Linux e guarda as baselines como artefato.
-- **Pull requests**: não puderam ser abertos automaticamente (sem `gh`/token). Cada branch foi
-  publicada no fork e integrada em `develop` com merge `--no-ff`; o conteúdo de cada PR está em
+- **Histórico Git**: branches de funcionalidade integradas em `develop` com merge `--no-ff`;
+  correção de fidelidade visual integrada pelo PR #1 (`fix/figma-fidelity` → `develop`) e entrega
+  final pelo PR #2 (`develop` → `main`), preservando os commits. Os registros anteriores estão em
   `docs/pull-requests/`. Ver [`docs/BRANCHING.md`](docs/BRANCHING.md).
