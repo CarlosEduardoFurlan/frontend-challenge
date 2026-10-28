@@ -14,8 +14,9 @@ src/
 ├── routes/       rotas file-based do TanStack Router (componentes lazy por rota)
 └── types/        contratos REST e de eventos compartilhados por mocks, services e UI
 tests/            e2e (12 grupos), visual (baselines), fixtures (app fixture)
-scripts/          lighthouse.mjs, screenshot.mjs, figma-assets.py, figma-compare.py, dev/ (análise)
-lighthouse/       README com resultados, relatórios versionados
+scripts/          lighthouse.mjs, screenshot.mjs, figma-assets.py, figma-compare.py, dev/ (análise e verificação remota)
+lighthouse/       README com resultados, relatórios HTML/JSON versionados
+docs/             enunciado, auditoria do Figma (referências e comparações), matriz de requisitos
 ```
 
 Regras aplicadas: componentes não contêm regra de negócio (cálculos ficam na API simulada e nos
@@ -179,5 +180,7 @@ O recibo guarda o snapshot dos itens e valores.
 - Lighthouse mobile (modo simulate) 92/90, com margem pequena no detalhe; depende de o React
   adotar o nó `<img>` pré-renderizado (`src/lib/prerender.ts`, detalhes em
   `lighthouse/README.md`); `bf-cache` inelegível pelo WebSocket aberto.
-- Baselines visuais apenas Windows/Chromium.
-- Pull requests não abertos automaticamente (sem `gh`/token); ver `docs/BRANCHING.md`.
+- Baselines visuais apenas Windows/Chromium (o CI renderiza em Linux e publica as capturas
+  como artefato, sem comparação automática).
+- Dos 15 frames do Figma, 8 foram comparados a partir de exportações manuais em PNG, sem o
+  design context do MCP (cota mensal esgotada); ver `docs/FIGMA-AUDIT.md`.

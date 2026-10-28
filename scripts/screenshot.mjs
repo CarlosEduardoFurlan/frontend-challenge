@@ -2,7 +2,7 @@
  * Captures full-page screenshots of one or more routes at the three evaluation widths.
  *
  * Usage: node scripts/screenshot.mjs <baseUrl> <outDir> [route ...]
- * Example: node scripts/screenshot.mjs http://localhost:4173 ./docs/screenshots / /cart
+ * Example: node scripts/screenshot.mjs http://localhost:4173 ./docs/figma-comparison/after / /cart
  * Env: SHOT_LOGIN=1 logs in as the demo user, SHOT_CART=1 adds two items, SHOT_ORDER=1 places
  * an order and screenshots its confirmation page (route "order"), SHOT_WIDTHS=a,b limits widths.
  */
@@ -11,7 +11,7 @@ import { join } from 'node:path'
 
 import { chromium } from '@playwright/test'
 
-const [baseUrl = 'http://localhost:4173', outDir = './docs/screenshots', ...routes] =
+const [baseUrl = 'http://localhost:4173', outDir = './docs/figma-comparison/after', ...routes] =
   process.argv.slice(2)
 const targets = routes.length ? routes : ['/']
 const onlyWidths = process.env.SHOT_WIDTHS ? process.env.SHOT_WIDTHS.split(',') : null

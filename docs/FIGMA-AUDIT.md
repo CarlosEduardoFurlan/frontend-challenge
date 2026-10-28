@@ -1,7 +1,7 @@
 # Auditoria de fidelidade ao Figma
 
 Arquivo de referência: `https://www.figma.com/design/fwIfA7xCwcap7SbD0YZ5pA/Frontend-Challenge--Copy-`
-Branch: `fix/figma-fidelity` (a partir de `develop`). Data da inspeção: 2026-10-27.
+Correção integrada à `main` pelos pull requests #1 e #2. Data da inspeção: 2026-10-27.
 
 ## 1. Acesso ao Figma (MCP remoto)
 
@@ -136,8 +136,10 @@ equivalentes do lucide-react).
 ## 4. Telas
 
 Comparações lado a lado em `docs/figma-comparison/comparisons/` (Figma à esquerda, implementação
-à direita); screenshots anteriores preservados em `docs/figma-comparison/before/` e os novos em
-`docs/figma-comparison/after/` (390, 414, 768 e 1440 px).
+à direita), geradas por `scripts/figma-compare.py` a partir das referências em
+`docs/figma-comparison/figma-reference/` e das capturas finais da aplicação em
+`docs/figma-comparison/after/` (todas as telas em 390, 414, 768 e 1440 px, produzidas por
+`scripts/screenshot.mjs`).
 
 | Frame                     | Status | Observações                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | ------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
