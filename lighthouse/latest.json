@@ -1,0 +1,287 @@
+{
+  "reportDir": "lighthouse\\reports\\2026-10-27T21-56-02-devtools",
+  "generatedAt": "2026-10-27T21:56:05.093Z",
+  "environment": {
+    "os": "Windows_NT 10.0.26300 (x64)",
+    "cpu": "12th Gen Intel(R) Core(TM) i5-12450HX",
+    "cores": 12,
+    "memoryGb": 16,
+    "node": "v24.19.0",
+    "lighthouse": "13.5.0",
+    "chrome": "Chrome/156.0.0.0"
+  },
+  "conditions": {
+    "server": "vite preview (production build, MSW mock layer enabled, scenario \"default\")",
+    "mobile": "Lighthouse default mobile emulation (Moto G Power, slow 4G throttling, 4x CPU)",
+    "desktop": "Lighthouse desktop preset (no throttling, 1x CPU)",
+    "throttlingMethod": "devtools",
+    "runsPerTarget": 3,
+    "network": "simulated throttling (Lighthouse default); page is served from localhost"
+  },
+  "results": [
+    {
+      "page": "home",
+      "path": "/",
+      "profile": "mobile",
+      "medianScores": {
+        "performance": 95,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "medianMetrics": {
+        "lcpMs": 2643,
+        "cls": 0.031,
+        "tbtMs": 152
+      },
+      "runs": [
+        {
+          "run": 1,
+          "scores": {
+            "performance": 95,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "lcpMs": 2645,
+            "cls": 0.031,
+            "tbtMs": 129,
+            "fcpMs": 935,
+            "speedIndexMs": 2392
+          }
+        },
+        {
+          "run": 2,
+          "scores": {
+            "performance": 95,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "lcpMs": 2643,
+            "cls": 0.031,
+            "tbtMs": 153,
+            "fcpMs": 893,
+            "speedIndexMs": 2347
+          }
+        },
+        {
+          "run": 3,
+          "scores": {
+            "performance": 95,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "lcpMs": 2639,
+            "cls": 0.031,
+            "tbtMs": 152,
+            "fcpMs": 919,
+            "speedIndexMs": 2374
+          }
+        }
+      ]
+    },
+    {
+      "page": "home",
+      "path": "/",
+      "profile": "desktop",
+      "medianScores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "medianMetrics": {
+        "lcpMs": 55,
+        "cls": 0.017,
+        "tbtMs": 0
+      },
+      "runs": [
+        {
+          "run": 1,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "lcpMs": 151,
+            "cls": 0.017,
+            "tbtMs": 0,
+            "fcpMs": 45,
+            "speedIndexMs": 118
+          }
+        },
+        {
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "lcpMs": 52,
+            "cls": 0.017,
+            "tbtMs": 0,
+            "fcpMs": 42,
+            "speedIndexMs": 111
+          }
+        },
+        {
+          "run": 3,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "lcpMs": 55,
+            "cls": 0.017,
+            "tbtMs": 0,
+            "fcpMs": 43,
+            "speedIndexMs": 114
+          }
+        }
+      ]
+    },
+    {
+      "page": "nft-detail",
+      "path": "/nft/nft-001",
+      "profile": "mobile",
+      "medianScores": {
+        "performance": 92,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "medianMetrics": {
+        "lcpMs": 2549,
+        "cls": 0.03,
+        "tbtMs": 142
+      },
+      "runs": [
+        {
+          "run": 1,
+          "scores": {
+            "performance": 92,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "lcpMs": 2561,
+            "cls": 0.03,
+            "tbtMs": 159,
+            "fcpMs": 2028,
+            "speedIndexMs": 3809
+          }
+        },
+        {
+          "run": 2,
+          "scores": {
+            "performance": 92,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "lcpMs": 2549,
+            "cls": 0.03,
+            "tbtMs": 142,
+            "fcpMs": 2023,
+            "speedIndexMs": 3870
+          }
+        },
+        {
+          "run": 3,
+          "scores": {
+            "performance": 93,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "lcpMs": 2537,
+            "cls": 0.03,
+            "tbtMs": 139,
+            "fcpMs": 2021,
+            "speedIndexMs": 3746
+          }
+        }
+      ]
+    },
+    {
+      "page": "nft-detail",
+      "path": "/nft/nft-001",
+      "profile": "desktop",
+      "medianScores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "medianMetrics": {
+        "lcpMs": 490,
+        "cls": 0.028,
+        "tbtMs": 0
+      },
+      "runs": [
+        {
+          "run": 1,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "lcpMs": 49,
+            "cls": 0.028,
+            "tbtMs": 0,
+            "fcpMs": 49,
+            "speedIndexMs": 158
+          }
+        },
+        {
+          "run": 2,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "lcpMs": 514,
+            "cls": 0.028,
+            "tbtMs": 0,
+            "fcpMs": 71,
+            "speedIndexMs": 178
+          }
+        },
+        {
+          "run": 3,
+          "scores": {
+            "performance": 100,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "lcpMs": 490,
+            "cls": 0.028,
+            "tbtMs": 0,
+            "fcpMs": 55,
+            "speedIndexMs": 174
+          }
+        }
+      ]
+    }
+  ]
+}
