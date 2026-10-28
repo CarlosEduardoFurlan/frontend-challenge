@@ -8,6 +8,10 @@ interface SliderProps extends ComponentPropsWithoutRef<typeof SliderPrimitive.Ro
   thumbLabels?: string[]
 }
 
+/**
+ * Figma price slider (Filters component): 4px primary track with round caps and 15px primary
+ * thumbs outlined by a 3px ink ring.
+ */
 const Slider = forwardRef<ElementRef<typeof SliderPrimitive.Root>, SliderProps>(
   ({ className, thumbLabels = [], value, defaultValue, ...props }, ref) => {
     const thumbs = (value ?? defaultValue ?? [0]).length
@@ -17,19 +21,19 @@ const Slider = forwardRef<ElementRef<typeof SliderPrimitive.Root>, SliderProps>(
         value={value}
         defaultValue={defaultValue}
         className={cn(
-          'relative flex w-full touch-none items-center select-none data-[disabled]:opacity-50',
+          'relative flex h-[21px] w-full touch-none items-center select-none data-[disabled]:opacity-50',
           className,
         )}
         {...props}
       >
-        <SliderPrimitive.Track className="relative h-1.5 w-full grow overflow-hidden rounded-full bg-accent">
+        <SliderPrimitive.Track className="relative h-1 w-full grow rounded-full bg-primary">
           <SliderPrimitive.Range className="absolute h-full bg-primary" />
         </SliderPrimitive.Track>
         {Array.from({ length: thumbs }).map((_, index) => (
           <SliderPrimitive.Thumb
             key={index}
             aria-label={thumbLabels[index]}
-            className="block size-4 cursor-grab rounded-full border-2 border-primary bg-background shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:cursor-grabbing"
+            className="block size-[21px] cursor-grab rounded-full border-[3px] border-background bg-primary outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:cursor-grabbing"
           />
         ))}
       </SliderPrimitive.Root>

@@ -70,7 +70,8 @@ function criticalAssetsPlugin(): Plugin {
           (match, cssFile: string) => {
             const asset = bundle[cssFile]
             if (!asset || asset.type !== 'asset' || typeof asset.source !== 'string') return match
-            if (asset.source.length > 60_000) return match
+            // ~61 KB raw (11.5 KB gzip) after the Figma redesign; still worth one less round trip.
+            if (asset.source.length > 72_000) return match
             delete bundle[cssFile]
             return `<style>${asset.source}</style>`
           },
@@ -102,11 +103,14 @@ const MOCK_PACKAGES = [
   'punycode',
 ]
 
+// The home-only components (filters, slider, promos, blog) are left to the route splitting so
+// the NFT detail page does not pay for them; queries and search params are shared by Rollup.
 const SHARED_UI_SEGMENTS = [
   '/src/components/',
   '/src/lib/',
   '/src/hooks/',
-  '/src/features/catalog/',
+  '/src/features/catalog/queries.ts',
+  '/src/features/catalog/search-params.ts',
   '/src/features/favorites/',
 ]
 
@@ -162,6 +166,11 @@ function manualChunks(id: string): string | undefined {
     )
   ) {
     return 'app-ui'
+  }
+  // Overlays used only after an interaction (menus, drawers, dialogs, the price slider) stay
+  // with their lazy consumers instead of the shared chunk.
+  if (/[/]src[/]components[/]ui[/](sheet|dialog|dropdown-menu|slider)[.]tsx$/.test(path)) {
+    return undefined
   }
   if (SHARED_UI_SEGMENTS.some((segment) => path.includes(segment))) return 'app-ui'
   return undefined

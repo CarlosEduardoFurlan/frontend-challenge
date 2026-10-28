@@ -1,42 +1,81 @@
 import { Link } from '@tanstack/react-router'
-import { Layers, ShieldCheck, Wallet } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils'
 
 import { Logo } from './Logo'
 
+/** Figma "Footer" (component 70491:1286): feature medallions + newsletter, brand band, link columns. */
 const FEATURES = [
   {
-    icon: Wallet,
-    title: 'Carteiras simuladas',
-    description: 'Conecte carteiras fictícias e escolha a rede sem instalar extensões.',
+    letter: 'W',
+    title: 'Segurança da carteira',
+    description: 'Proteja sua carteira e colecione arte digital verificada com confiança.',
   },
   {
-    icon: ShieldCheck,
-    title: 'Compra verificada',
-    description: 'Cada pedido só é confirmado após a resposta da simulação de pagamento.',
+    letter: 'C',
+    title: 'Criadores em destaque',
+    description: 'Conheça artistas, estúdios e comunidades que moldam a cultura digital na rede.',
   },
   {
-    icon: Layers,
-    title: 'Edições limitadas',
-    description: 'Disponibilidade e preço atualizados em tempo real enquanto você navega.',
+    letter: 'D',
+    title: 'Alertas de lançamentos',
+    description:
+      'Receba calendários de cunhagem, novidades de listas de acesso e análises do mercado.',
   },
 ] as const
 
-/**
- * Links that exist in the layout but point to pages outside the challenge scope. They are
- * rendered as plain text with an "em breve" hint instead of pretending to navigate.
- */
-const LINK_COLUMNS = [
-  { title: 'Marketplace', links: ['Editorial', 'Ofertas', 'Atividade'] },
-  { title: 'Conta', links: ['Downloads', 'Suporte'] },
-  { title: 'Legal', links: ['Termos de uso', 'Privacidade'] },
+interface FooterLink {
+  label: string
+  /** Route of the app when the Figma link maps to an existing screen. */
+  to?: '/account/profile' | '/account/orders' | '/favorites' | '/'
+  search?: Record<string, unknown>
+  hash?: string
+}
+
+const COLUMNS: Array<{ title: string; links: FooterLink[] }> = [
+  {
+    title: 'Meu perfil',
+    links: [
+      { label: 'Meu perfil', to: '/account/profile' },
+      { label: 'Minha coleção', to: '/account/orders' },
+      { label: 'Atividade', to: '/account/orders' },
+      { label: 'Estúdio do criador' },
+      { label: 'Lista de interesse', to: '/favorites' },
+    ],
+  },
+  {
+    title: 'Central de ajuda',
+    links: [
+      { label: 'Central de ajuda' },
+      { label: 'Como comprar NFTs', to: '/', hash: 'diario' },
+      { label: 'Carteira e segurança', to: '/', hash: 'diario' },
+      { label: 'Política do mercado' },
+      { label: 'Denunciar item' },
+    ],
+  },
+  {
+    title: 'Coleções',
+    links: [
+      { label: 'Arte digital', to: '/', search: { category: ['arte'] }, hash: 'catalogo' },
+      { label: 'Fotografia', to: '/', search: { category: ['fotografia'] }, hash: 'catalogo' },
+      { label: 'Música', to: '/', search: { category: ['musica'] }, hash: 'catalogo' },
+      { label: 'Arte 3D', to: '/', search: { category: ['colecionavel'] }, hash: 'catalogo' },
+      { label: 'Utilidade', to: '/', search: { category: ['utilitario'] }, hash: 'catalogo' },
+    ],
+  },
+]
+
+const SOCIAL = [
+  { name: 'Facebook', icon: 'social-facebook' },
+  { name: 'Instagram', icon: 'social-instagram' },
+  { name: 'Twitter', icon: 'social-twitter' },
+  { name: 'LinkedIn', icon: 'social-linkedin' },
+  { name: 'YouTube', icon: 'social-youtube' },
 ] as const
 
-export function AppFooter() {
+export function AppFooter({ className }: { className?: string }) {
   const [subscribed, setSubscribed] = useState(false)
 
   function handleNewsletter(event: FormEvent<HTMLFormElement>) {
@@ -46,100 +85,158 @@ export function AppFooter() {
   }
 
   return (
-    <footer className="mt-16 border-t border-border bg-card">
-      <div className="container-page py-12">
-        <div className="grid gap-10 lg:grid-cols-[1fr_minmax(0,22rem)] lg:gap-16">
-          <ul className="grid gap-8 sm:grid-cols-3">
-            {FEATURES.map(({ icon: Icon, title, description }) => (
-              <li key={title} className="flex flex-col gap-3">
-                <span className="inline-flex size-11 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                  <Icon className="size-5" aria-hidden="true" />
-                </span>
-                <h3 className="text-sm font-semibold">{title}</h3>
-                <p className="text-sm text-muted-foreground">{description}</p>
-              </li>
+    <footer className={cn('mt-24 pb-6', className)}>
+      <div className="container-page">
+        {/* Block 1: feature medallions + newsletter (surface-card, 32px padding). */}
+        <div className="rounded-t-lg bg-card p-6 lg:p-8">
+          <div className="grid gap-8 lg:grid-cols-[1fr_1px_1fr_1px_1fr_1px_357px] lg:gap-0">
+            {FEATURES.map((feature, index) => (
+              <div key={feature.title} className="contents">
+                {index > 0 ? (
+                  <div
+                    className="hidden w-px self-stretch bg-primary lg:block"
+                    aria-hidden="true"
+                  />
+                ) : null}
+                <div className="flex flex-col gap-3 lg:px-4">
+                  <span className="inline-flex size-[74px] items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">
+                    {feature.letter}
+                  </span>
+                  <h3 className="text-[17px] leading-4 font-bold lg:whitespace-nowrap">
+                    {feature.title}
+                  </h3>
+                  <p className="max-w-[204px] text-sm leading-[22px] text-muted-foreground">
+                    {feature.description}
+                  </p>
+                </div>
+              </div>
             ))}
-          </ul>
-
-          <form
-            onSubmit={handleNewsletter}
-            className="flex flex-col gap-3"
-            aria-labelledby="newsletter-title"
-          >
-            <h3 id="newsletter-title" className="font-display text-sm uppercase">
-              Fique por dentro
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              Receba os próximos lançamentos. Recurso ilustrativo, sem envio real.
-            </p>
-            <div className="flex gap-2">
-              <div className="flex-1">
+            <div className="hidden w-px self-stretch bg-primary lg:block" aria-hidden="true" />
+            <form
+              onSubmit={handleNewsletter}
+              className="flex flex-col gap-3 lg:px-4"
+              aria-labelledby="newsletter-title"
+            >
+              <h3 id="newsletter-title" className="text-lg leading-4 font-bold">
+                Antecipe-se ao próximo lançamento
+              </h3>
+              <div className="mt-1 flex h-10 overflow-hidden rounded-md bg-surface-dark shadow-card">
                 <Label htmlFor="newsletter-email" className="sr-only">
                   E-mail
                 </Label>
-                <Input
+                <input
                   id="newsletter-email"
                   type="email"
-                  placeholder="seu@email.com"
+                  placeholder="digite seu e-mail..."
                   autoComplete="email"
                   required
                   disabled={subscribed}
+                  className="min-w-0 flex-1 bg-transparent pl-3 text-sm text-foreground outline-none placeholder:text-brass focus-visible:ring-2 focus-visible:ring-ring/60 disabled:opacity-60"
                 />
+                <button
+                  type="submit"
+                  disabled={subscribed}
+                  className="w-[85px] shrink-0 cursor-pointer bg-primary text-lg font-bold text-primary-foreground outline-none hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-default disabled:opacity-60"
+                >
+                  {subscribed ? 'Ok' : 'Enviar'}
+                </button>
               </div>
-              <Button type="submit" disabled={subscribed}>
-                {subscribed ? 'Registrado' : 'Inscrever'}
-              </Button>
-            </div>
-            {subscribed ? (
-              <p className="text-xs text-success" role="status">
-                Preferência registrada apenas nesta sessão (fora do escopo da demonstração).
+              <p className="text-[13px] leading-[22px] text-muted-foreground" role="status">
+                {subscribed
+                  ? 'Preferência registrada apenas nesta sessão (fora do escopo da demonstração).'
+                  : 'Receba lançamentos selecionados, histórias de criadores e novidades do mercado.'}
               </p>
-            ) : null}
-          </form>
-        </div>
-
-        <div className="mt-12 grid gap-8 border-t border-border pt-10 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="flex flex-col gap-3">
-            <Logo />
-            <p className="text-sm text-muted-foreground">
-              Marketplace de arte digital com pagamentos e carteiras simulados.
-            </p>
+            </form>
           </div>
-          {LINK_COLUMNS.map((column) => (
-            <div key={column.title}>
-              <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                {column.title}
-              </h3>
-              <ul className="mt-3 flex flex-col gap-2 text-sm">
-                {column.links.map((label) => (
-                  <li key={label} className="text-muted-foreground">
-                    <span aria-disabled="true" title="Página fora do escopo da demonstração">
-                      {label}
-                    </span>
-                    <span className="ml-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
-                      em breve
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
         </div>
 
-        <div className="mt-10 flex flex-col gap-2 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} NFT Market. Demonstração técnica com dados simulados.</p>
-          <nav aria-label="Links do rodapé" className="flex gap-4">
-            <Link to="/" className="hover:text-foreground">
-              Início
-            </Link>
-            <Link to="/favorites" className="hover:text-foreground">
-              Favoritos
-            </Link>
-            <Link to="/cart" className="hover:text-foreground">
-              Carrinho
-            </Link>
-          </nav>
+        {/* Block 2: brand band (surface-dark, 88px). */}
+        <div className="grid gap-4 bg-surface-dark px-6 py-6 text-sm leading-[22px] sm:grid-cols-2 lg:h-[88px] lg:grid-cols-[1fr_auto_auto_228px] lg:items-center lg:gap-[60px] lg:px-8 lg:py-0">
+          <Logo />
+          <p className="lg:whitespace-nowrap">
+            Feito para colecionadores,
+            <br />
+            criadores e cultura
+          </p>
+          <a
+            href="mailto:contato@email.com"
+            className="rounded-sm outline-none hover:text-text-accent focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            contato@email.com
+          </a>
+          <p>+55 11 4002 8922</p>
         </div>
+
+        {/* Block 3: link columns, social icons and wallet chip. */}
+        <div className="rounded-b-lg bg-card p-6 lg:p-8">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_228px] lg:gap-x-[124px]">
+            {COLUMNS.map((column) => (
+              <div key={column.title} className="flex flex-col gap-2">
+                <h3 className="text-lg leading-4 font-bold">{column.title}</h3>
+                <ul className="text-sm leading-[30px]">
+                  {column.links.map((link) => (
+                    <li key={link.label}>
+                      {link.to ? (
+                        <Link
+                          to={link.to}
+                          search={link.search as never}
+                          hash={link.hash}
+                          className="rounded-sm outline-none hover:text-text-accent focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          {link.label}
+                        </Link>
+                      ) : (
+                        <span
+                          className="cursor-default"
+                          title="Página fora do escopo da demonstração"
+                          aria-disabled="true"
+                        >
+                          {link.label}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+            <div className="flex flex-col gap-8">
+              <div className="flex flex-col gap-5">
+                <h3 className="text-lg leading-4 font-bold">Redes sociais</h3>
+                <ul className="flex items-center gap-2.5">
+                  {SOCIAL.map((item) => (
+                    <li key={item.name}>
+                      <span
+                        className="block size-[30px] cursor-default"
+                        title={`${item.name} (fora do escopo da demonstração)`}
+                      >
+                        <img
+                          src={`/assets/icons/${item.icon}.svg`}
+                          alt={item.name}
+                          width={30}
+                          height={30}
+                        />
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="flex flex-col gap-3">
+                <h3 className="text-lg leading-4 font-bold">Carteiras compatíveis</h3>
+                <p
+                  className={cn(
+                    'inline-flex h-[26px] items-center justify-center rounded-md border border-border-soft bg-surface-dark px-2 text-[9px] font-bold tracking-[0.1px] whitespace-pre text-text-accent',
+                  )}
+                >
+                  {'METAMASK  •  WALLETCONNECT  •  COINBASE'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p className="pt-1.5 text-center text-sm leading-[30px]">
+          © {new Date().getFullYear()} Kurio. Propriedade digital para todos.
+        </p>
       </div>
     </footer>
   )

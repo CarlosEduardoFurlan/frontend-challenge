@@ -65,7 +65,15 @@ test.describe('accessibility: keyboard, focus and forms', () => {
     await page.keyboard.press('Enter')
     await expect(page.locator('#main-content')).toBeFocused()
 
-    await page.getByTestId('catalog-search').focus()
+    // Desktop: the search sits behind the header icon; mobile: the field is always visible.
+    const toggle = page.getByTestId('header-search-toggle')
+    if (await toggle.isVisible()) {
+      await toggle.focus()
+      await page.keyboard.press('Enter')
+    } else {
+      await page.getByTestId('catalog-search').focus()
+    }
+    await expect(page.getByTestId('catalog-search')).toBeFocused()
     await page.keyboard.type('Aurora')
     await page.keyboard.press('Enter')
     await expect(page).toHaveURL(/q=Aurora/)

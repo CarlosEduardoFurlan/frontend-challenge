@@ -3,116 +3,210 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#120b08" />
+    <meta name="theme-color" content="#140d0a" />
     <meta
       name="description"
-      content="Marketplace de NFTs: descubra, colecione e compre arte digital com carteiras simuladas."
+      content="KURIO: marketplace de NFTs para descobrir, colecionar e comprar arte digital com carteiras simuladas."
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link
       rel="preload"
-      href="/fonts/silkscreen-latin-400-normal.woff2"
+      href="/fonts/roboto-mono-latin-400-normal.woff2"
       as="font"
       type="font/woff2"
       crossorigin
     />
     <link
       rel="preload"
-      href="/fonts/inter-latin-400-normal.woff2"
+      href="/fonts/roboto-mono-latin-700-normal.woff2"
       as="font"
       type="font/woff2"
       crossorigin
     />
-    <title>NFT Marketplace</title>
+    <title>KURIO — NFT Marketplace</title>
     <script>
-      // Make the LCP artwork discoverable from the initial document: the home hero is static
-      // and detail artworks follow the /nfts/<id>-1.webp convention of the local asset set.
+      // Make the LCP artwork discoverable from the initial document. The catalog reuses the four
+      // artworks exported from the Figma file; the id → artwork mapping mirrors
+      // src/mocks/fixtures/nfts.ts (artworkFor) so the detail page preloads the right file.
       ;(function () {
-        var match = /^\/nft\/([a-z0-9-]+)\/?$/.exec(location.pathname)
-        var src =
+        var match = /^\/nft\/(nft-\d{3})\/?$/.exec(location.pathname)
+        var slugs = ['ape-emerald', 'ape-sage', 'ape-ivory', 'ape-golden']
+        var byId = {
+          'nft-001': 'ape-emerald',
+          'nft-004': 'ape-sage',
+          'nft-009': 'ape-ivory',
+          'nft-012': 'ape-sage',
+          'nft-002': 'ape-sage',
+          'nft-003': 'ape-ivory',
+          'nft-005': 'ape-golden',
+          'nft-006': 'ape-golden',
+          'nft-007': 'ape-golden',
+        }
+        var slug =
           location.pathname === '/'
-            ? '/nfts/nft-001-1.webp'
+            ? 'ape-emerald'
             : match
-              ? '/nfts/' + match[1] + '-1.webp'
+              ? byId[match[1]] || slugs[Number(match[1].slice(-3)) % slugs.length]
               : null
-        if (!src) return
+        if (!slug) return
         var link = document.createElement('link')
         link.rel = 'preload'
         link.as = 'image'
-        link.href = src
+        link.href = '/assets/nfts/' + slug + '.webp'
+        var desktop = window.matchMedia('(min-width: 1024px)').matches
+        link.setAttribute(
+          'imagesrcset',
+          '/assets/nfts/' +
+            slug +
+            '-sm.webp 320w, /assets/nfts/' +
+            slug +
+            '.webp 640w' +
+            (desktop ? ', /assets/nfts/' + slug + '-lg.webp 1024w' : ''),
+        )
+        link.setAttribute(
+          'imagesizes',
+          location.pathname === '/'
+            ? '(min-width: 1024px) 450px, 90vw'
+            : '(min-width: 1024px) 408px, 90vw',
+        )
         link.setAttribute('fetchpriority', 'high')
         document.head.appendChild(link)
       })()
     </script>
   </head>
   <body>
-    <div id="root">
-      <!--
+    <!--
         Static pre-render of the above-the-fold content. It paints as soon as the HTML and the
         inline CSS arrive (before any JavaScript), so the largest contentful paint does not wait
         for the bundle. React replaces this markup when it mounts; the classes mirror the React
-        components so nothing shifts. The inline script below swaps it for a detail placeholder
-        on /nft/:id and removes it on any other route, before the first paint.
+        components (AppHeader, HomeHero, NftGallery) so nothing shifts. The inline script below
+        swaps it for a detail placeholder on /nft/:id and removes it on any other route.
       -->
-      <div id="prerender" aria-hidden="true">
-        <header class="sticky top-0 z-40 border-b border-border bg-background/90">
-          <div class="container-page flex h-16 items-center gap-4"></div>
-        </header>
-        <section
-          class="container-page grid items-center gap-8 py-10 md:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] md:py-16 lg:gap-16"
-        >
-          <div class="flex flex-col items-start gap-5">
-            <p class="text-xs font-semibold tracking-[0.2em] text-primary uppercase">
-              Marketplace de arte digital
-            </p>
-            <h1
-              class="font-display text-[1.75rem] leading-[1.25] uppercase sm:text-4xl lg:text-[2.75rem]"
-            >
-              Seja dono do futuro da arte digital
-            </h1>
-            <p class="max-w-prose text-base text-muted-foreground">
-              Descubra edições limitadas de artistas independentes, acompanhe preços em tempo real e
-              finalize sua compra com carteiras simuladas, sem instalar nada.
-            </p>
+    <div id="prerender" aria-hidden="true">
+      <header class="hairline sticky top-0 z-40 hidden bg-background/95 lg:block">
+        <div class="container-page">
+          <div class="flex h-16 items-center lg:h-[69px] lg:pt-6"></div>
+        </div>
+      </header>
+      <section
+        class="container-page flex flex-col gap-8 pt-8 lg:h-[450px] lg:flex-row lg:items-center lg:justify-between lg:gap-0 lg:pt-8 lg:pl-[160px]"
+      >
+        <div class="flex w-full max-w-[600px] flex-col gap-11 lg:items-end">
+          <div class="flex w-full flex-col gap-8">
+            <div class="flex flex-col gap-1">
+              <div class="flex flex-col gap-2">
+                <p class="text-sm leading-4 font-medium tracking-[1.4px]">Bem-vindo à Kurio</p>
+                <h1
+                  class="text-[28px] leading-[44px] font-bold uppercase sm:text-[36px] sm:leading-[56px] lg:text-[43px] lg:leading-[70px]"
+                >
+                  Seja dono do futuro
+                  <br class="hidden lg:inline" />
+                  da arte digital
+                </h1>
+              </div>
+              <p class="max-w-[557px] text-sm leading-6 text-muted-foreground">
+                Descubra NFTs selecionados de criadores emergentes e consagrados. Colecione arte
+                digital rara, apoie artistas e tenha uma parte da cultura da internet.
+              </p>
+            </div>
             <span
-              class="inline-flex h-12 items-center justify-center rounded-md bg-primary px-6 text-base font-semibold text-primary-foreground"
-              >Explorar catálogo</span
+              class="inline-flex h-10 w-[140px] items-center justify-center rounded-md bg-primary text-base leading-5 font-bold text-primary-foreground uppercase"
+              >Explorar</span
             >
           </div>
-          <div class="relative mx-auto w-full max-w-md md:max-w-none">
+          <img
+            src="/assets/icons/hero-dots.svg"
+            alt=""
+            width="40"
+            height="8"
+            class="hidden lg:block"
+          />
+        </div>
+        <div class="w-full max-w-[450px] shrink-0 lg:w-[450px]">
+          <picture>
+            <source
+              media="(min-width: 1024px)"
+              srcset="
+                /assets/nfts/ape-emerald-sm.webp  320w,
+                /assets/nfts/ape-emerald.webp     640w,
+                /assets/nfts/ape-emerald-lg.webp 1024w
+              "
+              sizes="(min-width: 1024px) 450px, 90vw"
+            />
             <img
-              src="/nfts/nft-001-1.webp"
+              id="prerender-hero-image"
+              src="/assets/nfts/ape-emerald.webp"
+              srcset="/assets/nfts/ape-emerald-sm.webp 320w, /assets/nfts/ape-emerald.webp 640w"
+              sizes="(min-width: 1024px) 450px, 90vw"
               alt=""
-              width="640"
-              height="640"
+              width="450"
+              height="450"
               fetchpriority="high"
               decoding="sync"
-              class="aspect-square h-auto w-full rounded-2xl border border-border bg-muted object-cover shadow-card"
+              class="aspect-square h-auto w-full rounded-hero bg-muted object-cover"
             />
-          </div>
-        </section>
-      </div>
-      <script>
-        ;(function () {
-          var el = document.getElementById('prerender')
-          if (!el) return
-          var path = location.pathname
-          if (path === '/') return
-          var match = /^\/nft\/([a-z0-9-]+)\/?$/.exec(path)
-          if (!match) {
-            el.remove()
-            return
-          }
-          el.innerHTML =
-            '<header class="sticky top-0 z-40 border-b border-border bg-background/90"><div class="container-page flex h-16 items-center gap-4"></div></header>' +
-            '<article class="container-page py-8"><div class="mb-6 h-5"></div><div class="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]"><div class="flex flex-col gap-3 sm:flex-row-reverse"><div class="min-w-0 flex-1">' +
-            '<img src="/nfts/' +
-            match[1] +
-            '-1.webp" alt="" width="640" height="640" fetchpriority="high" decoding="sync" class="aspect-square h-auto w-full rounded-2xl border border-border bg-muted object-cover" />' +
-            '</div></div></div></article>'
-        })()
-      </script>
+          </picture>
+        </div>
+      </section>
     </div>
+    <script>
+      ;(function () {
+        var el = document.getElementById('prerender')
+        if (!el) return
+        var path = location.pathname
+        if (path === '/') return
+        var match = /^\/nft\/(nft-\d{3})\/?$/.exec(path)
+        if (!match) {
+          el.remove()
+          return
+        }
+        var slugs = ['ape-emerald', 'ape-sage', 'ape-ivory', 'ape-golden']
+        var byId = {
+          'nft-001': 'ape-emerald',
+          'nft-004': 'ape-sage',
+          'nft-009': 'ape-ivory',
+          'nft-012': 'ape-sage',
+          'nft-002': 'ape-sage',
+          'nft-003': 'ape-ivory',
+          'nft-005': 'ape-golden',
+          'nft-006': 'ape-golden',
+          'nft-007': 'ape-golden',
+        }
+        var slug = byId[match[1]] || slugs[Number(match[1].slice(-3)) % slugs.length]
+        var sources = '/assets/nfts/' + slug + '-sm.webp 320w, /assets/nfts/' + slug + '.webp 640w'
+        var attrs =
+          ' src="/assets/nfts/' +
+          slug +
+          '.webp" alt="" width="640" height="640" fetchpriority="high" decoding="sync"'
+        if (window.matchMedia('(min-width: 1024px)').matches) {
+          // Mirrors NftDetail/NftGallery (desktop variant).
+          el.innerHTML =
+            '<header class="sticky top-0 z-40 bg-background/95"><div class="container-page"><div class="flex h-16 items-center lg:h-[69px] lg:pt-6"></div></div></header>' +
+            '<article class="container-page pt-8"><div class="h-5"></div><div class="mt-5 grid gap-8 lg:grid-cols-[568px_minmax(0,1fr)] lg:gap-[37px]"><div class="flex flex-col-reverse gap-3 sm:flex-row"><div class="flex gap-3 sm:w-[98px] sm:flex-col"></div><div class="min-w-0 flex-1 rounded-lg bg-card p-4"><div>' +
+            '<picture><source media="(min-width: 1024px)" srcset="' +
+            sources +
+            ', /assets/nfts/' +
+            slug +
+            '-lg.webp 1024w" sizes="(min-width: 1024px) 408px, 90vw" /><img id="prerender-detail-image"' +
+            attrs +
+            ' srcset="' +
+            sources +
+            '" sizes="(min-width: 1024px) 408px, 90vw" class="aspect-square h-auto w-full rounded-art bg-muted object-cover" /></picture>' +
+            '</div></div></div></div></article>'
+        } else {
+          // Mirrors NftDetail/NftGallery (mobile variant): no header, artwork with 20px radius.
+          el.innerHTML =
+            '<article class="pt-4"><div class="relative px-6"><div class="flex flex-col gap-3"><div>' +
+            '<img id="prerender-detail-image"' +
+            attrs +
+            ' srcset="' +
+            sources +
+            '" sizes="90vw" class="aspect-square h-auto w-full rounded-[20px] bg-muted object-cover" />' +
+            '</div></div></div></article>'
+        }
+      })()
+    </script>
+    <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

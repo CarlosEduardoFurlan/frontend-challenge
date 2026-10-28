@@ -3,6 +3,8 @@
  *
  * Usage: node scripts/screenshot.mjs <baseUrl> <outDir> [route ...]
  * Example: node scripts/screenshot.mjs http://localhost:4173 ./docs/screenshots / /cart
+ * Env: SHOT_LOGIN=1 logs in as the demo user, SHOT_CART=1 adds two items, SHOT_ORDER=1 places
+ * an order and screenshots its confirmation page (route "order"), SHOT_WIDTHS=a,b limits widths.
  */
 import { mkdirSync } from 'node:fs'
 import { join } from 'node:path'
@@ -12,8 +14,10 @@ import { chromium } from '@playwright/test'
 const [baseUrl = 'http://localhost:4173', outDir = './docs/screenshots', ...routes] =
   process.argv.slice(2)
 const targets = routes.length ? routes : ['/']
+const onlyWidths = process.env.SHOT_WIDTHS ? process.env.SHOT_WIDTHS.split(',') : null
 const widths = [
   { name: 'mobile-390', width: 390, height: 844, mobile: true },
+  { name: 'mobile-414', width: 414, height: 896, mobile: true },
   { name: 'tablet-768', width: 768, height: 1024, mobile: true },
   { name: 'desktop-1440', width: 1440, height: 900, mobile: false },
 ]
@@ -23,6 +27,7 @@ const browser = await chromium.launch()
 
 for (const route of targets) {
   for (const vp of widths) {
+    if (onlyWidths && !onlyWidths.includes(vp.name)) continue
     const context = await browser.newContext({
       viewport: { width: vp.width, height: vp.height },
       isMobile: vp.mobile,
@@ -49,7 +54,24 @@ for (const route of targets) {
         await page.getByTestId('toast').first().waitFor()
       }
     }
-    await page.goto(`${baseUrl}${route}`, { waitUntil: 'networkidle' })
+    if (route === 'order') {
+      // Place an order through the real checkout so the confirmation screen can be captured.
+      await page.goto(`${baseUrl}/checkout`)
+      await page.getByTestId('checkout-form').getByLabel('CPF').fill('529.982.247-25')
+      await page.getByTestId('connect-wallet').click()
+      await page
+        .getByTestId('wallet-connection')
+        .and(page.locator('[data-status="connected"]'))
+        .waitFor()
+      await page.getByTestId('accept-terms').click()
+      await page.getByTestId('confirm-order').click()
+      await page.getByTestId('order-receipt').waitFor()
+      await page
+        .locator('[data-testid="order-receipt"][data-status="confirmed"]')
+        .waitFor({ timeout: 20_000 })
+    } else {
+      await page.goto(`${baseUrl}${route}`, { waitUntil: 'networkidle' })
+    }
     await page.waitForTimeout(500)
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth > document.documentElement.clientWidth,

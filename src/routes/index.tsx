@@ -1,22 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { CatalogSection } from '@/features/catalog/components/CatalogSection'
-import { FeaturedSection } from '@/features/catalog/components/FeaturedSection'
-import { HomeHero } from '@/features/catalog/components/HomeHero'
+import { HomePage } from '@/features/catalog/components/HomePage'
 import { parseCatalogSearch } from '@/features/catalog/search-params'
 
 export const Route = createFileRoute('/')({
   validateSearch: parseCatalogSearch,
-  component: HomePage,
+  component: HomeRoute,
 })
 
-function HomePage() {
+function HomeRoute() {
   const search = Route.useSearch()
-  return (
-    <>
-      <HomeHero />
-      <FeaturedSection />
-      <CatalogSection search={search} />
-    </>
-  )
+  return <HomePage search={search} />
 }

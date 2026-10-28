@@ -7,6 +7,7 @@ export function buildNftListQuery(params: NftListParams): URLSearchParams {
   const query = new URLSearchParams()
   if (params.q) query.set('q', params.q)
   params.category?.forEach((c) => query.append('category', c))
+  params.network?.forEach((n) => query.append('network', n))
   if (params.minPrice) query.set('minPrice', params.minPrice)
   if (params.maxPrice) query.set('maxPrice', params.maxPrice)
   if (params.available) query.set('available', 'true')

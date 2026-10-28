@@ -12,7 +12,17 @@ async function settle(page: Page) {
   await expect(page.getByTestId('nft-card-skeleton')).toHaveCount(0)
   await expect(page.getByTestId('toast')).toHaveCount(0)
   await page.evaluate(() => document.fonts.ready)
-  // Wait for every image in view to finish decoding.
+  // Full-page screenshots do not scroll, so lazy images below the fold would never load:
+  // walk the page once to trigger them, then return to the top.
+  await page.evaluate(async () => {
+    const step = window.innerHeight
+    for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
+      window.scrollTo(0, y)
+      await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)))
+    }
+    window.scrollTo(0, 0)
+  })
+  // Wait for every image to finish decoding.
   await page.evaluate(async () => {
     await Promise.all(
       Array.from(document.images)

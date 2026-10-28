@@ -9,6 +9,7 @@ export default tseslint.config(
   {
     ignores: [
       'dist',
+      '.vercel',
       'node_modules',
       'public/mockServiceWorker.js',
       'src/app/router/routeTree.gen.ts',

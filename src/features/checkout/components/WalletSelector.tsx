@@ -1,11 +1,9 @@
 import { Link } from '@tanstack/react-router'
-import { CheckCircle2, Loader2, Plug, PlugZap, XCircle } from 'lucide-react'
+import { CheckCircle2, Loader2, Plug, XCircle } from 'lucide-react'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { NativeSelect } from '@/components/ui/native-select'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { shortenAddress } from '@/lib/format'
 import { NETWORK_LIST, NETWORKS } from '@/mocks/fixtures/networks'
@@ -24,6 +22,11 @@ interface WalletSelectorProps {
   onConnect: () => void
 }
 
+/**
+ * Figma "Carteira conectada" / "Carteira e rede" (mobile frame 16:748 and the desktop checkout):
+ * wallet cards with a radio, bold label, address and network; then one option row per network
+ * with a letter medallion and the radio on the right; finally the connection status/button.
+ */
 export function WalletSelector({
   wallets,
   walletId,
@@ -43,7 +46,7 @@ export function WalletSelector({
           Você ainda não cadastrou uma carteira.{' '}
           <Link
             to="/account/wallets"
-            className="font-medium text-primary underline-offset-4 hover:underline"
+            className="font-bold text-text-accent underline underline-offset-4"
           >
             Cadastrar carteira
           </Link>
@@ -56,13 +59,22 @@ export function WalletSelector({
   const connected = connection.status === 'connected'
 
   return (
-    <div className="flex flex-col gap-5">
-      <fieldset>
-        <legend className="mb-2 text-sm font-semibold">Carteira</legend>
+    <div className="flex flex-col gap-6">
+      <fieldset className="flex flex-col gap-3">
+        <legend className="mb-3 flex w-full items-center justify-between text-base font-bold">
+          Carteira conectada
+          <Link
+            to="/account/wallets"
+            className="text-sm font-bold text-text-accent outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Trocar carteira
+          </Link>
+        </legend>
         <RadioGroup
           value={walletId ?? ''}
           onValueChange={onWalletChange}
           aria-label="Carteira"
+          className="gap-3"
           data-testid="wallet-selector"
         >
           {list.map((wallet) => {
@@ -72,44 +84,66 @@ export function WalletSelector({
                 key={wallet.id}
                 htmlFor={id}
                 className={cn(
-                  'flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-card p-3 font-normal transition-colors has-[[data-state=checked]]:border-primary',
+                  'flex cursor-pointer items-start gap-4 rounded-xl bg-card px-5 py-4 font-normal transition-colors has-[[data-state=checked]]:ring-1 has-[[data-state=checked]]:ring-border-soft',
                 )}
                 data-testid={`wallet-option-${wallet.kind}`}
               >
-                <RadioGroupItem id={id} value={wallet.id} />
-                <span className="flex flex-1 flex-col">
-                  <span className="text-sm font-medium">{wallet.label}</span>
-                  <span className="font-mono text-xs text-muted-foreground">
+                <RadioGroupItem id={id} value={wallet.id} className="mt-1" />
+                <span className="flex min-w-0 flex-1 flex-col gap-1">
+                  <span className="text-base leading-5 font-bold">{wallet.label}</span>
+                  <span className="font-mono text-[13px] leading-5 text-muted-foreground">
                     {shortenAddress(wallet.address, 6)}
                   </span>
+                  <span className="text-[13px] leading-5 text-muted-foreground">
+                    Rede {NETWORKS[wallet.network].label} ·{' '}
+                    {wallet.kind === 'primary' ? 'Principal' : 'Reserva'}
+                  </span>
                 </span>
-                <Badge variant="outline">
-                  {wallet.kind === 'primary' ? 'Principal' : 'Secundária'}
-                </Badge>
               </Label>
             )
           })}
         </RadioGroup>
       </fieldset>
 
-      <div className="grid gap-2 sm:max-w-xs">
-        <Label htmlFor="checkout-network">Rede</Label>
-        <NativeSelect
-          id="checkout-network"
+      <fieldset className="flex flex-col gap-3">
+        <legend className="mb-3 text-base font-bold">Carteira e rede</legend>
+        <RadioGroup
           value={network}
-          onChange={(event) => onNetworkChange(event.target.value as NetworkId)}
+          onValueChange={(value) => onNetworkChange(value as NetworkId)}
+          aria-label="Rede"
+          className="gap-3"
           data-testid="network-select"
         >
-          {NETWORK_LIST.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.label} · taxa {item.feeEth} ETH
-            </option>
-          ))}
-        </NativeSelect>
-      </div>
+          {NETWORK_LIST.map((item) => {
+            const id = `network-${item.id}`
+            return (
+              <Label
+                key={item.id}
+                htmlFor={id}
+                className={cn(
+                  'flex h-[60px] cursor-pointer items-center gap-4 rounded-xl border border-transparent bg-card px-4 font-normal transition-colors has-[[data-state=checked]]:border-border-soft lg:h-11 lg:rounded-md lg:border-border-soft lg:bg-transparent lg:has-[[data-state=checked]]:border-primary',
+                )}
+                data-testid={`network-option-${item.id}`}
+              >
+                <span
+                  className="inline-flex size-9 items-center justify-center rounded-full bg-surface-dark text-sm font-bold text-text-accent lg:hidden"
+                  aria-hidden="true"
+                >
+                  {item.label.charAt(0)}
+                </span>
+                <span className="flex-1 text-base">
+                  {item.label}
+                  <span className="ml-2 text-xs text-muted-foreground">taxa {item.feeEth} ETH</span>
+                </span>
+                <RadioGroupItem id={id} value={item.id} className="order-last lg:order-first" />
+              </Label>
+            )
+          })}
+        </RadioGroup>
+      </fieldset>
 
       <div
-        className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4"
+        className="flex flex-col gap-3 rounded-xl bg-card p-4"
         data-testid="wallet-connection"
         data-status={connection.status}
       >
@@ -122,7 +156,7 @@ export function WalletSelector({
             ) : connection.status === 'rejected' || connection.status === 'disconnected' ? (
               <XCircle className="size-4 text-destructive" aria-hidden="true" />
             ) : (
-              <PlugZap className="size-4 text-muted-foreground" aria-hidden="true" />
+              <Plug className="size-4 text-muted-foreground" aria-hidden="true" />
             )}
             <span role="status">
               {connection.status === 'connected'
@@ -140,6 +174,7 @@ export function WalletSelector({
             type="button"
             variant={connected ? 'outline' : 'secondary'}
             size="sm"
+            className="text-sm"
             onClick={onConnect}
             disabled={!selected || connection.status === 'connecting'}
             loading={connection.status === 'connecting'}

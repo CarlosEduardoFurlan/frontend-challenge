@@ -19,6 +19,11 @@ export function shortenAddress(address: string, chars = 4): string {
   return `${address.slice(0, chars + 2)}…${address.slice(-chars)}`
 }
 
+/** Token id as displayed in the Figma frames ("ID do token: #0042"). */
+export function tokenId(nftId: string): string {
+  return `#${nftId.replace(/\D/g, '').padStart(4, '0')}`
+}
+
 export function pluralize(count: number, singular: string, plural: string): string {
   return `${count} ${count === 1 ? singular : plural}`
 }

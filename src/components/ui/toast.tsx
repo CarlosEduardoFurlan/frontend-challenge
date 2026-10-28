@@ -52,7 +52,7 @@ const ToastAction = forwardRef<
   <ToastPrimitive.Action
     ref={ref}
     className={cn(
-      'inline-flex h-8 shrink-0 cursor-pointer items-center justify-center rounded-md border border-border bg-transparent px-3 text-xs font-semibold transition-colors hover:bg-accent focus:ring-2 focus:ring-ring focus:outline-none disabled:pointer-events-none disabled:opacity-50',
+      'inline-flex h-8 shrink-0 cursor-pointer items-center justify-center rounded-md border border-border bg-transparent px-3 text-xs font-bold transition-colors hover:bg-accent focus:ring-2 focus:ring-ring focus:outline-none disabled:pointer-events-none disabled:opacity-50',
       className,
     )}
     {...props}
@@ -83,7 +83,7 @@ const ToastTitle = forwardRef<
   ElementRef<typeof ToastPrimitive.Title>,
   ComponentPropsWithoutRef<typeof ToastPrimitive.Title>
 >(({ className, ...props }, ref) => (
-  <ToastPrimitive.Title ref={ref} className={cn('text-sm font-semibold', className)} {...props} />
+  <ToastPrimitive.Title ref={ref} className={cn('text-sm font-bold', className)} {...props} />
 ))
 ToastTitle.displayName = 'ToastTitle'
 

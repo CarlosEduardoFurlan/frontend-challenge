@@ -87,6 +87,29 @@ const DESCRIPTIONS = [
 
 const BASE_DATE = Date.UTC(2026, 0, 10, 12, 0, 0)
 
+/**
+ * Artworks exported from the Figma file (scripts/figma-assets.py). The design reuses four
+ * illustrations across every screen; the mapping below reproduces the order of the home grid
+ * (relevance sort: featured NFTs first) and cycles the same set for the remaining items.
+ */
+export const ARTWORK_SLUGS = ['ape-emerald', 'ape-sage', 'ape-ivory', 'ape-golden'] as const
+const ARTWORK_BY_ID: Record<string, (typeof ARTWORK_SLUGS)[number]> = {
+  'nft-001': 'ape-emerald',
+  'nft-004': 'ape-sage',
+  'nft-009': 'ape-ivory',
+  'nft-012': 'ape-sage',
+  'nft-002': 'ape-sage',
+  'nft-003': 'ape-ivory',
+  'nft-005': 'ape-golden',
+  'nft-006': 'ape-golden',
+  'nft-007': 'ape-golden',
+}
+
+export function artworkFor(id: string): string {
+  const slug = ARTWORK_BY_ID[id] ?? ARTWORK_SLUGS[Number(id.slice(-3)) % ARTWORK_SLUGS.length]!
+  return `/assets/nfts/${slug}.webp`
+}
+
 function priceFor(index: number): string {
   // Spread between 0.05 and 2.4 ETH with deterministic "irregular" decimals.
   const table = [
@@ -164,11 +187,13 @@ export function buildNftFixtures(): Nft[] {
       collection: collection.name,
       collectionId: collection.id,
       category: collection.category,
-      imageUrl: `/nfts/${id}-1.webp`,
-      images: [`/nfts/${id}-1.webp`, `/nfts/${id}-2.webp`, `/nfts/${id}-3.webp`],
+      imageUrl: artworkFor(id),
+      // The detail frame shows the same artwork in every gallery slot.
+      images: [artworkFor(id), artworkFor(id), artworkFor(id)],
       priceEth: basePrice,
       available,
       featured: [0, 3, 8, 11].includes(index),
+      rare: index % 5 === 0,
       likes: 180 - index * 6 + (index % 5) * 11,
       createdAt,
       version: 1,

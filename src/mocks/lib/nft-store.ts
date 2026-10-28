@@ -1,5 +1,6 @@
 import { CATEGORY_LABELS, NFT_CATEGORIES } from '@/features/catalog/search-params'
 import { compareEth, type DecimalString } from '@/lib/money'
+import { NETWORK_LIST } from '@/mocks/fixtures/networks'
 import type { Nft, NftListParams, NftListResponse, NftSummary, NftUpdatedEvent } from '@/types/api'
 
 import { mockEventBus } from './event-bus'
@@ -19,6 +20,7 @@ export function toSummary(nft: Nft): NftSummary {
     priceEth: nft.priceEth,
     available: nft.available,
     featured: nft.featured,
+    rare: nft.traits.some((trait) => trait.label === 'Raridade' && trait.value === 'Rara'),
     likes: nft.likes,
     createdAt: nft.createdAt,
     version: nft.version,
@@ -56,6 +58,10 @@ export function queryNfts(params: NftListParams, options?: { empty?: boolean }):
   if (params.category?.length) {
     const set = new Set(params.category)
     items = items.filter((n) => set.has(n.category))
+  }
+  if (params.network?.length) {
+    const set = new Set(params.network)
+    items = items.filter((n) => set.has(n.network))
   }
   if (params.minPrice) items = items.filter((n) => compareEth(n.priceEth, params.minPrice!) >= 0)
   if (params.maxPrice) items = items.filter((n) => compareEth(n.priceEth, params.maxPrice!) <= 0)
@@ -96,6 +102,11 @@ export function queryNfts(params: NftListParams, options?: { empty?: boolean }):
     label: CATEGORY_LABELS[id],
     count: facetSource.filter((n) => n.category === id).length,
   }))
+  const networks = NETWORK_LIST.map((network) => ({
+    id: network.id,
+    label: network.label,
+    count: facetSource.filter((n) => n.network === network.id).length,
+  }))
   const prices = all.map((n) => n.priceEth)
   const priceRange = prices.length
     ? {
@@ -104,7 +115,14 @@ export function queryNfts(params: NftListParams, options?: { empty?: boolean }):
       }
     : { min: '0', max: '0' }
 
-  return { items: pageItems, page, pageSize, total, totalPages, facets: { categories, priceRange } }
+  return {
+    items: pageItems,
+    page,
+    pageSize,
+    total,
+    totalPages,
+    facets: { categories, networks, priceRange },
+  }
 }
 
 /* ----------------------------------------------------------------------------

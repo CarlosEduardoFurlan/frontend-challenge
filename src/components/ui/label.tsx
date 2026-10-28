@@ -3,19 +3,31 @@ import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from 'reac
 
 import { cn } from '@/lib/utils'
 
-const Label = forwardRef<
-  ElementRef<typeof LabelPrimitive.Root>,
-  ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
->(({ className, ...props }, ref) => (
-  <LabelPrimitive.Root
-    ref={ref}
-    className={cn(
-      'text-sm leading-none font-medium text-foreground select-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-      className,
-    )}
-    {...props}
-  />
-))
+interface LabelProps extends ComponentPropsWithoutRef<typeof LabelPrimitive.Root> {
+  /** Renders the asterisk of the Figma forms ("Nome de exibição *"). */
+  required?: boolean
+}
+
+/** Figma form label: 15px regular, foreground, asterisk in text-accent for required fields. */
+const Label = forwardRef<ElementRef<typeof LabelPrimitive.Root>, LabelProps>(
+  ({ className, required, children, ...props }, ref) => (
+    <LabelPrimitive.Root
+      ref={ref}
+      className={cn(
+        'text-[15px] leading-none font-normal text-foreground select-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+        className,
+      )}
+      {...props}
+    >
+      {children}
+      {required ? (
+        <span className="ml-0.5 text-text-accent" aria-hidden="true">
+          *
+        </span>
+      ) : null}
+    </LabelPrimitive.Root>
+  ),
+)
 Label.displayName = 'Label'
 
 export { Label }

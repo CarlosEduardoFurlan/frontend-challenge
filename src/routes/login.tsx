@@ -3,7 +3,7 @@ import { Info } from 'lucide-react'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { parseAuthSearch } from '@/features/auth/auth-search'
-import { AuthLayout } from '@/features/auth/components/AuthLayout'
+import { AuthShell } from '@/features/auth/components/AuthShell'
 import { LoginForm } from '@/features/auth/components/LoginForm'
 import { sanitizeRedirect } from '@/features/auth/require-auth'
 
@@ -23,18 +23,20 @@ function LoginPage() {
   const demo = { email: 'ana@example.com', password: 'Senha@123' }
 
   return (
-    <AuthLayout
+    <AuthShell
+      mode="login"
       title="Entrar"
-      description="Acesse sua conta para favoritar, comprar e gerenciar carteiras."
+      description="Entre para gerenciar sua carteira, coleção e perfil de criador."
+      redirect={redirect}
       footer={
         <>
-          Ainda não tem conta?{' '}
+          Novo na Kurio?{' '}
           <Link
             to="/register"
             search={{ redirect }}
-            className="font-medium text-primary underline-offset-4 hover:underline"
+            className="text-text-accent underline underline-offset-4 outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
           >
-            Criar conta
+            Crie uma conta
           </Link>
         </>
       }
@@ -49,12 +51,10 @@ function LoginPage() {
         <LoginForm
           onSuccess={() => void navigate({ to: sanitizeRedirect(redirect), replace: true })}
         />
-        {demo ? (
-          <p className="text-center text-xs text-muted-foreground" data-testid="demo-credentials">
-            Demonstração: <code>{demo.email}</code> / <code>{demo.password}</code>
-          </p>
-        ) : null}
+        <p className="text-center text-xs text-muted-foreground" data-testid="demo-credentials">
+          Demonstração: <code>{demo.email}</code> / <code>{demo.password}</code>
+        </p>
       </div>
-    </AuthLayout>
+    </AuthShell>
   )
 }

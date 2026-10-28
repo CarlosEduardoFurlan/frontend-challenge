@@ -46,7 +46,7 @@ export function PasswordForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-5"
+        className="flex max-w-[290px] flex-col gap-5"
         noValidate
         data-testid="password-form"
       >
@@ -69,7 +69,7 @@ export function PasswordForm() {
             </FormItem>
           )}
         />
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="flex flex-col gap-5">
           <FormField
             control={form.control}
             name="newPassword"
@@ -98,7 +98,7 @@ export function PasswordForm() {
             )}
           />
         </div>
-        <div className="flex justify-end">
+        <div className="flex">
           <Button type="submit" variant="secondary" loading={change.isPending}>
             Alterar senha
           </Button>

@@ -14,7 +14,7 @@ src/
 ├── routes/       rotas file-based do TanStack Router (componentes lazy por rota)
 └── types/        contratos REST e de eventos compartilhados por mocks, services e UI
 tests/            e2e (12 grupos), visual (baselines), fixtures (app fixture)
-scripts/          lighthouse.mjs, screenshot.mjs, generate-artwork.py, dev/ (análise)
+scripts/          lighthouse.mjs, screenshot.mjs, figma-assets.py, figma-compare.py, dev/ (análise)
 lighthouse/       README com resultados, relatórios versionados
 ```
 
@@ -149,20 +149,35 @@ O recibo guarda o snapshot dos itens e valores.
 - Toasts (`role=status`) + live regions para mutations e eventos; eventos de estoque causados
   pela própria compra não geram toast.
 - Formulários validam em `onTouched` (evita perda de clique por layout shift ao sumir a mensagem).
-- Links fora do escopo (editorial, suporte…) aparecem como "em breve", sem fingir navegação.
+- Links fora do escopo (central de ajuda, estúdio do criador…) seguem o rodapé do Figma como texto
+  não navegável, com `aria-disabled` e dica "fora do escopo", sem fingir navegação.
 
 ## 10. Figma, assets e desvios
 
-- Figma inacessível por API/MCP (403 sem token); apenas o thumbnail público de 800 px foi usado
-  para derivar paleta, tipografia display e composição. **Fidelidade não verificada.**
-- Artes dos NFTs, avatares e logo gerados localmente (`scripts/generate-artwork.py`, SVG).
-- Fontes substituídas por Silkscreen + Inter (locais, subconjunto Latin).
-- Wordmark "NFT Market" definido por falta de acesso ao nome/logo original.
+- Figma lido pelo MCP remoto oficial: variáveis de cor, estilos de texto e o design context do
+  frame "Desktop / Início" alimentam `globals.css`, os primitivos de UI e os componentes da home;
+  os demais frames capturados (detalhe, carrinho, pagamento, confirmação, carteiras, pagamento
+  mobile) foram reproduzidos a partir das referências em `docs/figma-comparison/figma-reference/`.
+- A cota do plano Starter (20 chamadas/mês) esgotou após 7 frames; os outros 8 (login, cadastro,
+  perfil e as versões mobile de início, detalhe, carrinho, login e cadastro) foram exportados
+  manualmente em PNG 2x e comparados com `scripts/figma-compare.py`. Tudo registrado em
+  `docs/FIGMA-AUDIT.md`.
+- Abaixo de 1024px a aplicação troca o header pelo chrome mobile dos frames: campo de busca +
+  filtros e barra inferior na home, botão de voltar + título nas telas de mercado, tela inteira
+  nas telas de autenticação (`src/components/shared/MobileChrome.tsx`, `routes/__root.tsx`).
+- Assets: as quatro artes e os ícones do arquivo são convertidos por `scripts/figma-assets.py`
+  para `public/assets/` (WebP 320/640/1024 e SVG); o mapeamento id → arte em
+  `src/mocks/fixtures/nfts.ts` é replicado no preload de LCP do `index.html`.
+- Divergências assumidas para manter a funcionalidade exigida: botão "Adicionar ao carrinho" ao
+  lado de "COMPRAR", contagem/disponibilidade nos cards, favorito ao passar o mouse, busca atrás do
+  ícone do header, filtro "Disponibilidade" e campos de checkout reais em vez dos campos fictícios
+  do design (ENS, código de indicação).
 
 ## 11. Limitações técnicas
 
 - Backend inteiramente simulado na página: sem compartilhamento entre abas; reset via URL/painel.
-- Lighthouse mobile (modo simulate) 86/83 por limitação do modelo com a pré-renderização
-  (detalhes em `lighthouse/README.md`); `bf-cache` inelegível pelo WebSocket aberto.
+- Lighthouse mobile (modo simulate) 92/90, com margem pequena no detalhe; depende de o React
+  adotar o nó `<img>` pré-renderizado (`src/lib/prerender.ts`, detalhes em
+  `lighthouse/README.md`); `bf-cache` inelegível pelo WebSocket aberto.
 - Baselines visuais apenas Windows/Chromium.
 - Pull requests não abertos automaticamente (sem `gh`/token); ver `docs/BRANCHING.md`.

@@ -1,17 +1,14 @@
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { SlidersHorizontal } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { announce } from '@/components/shared/LiveAnnouncer'
 import { NftCard, NftCardSkeleton } from '@/components/shared/NftCard'
 import { Pagination } from '@/components/shared/Pagination'
-import { SectionHeading } from '@/components/shared/SectionHeading'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/components/ui/native-select'
 import {
@@ -20,7 +17,6 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from '@/components/ui/sheet'
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton'
 import { DESKTOP_QUERY, useMediaQuery } from '@/hooks/use-media-query'
@@ -37,23 +33,43 @@ import {
   type SortOption,
 } from '../search-params'
 import { CatalogFilters } from './CatalogFilters'
+import { FeaturedBanner } from './FeaturedBanner'
 
 interface CatalogSectionProps {
   search: CatalogSearch
   renderCardBadge?: (nftId: string) => ReactNode
+  /** Mobile filter sheet, controlled by the home page (its trigger sits in the search bar). */
+  filtersOpen?: boolean
+  onFiltersOpenChange?: (open: boolean) => void
 }
 
-export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps) {
+/** Figma toolbar tabs; each one is a sort preset ("Todos os NFTs" = relevance). */
+const TABS: Array<{ label: string; sort: SortOption }> = [
+  { label: 'Todos os NFTs', sort: 'relevance' },
+  { label: 'Novos lançamentos', sort: 'newest' },
+  { label: 'Em alta', sort: 'popular' },
+]
+
+/**
+ * Figma "Products" (frame 70342:2831): 310px sidebar (Filters + Featured NFT Banner, 24px
+ * apart) and the product grid 48px to the right: toolbar (tabs + "Ordenar por"), rows of three
+ * 258px cards (34px column gap, 72px row gap) and the right-aligned pagination 88px below.
+ */
+export function CatalogSection({
+  search,
+  renderCardBadge,
+  filtersOpen: controlledOpen,
+  onFiltersOpenChange,
+}: CatalogSectionProps) {
   const navigate = useNavigate()
   const resolved = resolveCatalogSearch(search)
   const params = toListParams(resolved)
   const list = useQuery(nftListQuery(params))
-  const [filtersOpen, setFiltersOpen] = useState(false)
-  const [queryDraft, setQueryDraft] = useState(resolved.q)
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
+  const filtersOpen = controlledOpen ?? uncontrolledOpen
+  const setFiltersOpen = onFiltersOpenChange ?? setUncontrolledOpen
   const resultsRef = useRef<HTMLDivElement>(null)
   const isDesktop = useMediaQuery(DESKTOP_QUERY)
-
-  useEffect(() => setQueryDraft(resolved.q), [resolved.q])
 
   /** Every filter change rewrites the URL and resets the page (unless the page itself changed). */
   const applySearch = useCallback(
@@ -81,11 +97,6 @@ export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps)
   const clearAll = useCallback(() => {
     void navigate({ to: '/', hash: 'catalogo', search: {} })
   }, [navigate])
-
-  function submitQuery(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    applySearch({ q: queryDraft.trim() })
-  }
 
   function changePage(page: number) {
     applySearch({ page }, { keepPage: true })
@@ -129,7 +140,9 @@ export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps)
   const filters = (
     <CatalogFilters
       search={resolved}
-      facets={data?.facets.categories}
+      facets={
+        data ? { categories: data.facets.categories, networks: data.facets.networks } : undefined
+      }
       priceRange={data?.facets.priceRange}
       onChange={(patch) => applySearch(patch)}
       onClear={clearFilters}
@@ -141,77 +154,73 @@ export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps)
     <section
       id="catalogo"
       aria-labelledby="catalog-title"
-      className="container-page scroll-mt-20 py-8"
+      className="container-page scroll-mt-24 pt-10 lg:pt-24"
     >
-      <SectionHeading
-        id="catalog-title"
-        title="Catálogo"
-        description="Busque, filtre e ordene as edições disponíveis."
-      />
+      <h2 id="catalog-title" className="sr-only">
+        Catálogo
+      </h2>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[16rem_minmax(0,1fr)]">
+      <div className="grid gap-8 lg:grid-cols-[310px_minmax(0,1fr)] lg:gap-12">
         {isDesktop ? (
-          <aside aria-label="Filtros">
-            <div className="sticky top-20 rounded-xl border border-border bg-card p-4">
-              {filters}
-            </div>
+          <aside aria-label="Filtros" className="flex flex-col gap-6">
+            {filters}
+            <FeaturedBanner />
           </aside>
         ) : null}
 
-        <div className="flex min-w-0 flex-col gap-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-            <form role="search" onSubmit={submitQuery} className="flex flex-1 gap-2">
-              <div className="grid flex-1 gap-1">
-                <Label htmlFor="catalog-search" className="text-xs">
-                  Buscar
-                </Label>
-                <Input
-                  id="catalog-search"
-                  type="search"
-                  placeholder="Nome, coleção ou artista"
-                  value={queryDraft}
-                  onChange={(e) => setQueryDraft(e.target.value)}
-                  data-testid="catalog-search"
-                />
-              </div>
-              <Button
-                type="submit"
-                variant="secondary"
-                className="self-end"
-                data-testid="catalog-search-submit"
-              >
-                Buscar
-              </Button>
-            </form>
-
-            <div className="grid gap-1 sm:w-48">
-              <Label htmlFor="catalog-sort" className="text-xs">
-                Ordenar por
-              </Label>
-              <NativeSelect
-                id="catalog-sort"
-                value={resolved.sort}
-                onChange={(e) => applySearch({ sort: e.target.value as SortOption })}
-                data-testid="catalog-sort"
-              >
-                {SORT_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {SORT_LABELS[option]}
-                  </option>
-                ))}
-              </NativeSelect>
+        <div className="flex min-w-0 flex-col">
+          <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+            <div
+              role="tablist"
+              aria-label="Seleções do catálogo"
+              className="flex gap-5 overflow-x-auto text-[15px] leading-4 font-medium"
+            >
+              {TABS.map((tab) => {
+                const active = resolved.sort === tab.sort
+                return (
+                  <button
+                    key={tab.sort}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => applySearch({ sort: tab.sort })}
+                    className={cn(
+                      'relative shrink-0 cursor-pointer pb-[7px] whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+                      active
+                        ? 'text-text-accent after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-primary'
+                        : 'text-foreground hover:text-text-accent',
+                    )}
+                    data-testid={`catalog-tab-${tab.sort}`}
+                  >
+                    {tab.label}
+                  </button>
+                )
+              })}
             </div>
 
-            {isDesktop ? null : (
+            {isDesktop ? (
+              <div className="flex items-center gap-1 pb-[5px] text-[15px] leading-none">
+                <Label htmlFor="catalog-sort" className="text-[15px] whitespace-nowrap">
+                  Ordenar por:
+                </Label>
+                <NativeSelect
+                  id="catalog-sort"
+                  appearance="inline"
+                  value={resolved.sort}
+                  onChange={(e) => applySearch({ sort: e.target.value as SortOption })}
+                  data-testid="catalog-sort"
+                >
+                  {SORT_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {SORT_LABELS[option]}
+                    </option>
+                  ))}
+                </NativeSelect>
+              </div>
+            ) : (
               <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="outline" data-testid="open-filters">
-                    <SlidersHorizontal aria-hidden="true" />
-                    Filtros
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="bottom" className="max-h-[85dvh]">
-                  <SheetHeader>
+                <SheetContent side="bottom" className="max-h-[85dvh] p-0">
+                  <SheetHeader className="px-5 pt-5">
                     <SheetTitle>Filtros</SheetTitle>
                     <SheetDescription>Refine os resultados do catálogo.</SheetDescription>
                   </SheetHeader>
@@ -224,12 +233,33 @@ export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps)
           <div
             ref={resultsRef}
             tabIndex={-1}
-            className="flex min-h-6 items-center justify-between gap-3 text-sm text-muted-foreground outline-none"
+            className="mt-3 flex min-h-5 items-center justify-between gap-3 text-xs text-brass outline-none"
             aria-live="off"
           >
             <p data-testid="catalog-count">
-              {data ? `${data.total} resultado${data.total === 1 ? '' : 's'}` : ' '}
+              {data ? `${data.total} resultado${data.total === 1 ? '' : 's'}` : ' '}
             </p>
+            {isDesktop ? null : (
+              <div className="ml-auto flex items-center gap-1">
+                <Label htmlFor="catalog-sort" className="text-xs whitespace-nowrap text-brass">
+                  Ordenar por:
+                </Label>
+                <NativeSelect
+                  id="catalog-sort"
+                  appearance="inline"
+                  value={resolved.sort}
+                  onChange={(e) => applySearch({ sort: e.target.value as SortOption })}
+                  className="h-5 text-xs"
+                  data-testid="catalog-sort"
+                >
+                  {SORT_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {SORT_LABELS[option]}
+                    </option>
+                  ))}
+                </NativeSelect>
+              </div>
+            )}
             {refreshing ? (
               <Badge variant="muted" data-testid="catalog-refreshing">
                 Atualizando…
@@ -239,13 +269,14 @@ export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps)
 
           {list.isError && !data ? (
             <ErrorState
+              className="mt-6"
               error={list.error}
               onRetry={() => void list.refetch()}
               retrying={list.isFetching}
             />
           ) : showSkeleton ? (
             <div
-              className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3"
+              className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:gap-x-[34px] lg:gap-y-[72px]"
               aria-busy="true"
               aria-label="Carregando catálogo"
             >
@@ -255,6 +286,7 @@ export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps)
             </div>
           ) : data && data.items.length === 0 ? (
             <EmptyState
+              className="mt-6"
               title="Nenhum NFT encontrado"
               description="Tente outros termos ou remova alguns filtros."
               action={
@@ -267,7 +299,7 @@ export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps)
             <>
               <ul
                 className={cn(
-                  'grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3',
+                  'mt-6 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:gap-x-[34px] lg:gap-y-[72px]',
                   refreshing && 'opacity-80',
                 )}
                 data-testid="catalog-grid"
@@ -282,6 +314,7 @@ export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps)
                       imageUrl={nft.imageUrl}
                       priceEth={nft.priceEth}
                       available={nft.available}
+                      rare={nft.rare}
                       priority={index < 3}
                       badge={renderCardBadge?.(nft.id)}
                       favoriteSlot={<FavoriteButton nftId={nft.id} name={nft.name} summary={nft} />}
@@ -291,7 +324,7 @@ export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps)
                 ))}
               </ul>
               {list.isError ? (
-                <p role="alert" className="text-xs text-destructive">
+                <p role="alert" className="mt-4 text-xs text-destructive">
                   Não foi possível atualizar a lista. Exibindo o último resultado carregado.
                 </p>
               ) : null}
@@ -299,10 +332,16 @@ export function CatalogSection({ search, renderCardBadge }: CatalogSectionProps)
                 page={data.page}
                 totalPages={data.totalPages}
                 onPageChange={changePage}
-                className="mt-4"
+                className="mt-12 lg:mt-[88px]"
               />
             </>
           ) : null}
+
+          {isDesktop ? null : (
+            <div className="mt-10">
+              <FeaturedBanner />
+            </div>
+          )}
         </div>
       </div>
     </section>
@@ -313,6 +352,7 @@ function normalisePatch(patch: Partial<ResolvedCatalogSearch>): Partial<CatalogS
   const next: Partial<CatalogSearch> = {}
   if ('q' in patch) next.q = patch.q || undefined
   if ('category' in patch) next.category = patch.category?.length ? patch.category : undefined
+  if ('network' in patch) next.network = patch.network?.length ? patch.network : undefined
   if ('minPrice' in patch) next.minPrice = patch.minPrice || undefined
   if ('maxPrice' in patch) next.maxPrice = patch.maxPrice || undefined
   if ('available' in patch) next.available = patch.available ? true : undefined

@@ -1,6 +1,7 @@
 import { EthPrice } from '@/components/shared/EthPrice'
 import { Skeleton } from '@/components/ui/skeleton'
 import { NETWORKS } from '@/mocks/fixtures/networks'
+import { cn } from '@/lib/utils'
 import type { Quote } from '@/types/api'
 
 interface QuoteSummaryProps {
@@ -8,27 +9,32 @@ interface QuoteSummaryProps {
   loading?: boolean
   /** Dim the numbers while a fresh quote is being fetched. */
   refreshing?: boolean
+  className?: string
 }
 
-/** Subtotal, discount, fee and total exactly as returned by the pricing API. */
-export function QuoteSummary({ quote, loading, refreshing }: QuoteSummaryProps) {
+/**
+ * Figma "Resumo da carteira" lines: Subtotal / Desconto do lançamento / Taxa de rede (16px,
+ * values right-aligned), the "Taxa estimada" caption in text-accent, a hairline and the
+ * Total row (bold label, 18px bold text-accent value). Values come straight from the API.
+ */
+export function QuoteSummary({ quote, loading, refreshing, className }: QuoteSummaryProps) {
   if (loading || !quote) {
     return (
       <div
-        className="flex flex-col gap-3"
+        className={cn('flex flex-col gap-3', className)}
         aria-busy="true"
         aria-label="Calculando valores"
         data-testid="quote-skeleton"
       >
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="flex justify-between">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-5 w-20" />
           </div>
         ))}
-        <div className="flex justify-between border-t border-border pt-3">
+        <div className="flex justify-between border-t border-primary/60 pt-3">
           <Skeleton className="h-6 w-16" />
-          <Skeleton className="h-6 w-24" />
+          <Skeleton className="h-6 w-28" />
         </div>
       </div>
     )
@@ -36,35 +42,37 @@ export function QuoteSummary({ quote, loading, refreshing }: QuoteSummaryProps) 
 
   return (
     <dl
-      className={refreshing ? 'flex flex-col gap-3 opacity-70' : 'flex flex-col gap-3'}
+      className={cn('flex flex-col gap-3 text-base', refreshing && 'opacity-70', className)}
       data-testid="quote-summary"
       aria-busy={refreshing || undefined}
     >
-      <div className="flex justify-between text-sm">
-        <dt className="text-muted-foreground">Subtotal</dt>
+      <div className="flex items-baseline justify-between gap-4">
+        <dt>Subtotal</dt>
         <dd data-testid="quote-subtotal">
           <EthPrice value={quote.subtotalEth} />
         </dd>
       </div>
-      <div className="flex justify-between text-sm">
-        <dt className="text-muted-foreground">
-          Desconto{quote.coupon ? ` (${quote.coupon.code})` : ''}
-        </dt>
+      <div className="flex items-baseline justify-between gap-4">
+        <dt>Desconto{quote.coupon ? ` (${quote.coupon.code})` : ' do lançamento'}</dt>
         <dd className={quote.coupon ? 'text-success' : ''} data-testid="quote-discount">
-          {quote.coupon ? '−' : ''}
+          {quote.coupon ? '−' : '(-) '}
           <EthPrice value={quote.discountEth} />
         </dd>
       </div>
-      <div className="flex justify-between text-sm">
-        <dt className="text-muted-foreground">Taxa de rede ({NETWORKS[quote.network].label})</dt>
+      <div className="flex items-baseline justify-between gap-4">
+        <dt>Taxa de rede</dt>
         <dd data-testid="quote-fee">
           <EthPrice value={quote.networkFeeEth} />
         </dd>
       </div>
-      <div className="flex items-baseline justify-between border-t border-border pt-3">
-        <dt className="font-semibold">Total</dt>
+      <div className="-mt-2 flex justify-end text-xs text-text-accent">
+        <dt className="sr-only">Observação sobre a taxa</dt>
+        <dd>Taxa estimada · {NETWORKS[quote.network].label}</dd>
+      </div>
+      <div className="flex items-baseline justify-between gap-4 border-t border-primary/60 pt-3">
+        <dt className="font-bold">Total</dt>
         <dd data-testid="quote-total">
-          <EthPrice value={quote.totalEth} className="text-xl font-semibold text-primary" />
+          <EthPrice value={quote.totalEth} className="text-lg font-bold text-text-accent" />
         </dd>
       </div>
     </dl>

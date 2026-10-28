@@ -4,7 +4,6 @@ import { Heart } from 'lucide-react'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { NftCard, NftCardSkeleton } from '@/components/shared/NftCard'
-import { SectionHeading } from '@/components/shared/SectionHeading'
 import { Button } from '@/components/ui/button'
 import { requireAuth } from '@/features/auth/require-auth'
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton'
@@ -15,21 +14,19 @@ export const Route = createFileRoute('/favorites')({
   component: FavoritesPage,
 })
 
+/** "Lista de interesse" in the Figma navigation; no dedicated frame, uses the catalog grid. */
 function FavoritesPage() {
   const favorites = useFavorites()
 
   return (
-    <section className="container-page py-8" aria-labelledby="favorites-title">
-      <SectionHeading
-        as="h1"
-        id="favorites-title"
-        title="Favoritos"
-        description="Os NFTs que você marcou ficam salvos na sua conta."
-      />
+    <section className="container-page pt-8" aria-labelledby="favorites-title">
+      <h1 id="favorites-title" className="section-title hairline pb-3">
+        Lista de interesse
+      </h1>
       <div className="mt-6">
         {favorites.isPending ? (
           <ul
-            className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4"
+            className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-[34px]"
             aria-busy="true"
           >
             {Array.from({ length: 4 }).map((_, i) => (
@@ -59,7 +56,7 @@ function FavoritesPage() {
           />
         ) : (
           <ul
-            className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4"
+            className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-[34px]"
             data-testid="favorites-grid"
           >
             {favorites.data.items.map((nft) => (

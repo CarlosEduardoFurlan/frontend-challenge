@@ -1,16 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { AlertCircle, AlertTriangle, RefreshCw, ShieldCheck } from 'lucide-react'
+import { AlertCircle, AlertTriangle, RefreshCw } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { Breadcrumbs } from '@/components/shared/Breadcrumbs'
+import { MobileTopBar } from '@/components/shared/MobileChrome'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { announce } from '@/components/shared/LiveAnnouncer'
-import { SectionHeading } from '@/components/shared/SectionHeading'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   Form,
@@ -27,6 +27,7 @@ import { useQuote } from '@/features/cart/hooks'
 import { QuoteSummary } from '@/features/cart/components/QuoteSummary'
 import { profileQuery } from '@/features/profile/hooks'
 import { useWallets } from '@/features/wallets/hooks'
+import { DESKTOP_QUERY, useMediaQuery } from '@/hooks/use-media-query'
 import { queryKeys } from '@/lib/query-keys'
 import { isApiError, toApiError } from '@/services/api/errors'
 import type { NetworkId, Quote, User } from '@/types/api'
@@ -41,7 +42,13 @@ interface CheckoutPageProps {
   user: User
 }
 
+/**
+ * Figma "Desktop / Pagamento" (11:2862) and "Mobile / Pagamento" (16:748): breadcrumb,
+ * "Perfil do colecionador" two-column form on the left; "Seus NFTs" lines, totals, "Carteira e
+ * rede" options and the "Confirmar compra" button on the right.
+ */
 export function CheckoutPage({ user }: CheckoutPageProps) {
+  const isDesktop = useMediaQuery(DESKTOP_QUERY)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const initialDraft = useMemo(() => readDraft(user.id), [user.id])
@@ -152,22 +159,20 @@ export function CheckoutPage({ user }: CheckoutPageProps) {
     }
     // One key per attempt, reused on retries (timeouts, transient errors).
     idempotencyKey.current ??= newIdempotencyKey()
+    const body = {
+      quoteId: latest.quoteId,
+      quoteVersion: latest.quoteVersion,
+      walletId,
+      network,
+      collector: {
+        name: input.name,
+        email: input.email,
+        document: input.document.replace(/\D/g, ''),
+      },
+      acceptedTerms: true as const,
+    }
     try {
-      const order = await createOrder.mutateAsync({
-        idempotencyKey: idempotencyKey.current,
-        body: {
-          quoteId: latest.quoteId,
-          quoteVersion: latest.quoteVersion,
-          walletId,
-          network,
-          collector: {
-            name: input.name,
-            email: input.email,
-            document: input.document.replace(/\D/g, ''),
-          },
-          acceptedTerms: true,
-        },
-      })
+      const order = await createOrder.mutateAsync({ idempotencyKey: idempotencyKey.current, body })
       clearDraft()
       void queryClient.invalidateQueries({ queryKey: ['cart'] })
       await navigate({ to: '/orders/$orderId', params: { orderId: order.id }, replace: true })
@@ -180,18 +185,7 @@ export function CheckoutPage({ user }: CheckoutPageProps) {
         try {
           const recovered = await createOrder.mutateAsync({
             idempotencyKey: idempotencyKey.current,
-            body: {
-              quoteId: latest.quoteId,
-              quoteVersion: latest.quoteVersion,
-              walletId,
-              network,
-              collector: {
-                name: input.name,
-                email: input.email,
-                document: input.document.replace(/\D/g, ''),
-              },
-              acceptedTerms: true,
-            },
+            body,
           })
           clearDraft()
           void queryClient.invalidateQueries({ queryKey: ['cart'] })
@@ -231,19 +225,34 @@ export function CheckoutPage({ user }: CheckoutPageProps) {
     }
   }
 
+  // Mobile frame 16:748 opens with a round back button and the centred "Pagamento com carteira".
+  const breadcrumbs = isDesktop ? (
+    <Breadcrumbs
+      items={[
+        { label: 'Início', to: '/' },
+        { label: 'Mercado', to: '/', hash: 'catalogo' },
+        { label: 'Pagamento' },
+      ]}
+    />
+  ) : (
+    <MobileTopBar title="Pagamento com carteira" backTo="/cart" className="-mx-6 -mt-4" />
+  )
+
   if (wallets.isPending || profile.isPending || quote.cart.isPending) {
     return (
-      <div
-        className="container-page grid gap-6 py-8 lg:grid-cols-[minmax(0,1fr)_24rem]"
-        aria-busy="true"
-        aria-label="Carregando pagamento"
-      >
-        <div className="flex flex-col gap-4">
-          <Skeleton className="h-8 w-48" />
-          <Skeleton className="h-56 w-full rounded-xl" />
-          <Skeleton className="h-56 w-full rounded-xl" />
+      <div className="container-page pt-8" aria-busy="true" aria-label="Carregando pagamento">
+        {breadcrumbs}
+        <div className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_405px] lg:gap-8">
+          <div className="flex flex-col gap-6">
+            <Skeleton className="h-6 w-56" />
+            <div className="grid gap-6 sm:grid-cols-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          </div>
+          <Skeleton className="h-96 w-full rounded-lg" />
         </div>
-        <Skeleton className="h-96 w-full rounded-xl" />
       </div>
     )
   }
@@ -280,103 +289,88 @@ export function CheckoutPage({ user }: CheckoutPageProps) {
   }
 
   return (
-    <section className="container-page py-8" aria-labelledby="checkout-title">
-      <SectionHeading
-        as="h1"
-        id="checkout-title"
-        title="Pagamento"
-        description="Confira seus dados, conecte a carteira e revise o pedido."
-      />
+    <section className="container-page pt-8" aria-labelledby="checkout-title">
+      {breadcrumbs}
 
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           noValidate
-          className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start"
+          className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[minmax(0,1fr)_405px] lg:gap-8"
           data-testid="checkout-form"
         >
           <div className="flex flex-col gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>1. Dados do colecionador</CardTitle>
-                <CardDescription>Usados no recibo da compra simulada.</CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-5 sm:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome completo</FormLabel>
-                      <FormControl>
-                        <Input autoComplete="name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>E-mail</FormLabel>
-                      <FormControl>
-                        <Input type="email" autoComplete="email" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="document"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>CPF</FormLabel>
-                      <FormControl>
-                        <Input
-                          inputMode="numeric"
-                          autoComplete="off"
-                          placeholder="000.000.000-00"
-                          {...field}
-                          onChange={(event) => field.onChange(formatCpf(event.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
+            {isDesktop ? (
+              <h1 id="checkout-title" className="text-lg leading-none font-bold">
+                Perfil do colecionador
+              </h1>
+            ) : (
+              <h2 id="checkout-title" className="text-lg leading-none font-bold">
+                Perfil do colecionador
+              </h2>
+            )}
+            <div className="grid gap-x-6 gap-y-6 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel required>Nome completo</FormLabel>
+                    <FormControl>
+                      <Input autoComplete="name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel required>E-mail</FormLabel>
+                    <FormControl>
+                      <Input type="email" autoComplete="email" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="document"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel required>CPF</FormLabel>
+                    <FormControl>
+                      <Input
+                        inputMode="numeric"
+                        autoComplete="off"
+                        placeholder="000.000.000-00"
+                        {...field}
+                        onChange={(event) => field.onChange(formatCpf(event.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>2. Carteira e rede</CardTitle>
-                <CardDescription>
-                  Escolha uma carteira cadastrada e simule a conexão.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <WalletSelector
-                  wallets={wallets.data}
-                  walletId={walletId}
-                  network={network}
-                  connection={connection.state}
-                  onWalletChange={setWalletId}
-                  onNetworkChange={setNetwork}
-                  onConnect={() => walletId && void connection.connect(walletId, network)}
-                />
-              </CardContent>
-            </Card>
+            <WalletSelector
+              wallets={wallets.data}
+              walletId={walletId}
+              network={network}
+              connection={connection.state}
+              onWalletChange={setWalletId}
+              onNetworkChange={setNetwork}
+              onConnect={() => walletId && void connection.connect(walletId, network)}
+            />
           </div>
 
-          <aside
-            className="flex flex-col gap-5 rounded-xl border border-border bg-card p-5 lg:sticky lg:top-20"
-            aria-labelledby="review-title"
-          >
-            <h2 id="review-title" className="font-display text-sm uppercase">
-              3. Revisão do pedido
+          <aside className="flex flex-col gap-5" aria-labelledby="review-title">
+            <h2 id="review-title" className="text-lg leading-none font-bold">
+              Seus NFTs
             </h2>
 
             {quote.isError ? (
@@ -401,6 +395,16 @@ export function CheckoutPage({ user }: CheckoutPageProps) {
               <Skeleton className="h-24 w-full" />
             )}
 
+            <p className="text-center text-sm">
+              Tem um código promocional?{' '}
+              <Link
+                to="/cart"
+                className="text-text-accent underline underline-offset-4 outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                Aplique no carrinho
+              </Link>
+            </p>
+
             {quoteStale ? (
               <Alert variant="warning" data-testid="quote-stale">
                 <AlertTriangle aria-hidden="true" />
@@ -414,7 +418,7 @@ export function CheckoutPage({ user }: CheckoutPageProps) {
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="mt-2"
+                    className="mt-2 text-sm"
                     onClick={() => acknowledgeQuote(quote.data)}
                     data-testid="acknowledge-quote"
                   >
@@ -429,7 +433,7 @@ export function CheckoutPage({ user }: CheckoutPageProps) {
                 <AlertTriangle aria-hidden="true" />
                 <AlertDescription>
                   Um item ficou indisponível.{' '}
-                  <Link to="/cart" className="font-medium underline-offset-4 hover:underline">
+                  <Link to="/cart" className="font-bold underline underline-offset-4">
                     Ajustar o carrinho
                   </Link>
                 </AlertDescription>
@@ -447,15 +451,16 @@ export function CheckoutPage({ user }: CheckoutPageProps) {
               name="acceptedTerms"
               render={({ field }) => (
                 <FormItem>
-                  <div className="flex items-start gap-2">
+                  <div className="flex items-start gap-3">
                     <FormControl>
                       <Checkbox
                         checked={field.value === true}
                         onCheckedChange={(checked) => field.onChange(checked === true)}
+                        className="mt-0.5"
                         data-testid="accept-terms"
                       />
                     </FormControl>
-                    <FormLabel className="cursor-pointer leading-snug font-normal">
+                    <FormLabel className="cursor-pointer text-sm leading-5 font-normal">
                       Li e aceito os termos da compra simulada. Nenhum valor real é cobrado.
                     </FormLabel>
                   </div>
@@ -473,12 +478,13 @@ export function CheckoutPage({ user }: CheckoutPageProps) {
 
             <Button
               type="submit"
-              size="lg"
+              className="w-full lg:h-10 lg:rounded-md lg:bg-primary lg:bg-none lg:text-base"
+              size="pill"
               disabled={!canSubmit}
               loading={createOrder.isPending}
               data-testid="confirm-order"
             >
-              <ShieldCheck aria-hidden="true" /> Confirmar pedido
+              Confirmar compra
             </Button>
             <p className="text-xs text-muted-foreground">
               {connection.state.status !== 'connected'

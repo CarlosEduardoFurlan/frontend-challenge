@@ -5,13 +5,14 @@ import { cn } from '@/lib/utils'
 
 const Tabs = TabsPrimitive.Root
 
+/** Figma tabs (detail frame): 15px medium labels, active one in text-accent with a 2px primary underline. */
 const TabsList = forwardRef<
   ElementRef<typeof TabsPrimitive.List>,
   ComponentPropsWithoutRef<typeof TabsPrimitive.List>
 >(({ className, ...props }, ref) => (
   <TabsPrimitive.List
     ref={ref}
-    className={cn('inline-flex h-10 items-center gap-1 border-b border-border', className)}
+    className={cn('hairline flex items-end gap-6 overflow-x-auto', className)}
     {...props}
   />
 ))
@@ -24,7 +25,7 @@ const TabsTrigger = forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      '-mb-px inline-flex h-10 cursor-pointer items-center border-b-2 border-transparent px-3 text-sm font-medium text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:border-primary data-[state=active]:text-foreground',
+      '-mb-px inline-flex h-10 shrink-0 cursor-pointer items-center border-b-2 border-transparent text-[15px] font-medium whitespace-nowrap text-foreground transition-colors outline-none hover:text-text-accent focus-visible:ring-2 focus-visible:ring-ring/60 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:border-primary data-[state=active]:text-text-accent',
       className,
     )}
     {...props}

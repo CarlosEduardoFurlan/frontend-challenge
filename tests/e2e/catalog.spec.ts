@@ -11,6 +11,14 @@ async function settled(page: Page) {
   await expect(grid(page)).not.toHaveAttribute('aria-busy', 'true')
 }
 
+/** The search field lives behind the header icon (Figma header); open it once per page load. */
+async function openSearch(page: Page) {
+  if (!(await page.getByTestId('catalog-search').isVisible())) {
+    await page.getByTestId('header-search-toggle').click()
+  }
+  await expect(page.getByTestId('catalog-search')).toBeVisible()
+}
+
 /** Opens the filter sheet on mobile; on desktop the filters are always visible in the sidebar. */
 async function openFilters(page: Page) {
   await page.getByTestId('catalog-filters').or(page.getByTestId('open-filters')).first().waitFor()
@@ -27,6 +35,7 @@ test.describe('catalog: search, filters, sorting, pagination and history', () =>
   test('search puts the term in the URL and narrows the results', async ({ app, page }) => {
     await app.goto('/')
     await expect(cards(page)).toHaveCount(9)
+    await openSearch(page)
     await page.getByTestId('catalog-search').fill('Aurora')
     await page.getByTestId('catalog-search-submit').click()
     await expect(page).toHaveURL(/q=Aurora/)
@@ -128,6 +137,7 @@ test.describe('catalog: search, filters, sorting, pagination and history', () =>
 
   test('history restores a previous search term', async ({ app, page }) => {
     await app.goto('/')
+    await openSearch(page)
     await page.getByTestId('catalog-search').fill('Pulso')
     await page.getByTestId('catalog-search-submit').click()
     await expect(cards(page)).toHaveCount(1)

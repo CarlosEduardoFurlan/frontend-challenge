@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -19,12 +18,14 @@ import { Input } from '@/components/ui/input'
 import { applyApiErrors } from '../apply-api-errors'
 import { useRegister } from '../hooks'
 import { registerSchema, type RegisterInput } from '../schemas'
+import { AUTH_BUTTON_CLASS, AUTH_FIELD_CLASS } from './LoginForm'
 import { PasswordInput } from './PasswordInput'
 
 interface RegisterFormProps {
   onSuccess: () => void
 }
 
+/** Figma register fields (placeholder-only): name, e-mail, password, confirmation, "Criar conta". */
 export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const register = useRegister()
   const [formError, setFormError] = useState<string | null>(null)
@@ -68,9 +69,14 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nome completo</FormLabel>
+              <FormLabel className="sr-only">Nome completo</FormLabel>
               <FormControl>
-                <Input autoComplete="name" {...field} />
+                <Input
+                  autoComplete="name"
+                  placeholder="Nome completo"
+                  className={AUTH_FIELD_CLASS}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -82,9 +88,16 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>E-mail</FormLabel>
+              <FormLabel className="sr-only">E-mail</FormLabel>
               <FormControl>
-                <Input type="email" autoComplete="email" inputMode="email" {...field} />
+                <Input
+                  type="email"
+                  autoComplete="email"
+                  inputMode="email"
+                  placeholder="Digite seu e-mail"
+                  className={AUTH_FIELD_CLASS}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -96,11 +109,15 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Senha</FormLabel>
+              <FormLabel className="sr-only">Senha</FormLabel>
               <FormControl>
-                <PasswordInput autoComplete="new-password" {...field} />
+                <PasswordInput
+                  autoComplete="new-password"
+                  placeholder="Senha (mínimo de 8 caracteres)"
+                  className={AUTH_FIELD_CLASS}
+                  {...field}
+                />
               </FormControl>
-              <FormDescription>Mínimo de 8 caracteres, com letras e números.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -111,16 +128,21 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Confirmar senha</FormLabel>
+              <FormLabel className="sr-only">Confirmar senha</FormLabel>
               <FormControl>
-                <PasswordInput autoComplete="new-password" {...field} />
+                <PasswordInput
+                  autoComplete="new-password"
+                  placeholder="Confirmar senha"
+                  className={AUTH_FIELD_CLASS}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit" size="lg" className="w-full" loading={register.isPending}>
+        <Button type="submit" className={AUTH_BUTTON_CLASS} loading={register.isPending}>
           Criar conta
         </Button>
       </form>

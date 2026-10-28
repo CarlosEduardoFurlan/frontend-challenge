@@ -39,7 +39,7 @@ export const test = base.extend<{ app: AppFixture }>({
         await page.goto(withMockParams(path, options?.scenario, options?.reset ?? true))
         // Mocks are installed before React renders; wait for both so helpers can act immediately.
         await page.waitForFunction(() => Boolean(window.__mock))
-        await page.getByRole('banner').waitFor()
+        await page.getByRole('main').waitFor()
       },
       async setScenario(id) {
         await page.waitForFunction(() => Boolean(window.__mock))

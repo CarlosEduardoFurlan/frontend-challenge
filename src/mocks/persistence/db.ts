@@ -89,7 +89,7 @@ export interface MockDb {
   eventSeq: number
 }
 
-const SCHEMA_VERSION = 4
+const SCHEMA_VERSION = 5
 
 let db: MockDb | null = null
 

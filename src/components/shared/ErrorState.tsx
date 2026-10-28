@@ -34,7 +34,7 @@ export function ErrorState({
       data-testid="error-state"
     >
       <AlertTriangle className="size-8 text-destructive" aria-hidden="true" />
-      <h3 className="text-base font-semibold">{title}</h3>
+      <h3 className="text-base font-bold">{title}</h3>
       {message ? <p className="max-w-md text-sm text-muted-foreground">{message}</p> : null}
       {onRetry ? (
         <Button variant="outline" size="sm" onClick={onRetry} loading={retrying} className="mt-1">

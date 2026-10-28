@@ -29,7 +29,8 @@ react-hook-form · Playwright · Lighthouse · ESLint + Prettier.
 ## Pré-requisitos e instalação
 
 - Node.js ≥ 20 (desenvolvido com 24) e npm ≥ 10.
-- Python 3 + Pillow apenas se quiser regenerar as artes (`scripts/generate-artwork.py`).
+- Python 3 + Pillow apenas para reconverter os assets do Figma (`scripts/figma-assets.py`) ou
+  gerar as folhas de comparação (`scripts/figma-compare.py`).
 
 ```bash
 npm ci                      # dependências (lockfile versionado)
@@ -133,20 +134,55 @@ e dos assets). Passos: importar o repositório na Vercel → framework Vite → 
 → output `dist` → sem variáveis obrigatórias. Netlify/Cloudflare Pages funcionam com o mesmo
 build (configure o rewrite `/* → /index.html`).
 
-**URL pública: não publicada neste ambiente.** Não havia credenciais da Vercel (nem CLI/token)
-disponíveis para executar o deploy; a configuração está pronta e a versão publicada deve
-corresponder ao commit da branch `main` após o merge do PR final.
+**URL pública:** <https://jungle-frontend-challenge-snowy.vercel.app> (projeto
+`jungle-frontend-challenge`, publicado pela CLI da Vercel a partir desta branch). A camada MSW e o
+binding Socket.IO fazem parte do build, então o ambiente publicado é autossuficiente.
+
+Fluxo de publicação (nenhum segredo passa pelo chat; a CLI guarda a sessão em
+`%APPDATA%\com.vercel.cli`):
+
+1. `npx vercel login` (abre o navegador).
+2. Preview da branch: `npx vercel`. Produção: `npx vercel --prod` (ou `npx vercel promote <url>`
+   para promover um preview já validado). O `vercel.json` define framework, build, saída, rewrite
+   da SPA e os headers do service worker.
+3. Validar a URL com as mesmas suítes e com a verificação de runtime:
+
+   ```bash
+   REMOTE_BASE_URL=https://<deploy>.vercel.app npx playwright test --config=playwright.remote.config.ts
+   REMOTE_BASE_URL=https://<deploy>.vercel.app node scripts/dev/remote-check.mjs
+   ```
+
+   (no PowerShell, `$env:REMOTE_BASE_URL = "https://<deploy>.vercel.app"` antes dos comandos; no
+   CMD, `set "REMOTE_BASE_URL=https://<deploy>.vercel.app"`). O relatório HTML fica em
+   `playwright-report-remote/`.
+
+Observações da primeira validação pública (2026-10-28):
+
+- Os deployments de **preview** do projeto estão atrás da Vercel Authentication (redirecionam
+  para `vercel.com/sso-api`), então a suíte remota só roda contra produção ou com a proteção
+  desativada/bypass configurado em _Project Settings → Deployment Protection_.
+- O primeiro deploy foi feito com uma saída de build anterior no diretório de trabalho, e a
+  detecção automática de fontes do Tailwind a incluiu no scan: o CSS passou de 66 KB para 77 KB e
+  deixou de ser inlined. As fontes do Tailwind agora são fixas (`src/` e `index.html`), ver
+  `src/app/styles/globals.css`.
+
+A versão publicada deve corresponder ao commit da branch `main` após o merge do PR final.
 
 ## Principais decisões e limitações
 
-- **Figma**: a API do Figma exige token e não havia integração MCP; apenas o thumbnail público
-  foi analisado. A identidade visual (paleta quente escura, laranja, display pixelado) foi derivada
-  dele; **fidelidade pixel a pixel não foi verificada**. Artes dos NFTs são geradas localmente
-  (`scripts/generate-artwork.py`), pois os assets originais não eram acessíveis.
-- **Fontes**: Silkscreen (display) e Inter (texto), locais em `public/fonts` (subconjunto Latin).
+- **Figma**: inspecionado pelo MCP oficial do Figma (arquivo "Frontend Challenge (Copy)"). Tokens,
+  tipografia e assets vêm das variáveis e exports do arquivo. Os 15 frames foram comparados lado
+  a lado: 7 capturados pelo MCP (início, detalhe, carrinho, pagamento, confirmação, carteiras e
+  pagamento mobile) e 8 exportados manualmente do Figma depois que o plano Starter esgotou a cota
+  de 20 chamadas/mês do MCP (login, cadastro, perfil e os mobiles de início, detalhe, carrinho,
+  login e cadastro). Detalhes, comparações e divergências assumidas em
+  [`docs/FIGMA-AUDIT.md`](docs/FIGMA-AUDIT.md).
+- **Fontes**: Roboto Mono (400/500/700), única família do arquivo, local em `public/fonts`
+  (subconjunto Latin). Artes e ícones originais em `public/assets/`.
 - **Socket.IO sobre MSW**: ver limitações do binding e contornos em `ARCHITECTURE.md`.
-- **Lighthouse mobile** no modo simulado fica em 86/83 (meta 90); no modo devtools, 99/96.
-  Causas documentadas em `lighthouse/README.md`.
+- **Lighthouse mobile** atinge a meta nos dois modos (simulate 92/90, devtools 95/92) depois que
+  o React passou a adotar a imagem pré-renderizada; a margem do detalhe mobile simulado é de
+  poucos pontos (`lighthouse/README.md`).
 - **Regressão visual** com baselines versionadas apenas para Windows/Chromium; o CI renderiza em
   Linux e guarda as baselines como artefato.
 - **Pull requests**: não puderam ser abertos automaticamente (sem `gh`/token). Cada branch foi
