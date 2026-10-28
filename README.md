@@ -3,7 +3,7 @@
 Marketplace de NFTs desenvolvido para o desafio técnico de Desenvolvedor Frontend da Jungle
 Gaming. Cobre descoberta, compra e conta do colecionador, nas versões desktop e mobile do Figma,
 com backend inteiramente simulado na camada de rede (MSW) e atualizações em tempo real via
-Socket.IO. O enunciado original está em [`docs/CHALLENGE.md`](docs/CHALLENGE.md).
+Socket.IO. 
 
 ## Demonstração
 
