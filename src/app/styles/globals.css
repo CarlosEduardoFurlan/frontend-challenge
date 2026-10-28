@@ -1,4 +1,13 @@
-@import 'tailwindcss';
+/*
+ * Automatic source detection is disabled: only the app sources and index.html are scanned.
+ * Otherwise a previous build output (dist/, .vercel/output/) or a report folder present in
+ * the build environment is picked up, the utilities bundled in tailwind-merge get emitted and
+ * the stylesheet grows past the inline threshold (seen on the first Vercel deploy: 77 KB,
+ * served as an external file instead of the ~66 KB inlined locally).
+ */
+@import 'tailwindcss' source(none);
+@source '../..';
+@source '../../../index.html';
 
 /*
  * Self-hosted font. The Figma file uses a single family (variable `font/family` = Roboto Mono)
