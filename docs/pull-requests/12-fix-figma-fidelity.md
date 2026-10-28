@@ -1,6 +1,7 @@
 # PR #12 — fix/figma-fidelity → develop
 
-Abrir em: `https://github.com/CarlosEduardoFurlan/frontend-challenge/compare/develop...fix/figma-fidelity?expand=1`
+Aberto como <https://github.com/CarlosEduardoFurlan/frontend-challenge/pull/1> (o "#12" é a
+numeração interna de `docs/BRANCHING.md`).
 
 ## Objetivo e escopo
 
@@ -69,9 +70,17 @@ Google/Facebook não exportadas (ícone e monogramas).
 
 ## Deploy
 
-`vercel deploy --temporary` gerou um deployment anônimo, mas a Vercel o protege (`403`,
-`X-Vercel-Mitigated: deny`) até ser reivindicado; a validação pública exige um deploy autenticado
-(`npx vercel login` + `npx vercel`), ver README.
+Publicado em <https://jungle-frontend-challenge-snowy.vercel.app> (CLI da Vercel). Validação
+pública em 2026-10-28: suíte E2E completa contra a URL (`playwright.remote.config.ts`) com 144/144
+(72 desktop + 72 mobile, sem retries) e verificação de runtime (`scripts/dev/remote-check.mjs`)
+sem erros de console, sem requisições falhas, service worker do MSW ativo, Socket.IO
+`connected`, Roboto Mono 400/700 carregada e todas as imagens servidas de `/assets/`.
+
+Defeito encontrado e corrigido nesta validação (`fix(build)`): o deploy inicial servia o CSS como
+arquivo externo de 77 KB porque o scan automático do Tailwind incluiu uma saída de build anterior
+presente no upload; as fontes do Tailwind passaram a ser explícitas. Os previews do projeto estão
+atrás da Vercel Authentication, então a confirmação do CSS inlined em produção depende de um novo
+`npx vercel --prod` (ou `vercel promote`) a partir deste commit.
 
 ## Testes executados
 

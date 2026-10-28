@@ -134,17 +134,37 @@ e dos assets). Passos: importar o repositório na Vercel → framework Vite → 
 → output `dist` → sem variáveis obrigatórias. Netlify/Cloudflare Pages funcionam com o mesmo
 build (configure o rewrite `/* → /index.html`).
 
-**URL pública: pendente de autenticação na Vercel.** O ambiente de execução não tem sessão da
-Vercel. Um deployment anônimo (`npx vercel deploy --temporary`) foi criado para validação, mas a
-Vercel responde `403` (`X-Vercel-Mitigated: deny`) a qualquer acesso até que ele seja reivindicado
-em uma conta, então não serve como demonstração pública. Para publicar (nenhum segredo passa pelo
-chat):
+**URL pública:** <https://jungle-frontend-challenge-snowy.vercel.app> (projeto
+`jungle-frontend-challenge`, publicado pela CLI da Vercel a partir desta branch). A camada MSW e o
+binding Socket.IO fazem parte do build, então o ambiente publicado é autossuficiente.
 
-1. No terminal, dentro do repositório: `npx vercel login` (abre o navegador e grava a sessão em
-   `%APPDATA%\com.vercel.cli`).
-2. Preview da branch: `npx vercel` (ou produção a partir da `main`: `npx vercel --prod`).
-   O `vercel.json` já define framework, build, saída, rewrite da SPA e os headers do service worker.
-3. Validar a URL com as mesmas suítes: `REMOTE_BASE_URL=https://<deploy>.vercel.app npx playwright test --config=playwright.remote.config.ts`.
+Fluxo de publicação (nenhum segredo passa pelo chat; a CLI guarda a sessão em
+`%APPDATA%\com.vercel.cli`):
+
+1. `npx vercel login` (abre o navegador).
+2. Preview da branch: `npx vercel`. Produção: `npx vercel --prod` (ou `npx vercel promote <url>`
+   para promover um preview já validado). O `vercel.json` define framework, build, saída, rewrite
+   da SPA e os headers do service worker.
+3. Validar a URL com as mesmas suítes e com a verificação de runtime:
+
+   ```bash
+   REMOTE_BASE_URL=https://<deploy>.vercel.app npx playwright test --config=playwright.remote.config.ts
+   REMOTE_BASE_URL=https://<deploy>.vercel.app node scripts/dev/remote-check.mjs
+   ```
+
+   (no PowerShell, `$env:REMOTE_BASE_URL = "https://<deploy>.vercel.app"` antes dos comandos; no
+   CMD, `set "REMOTE_BASE_URL=https://<deploy>.vercel.app"`). O relatório HTML fica em
+   `playwright-report-remote/`.
+
+Observações da primeira validação pública (2026-10-28):
+
+- Os deployments de **preview** do projeto estão atrás da Vercel Authentication (redirecionam
+  para `vercel.com/sso-api`), então a suíte remota só roda contra produção ou com a proteção
+  desativada/bypass configurado em _Project Settings → Deployment Protection_.
+- O primeiro deploy foi feito com uma saída de build anterior no diretório de trabalho, e a
+  detecção automática de fontes do Tailwind a incluiu no scan: o CSS passou de 66 KB para 77 KB e
+  deixou de ser inlined. As fontes do Tailwind agora são fixas (`src/` e `index.html`), ver
+  `src/app/styles/globals.css`.
 
 A versão publicada deve corresponder ao commit da branch `main` após o merge do PR final.
 
