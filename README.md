@@ -5,6 +5,9 @@ backend inteiramente simulado na camada de rede (MSW) e tempo real via Socket.IO
 original está preservado em [`docs/CHALLENGE.md`](docs/CHALLENGE.md); as decisões de
 arquitetura, contratos e limitações estão em [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
+- **Aplicação publicada:** <https://jungle-frontend-challenge-snowy.vercel.app/>
+- **Repositório:** <https://github.com/CarlosEduardoFurlan/frontend-challenge>
+
 ## Visão geral
 
 | Tela                  | Rota                  | Destaques                                                                                   |
@@ -135,8 +138,14 @@ e dos assets). Passos: importar o repositório na Vercel → framework Vite → 
 build (configure o rewrite `/* → /index.html`).
 
 **URL pública:** <https://jungle-frontend-challenge-snowy.vercel.app> (projeto
-`jungle-frontend-challenge`, publicado pela CLI da Vercel a partir desta branch). A camada MSW e o
+`jungle-frontend-challenge`, publicado pela CLI da Vercel a partir da `main`). A camada MSW e o
 binding Socket.IO fazem parte do build, então o ambiente publicado é autossuficiente.
+
+**Versão publicada (2026-10-28):** commit `cc805f6` da `main` (merge do PR #2), deployment
+`dpl_5aAFpQ6CxgUFfXQKKd5JSkX27Lmm` (`jungle-frontend-challenge-hctuax0as.vercel.app`), alias de
+produção apontando para ele. Verificado contra o build local do mesmo commit: `index.html`
+idêntico, os 35 chunks JS byte a byte iguais, CSS inlined (nenhum `<link rel="stylesheet">`),
+`mockServiceWorker.js`, fontes e artes servidos com 200, rotas diretas e refresh funcionando.
 
 Fluxo de publicação (nenhum segredo passa pelo chat; a CLI guarda a sessão em
 `%APPDATA%\com.vercel.cli`):
@@ -156,7 +165,26 @@ Fluxo de publicação (nenhum segredo passa pelo chat; a CLI guarda a sessão em
    CMD, `set "REMOTE_BASE_URL=https://<deploy>.vercel.app"`). O relatório HTML fica em
    `playwright-report-remote/`.
 
-Observações da primeira validação pública (2026-10-28):
+Validação da versão publicada (2026-10-28, `playwright.remote.config.ts`, Chromium desktop +
+mobile, 6 workers, 1 retry):
+
+| Execução | Total | Aprovados | Falhos | Ignorados | Retries                                |
+| -------- | ----: | --------: | -----: | --------: | -------------------------------------- |
+| 1ª       |   144 |       144 |      0 |         0 | 3 (aprovados na 2ª tentativa, "flaky") |
+| 2ª       |   144 |       144 |      0 |         0 | 0                                      |
+
+Os três casos instáveis da 1ª execução (compra completa e reconexão do socket no desktop;
+carrinho de visitante no mobile) falharam na primeira tentativa com uma única requisição POST
+respondida com `net::ERR_FAILED` em ~10 ms enquanto as requisições vizinhas eram mockadas
+normalmente; o cenário `network-error` (que falha todas) não estava ativo e um _passthrough_
+para a Vercel devolveria `405`, não um erro de rede. Repetidos 6 vezes cada, isolados e sem
+retries, passaram 36/36; a 2ª execução completa passou sem retries. Classificação:
+intermitência do caminho service worker → página sob carga paralela, não um defeito da
+aplicação; nenhum teste foi alterado. A verificação de runtime (`scripts/dev/remote-check.mjs`)
+não registrou erros de console, requisições falhas ou HTTP ≥ 400; service worker do MSW ativo,
+Socket.IO `connected` e Roboto Mono carregada em todas as rotas.
+
+Observações da primeira validação pública (2026-10-28, deploy anterior a partir da branch):
 
 - Os deployments de **preview** do projeto estão atrás da Vercel Authentication (redirecionam
   para `vercel.com/sso-api`), então a suíte remota só roda contra produção ou com a proteção
@@ -185,6 +213,7 @@ A versão publicada deve corresponder ao commit da branch `main` após o merge d
   poucos pontos (`lighthouse/README.md`).
 - **Regressão visual** com baselines versionadas apenas para Windows/Chromium; o CI renderiza em
   Linux e guarda as baselines como artefato.
-- **Pull requests**: não puderam ser abertos automaticamente (sem `gh`/token). Cada branch foi
-  publicada no fork e integrada em `develop` com merge `--no-ff`; o conteúdo de cada PR está em
+- **Histórico Git**: branches de funcionalidade integradas em `develop` com merge `--no-ff`;
+  correção de fidelidade visual integrada pelo PR #1 (`fix/figma-fidelity` → `develop`) e entrega
+  final pelo PR #2 (`develop` → `main`), preservando os commits. Os registros anteriores estão em
   `docs/pull-requests/`. Ver [`docs/BRANCHING.md`](docs/BRANCHING.md).
